@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
  * @param colors The colors to be used for the scanner view.
  * @param showUi A boolean indicating whether to show the UI elements of the scanner view.
  * @param scannerController An optional controller for controlling the scanner.
+ * @param filter An optional lambda which can be used to filter out results before receiving a [BarcodeResult]
  * @param result A callback function that is invoked when a barcode is scanned.
  */
 @Composable
@@ -21,5 +22,6 @@ expect fun ScannerView(
     colors: ScannerColors = scannerColors(),
     showUi: Boolean = true,
     scannerController: ScannerController? = null,
+    filter: (Barcode) -> Boolean = { true },
     result: (BarcodeResult) -> Unit,
 )

@@ -42,6 +42,7 @@ actual fun ScannerView(
     colors: ScannerColors,
     showUi: Boolean,
     scannerController: ScannerController?,
+    filter: (Barcode) -> Boolean,
     result: (BarcodeResult) -> Unit,
 ) {
     val context = LocalContext.current
@@ -133,6 +134,7 @@ actual fun ScannerView(
                                 },
                                 onFailed = { result(BarcodeResult.OnFailed(Exception(it))) },
                                 onCanceled = { result(BarcodeResult.OnCanceled) },
+                                filter = filter
                             ),
                         )
 

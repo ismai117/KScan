@@ -45,6 +45,8 @@ import platform.darwin.dispatch_get_main_queue
  * @property onBarcodeSuccess A callback function that is invoked when barcodes are successfully detected.
  * @property onBarcodeFailed A callback function that is invoked when an error occurs during barcode scanning.
  * @property onBarcodeCanceled A callback function that is invoked when barcode scanning is canceled. (Currently not used within this class)
+ * @property filter A callback function that is invoked when barcode result is processed. [onBarcodeSuccess] will only be invoked
+ * if the invocation of this property resolves to true.
  * @property onMaxZoomRatioAvailable A callback function that is invoked with the maximum available zoom ratio for the camera.
  */
 class CameraViewController(
@@ -53,6 +55,7 @@ class CameraViewController(
     private val onBarcodeSuccess: (List<Barcode>) -> Unit,
     private val onBarcodeFailed: (Exception) -> Unit,
     private val onBarcodeCanceled: () -> Unit,
+    private val filter: (Barcode) -> Boolean,
     private val onMaxZoomRatioAvailable: (Float) -> Unit,
 ) : UIViewController(null, null), AVCaptureMetadataOutputObjectsDelegateProtocol {
     private lateinit var captureSession: AVCaptureSession
@@ -179,6 +182,9 @@ class CameraViewController(
                     data = value,
                     format = appSpecificFormat.toString(),
                 )
+
+            if (!filter(barcode)) return
+
             onBarcodeSuccess(listOf(barcode))
             barcodesDetected.clear()
             if (::captureSession.isInitialized && captureSession.isRunning()) {

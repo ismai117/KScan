@@ -53,6 +53,7 @@ class BarcodeAnalyzer(
     private val codeTypes: List<BarcodeFormat>,
     private val onSuccess: (List<Barcode>) -> Unit,
     private val onFailed: (Exception) -> Unit,
+    private val filter: (Barcode) -> Boolean,
     private val onCanceled: () -> Unit,
 ) : ImageAnalysis.Analyzer {
     private val scannerOptions =
@@ -126,6 +127,9 @@ class BarcodeAnalyzer(
                         data = displayValue,
                         format = appSpecificFormat.toString(),
                     )
+
+                if (!filter(detectedAppBarcode)) return
+
                 onSuccess(listOf(detectedAppBarcode))
                 barcodesDetected.clear()
                 hasSuccessfullyProcessedBarcode = true

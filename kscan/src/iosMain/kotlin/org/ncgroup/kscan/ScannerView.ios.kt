@@ -29,6 +29,7 @@ actual fun ScannerView(
     colors: ScannerColors,
     showUi: Boolean,
     scannerController: ScannerController?,
+    filter: (Barcode) -> Boolean,
     result: (BarcodeResult) -> Unit,
 ) {
     var torchEnabled by remember { mutableStateOf(false) }
@@ -76,6 +77,7 @@ actual fun ScannerView(
             CameraViewController(
                 device = captureDevice,
                 codeTypes = codeTypes,
+                filter = filter,
                 onBarcodeSuccess = { scannedBarcodes ->
                     result(BarcodeResult.OnSuccess(scannedBarcodes.first()))
                 },
@@ -87,7 +89,7 @@ actual fun ScannerView(
                 },
                 onMaxZoomRatioAvailable = { maxRatio ->
                     maxZoomRatio = maxRatio
-                },
+                }
             )
         }
 
