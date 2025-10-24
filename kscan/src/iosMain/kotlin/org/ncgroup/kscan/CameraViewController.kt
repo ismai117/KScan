@@ -199,12 +199,10 @@ class CameraViewController(
     fun setZoom(ratio: Float) {
         var locked = false
         try {
-            if (device.lockForConfiguration(null)) {
-                locked = true
+            locked = device.lockForConfiguration(null)
+            if (locked) {
                 val maxZoom = device.activeFormat.videoMaxZoomFactor.toFloat().coerceAtMost(5.0f)
                 device.videoZoomFactor = ratio.toDouble().coerceIn(1.0, maxZoom.toDouble())
-            } else {
-                // Could not acquire configuration lock; nothing to do.
             }
         } catch (e: Exception) {
             NSLog("Failed to update zoom: %@", e.message ?: "unknown")
