@@ -1,35 +1,5 @@
 package org.ncgroup.kscan
 
-enum class BarcodeFormat {
-    FORMAT_CODE_128,
-    FORMAT_CODE_39,
-    FORMAT_CODE_93,
-    FORMAT_CODABAR,
-    FORMAT_EAN_13,
-    FORMAT_EAN_8,
-    FORMAT_ITF,
-    FORMAT_UPC_A,
-    FORMAT_UPC_E,
-    FORMAT_QR_CODE,
-    FORMAT_PDF417,
-    FORMAT_AZTEC,
-    FORMAT_DATA_MATRIX,
-    FORMAT_ALL_FORMATS,
-    TYPE_UNKNOWN,
-    TYPE_CONTACT_INFO,
-    TYPE_EMAIL,
-    TYPE_ISBN,
-    TYPE_PHONE,
-    TYPE_PRODUCT,
-    TYPE_SMS,
-    TYPE_TEXT,
-    TYPE_URL,
-    TYPE_WIFI,
-    TYPE_GEO,
-    TYPE_CALENDAR_EVENT,
-    TYPE_DRIVER_LICENSE,
-}
-
 /**
  * An object that provides access to various barcode formats.
  *
@@ -96,4 +66,35 @@ expect object BarcodeFormats {
     val TYPE_GEO: BarcodeFormat
     val TYPE_CALENDAR_EVENT: BarcodeFormat
     val TYPE_DRIVER_LICENSE: BarcodeFormat
+}
+
+
+enum class BarcodeFormat {
+    FORMAT_CODE_128,
+    FORMAT_CODE_39,
+    FORMAT_CODE_93,
+    FORMAT_CODABAR,
+    FORMAT_EAN_13,
+    FORMAT_EAN_8,
+    FORMAT_ITF,
+    FORMAT_UPC_A,
+    FORMAT_UPC_E,
+    FORMAT_QR_CODE,
+    FORMAT_PDF417,
+    FORMAT_AZTEC,
+    FORMAT_DATA_MATRIX,
+    FORMAT_ALL_FORMATS,
+    TYPE_UNKNOWN,
+    TYPE_CONTACT_INFO,
+    TYPE_EMAIL,
+    TYPE_ISBN,
+    TYPE_PHONE,
+    TYPE_PRODUCT,
+    TYPE_SMS,
+    TYPE_TEXT,
+    TYPE_URL,
+    TYPE_WIFI,
+    TYPE_GEO,
+    TYPE_CALENDAR_EVENT,
+    TYPE_DRIVER_LICENSE,
 }

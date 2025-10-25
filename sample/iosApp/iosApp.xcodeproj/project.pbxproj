@@ -304,7 +304,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"iosApp/Preview Content\"";
-				DEVELOPMENT_TEAM = 76SPPUL5YF;
+				DEVELOPMENT_TEAM = H33574Q9RB;
 				ENABLE_PREVIEWS = YES;
 				"EXCLUDED_ARCHS[sdk=*]" = armv7;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "arm64 !386";
