@@ -49,32 +49,41 @@ actual fun ScannerView(
         return
     }
 
-    fun onTorchChange(enabled: Boolean) {
-        val prev = torchEnabled
-        var locked = false
-        try {
-            if (captureDevice.hasTorch) {
-                locked = captureDevice.lockForConfiguration(null)
-                if (locked) {
-                    captureDevice.torchMode =
-                        if (enabled) AVCaptureTorchModeOn else AVCaptureTorchModeOff
-                    torchEnabled = enabled
-                    scannerController?.torchEnabled = enabled
+    val onTorchChange =
+        remember {
+            { enabled: Boolean ->
+                if (captureDevice.hasTorch) {
+                    val prev = torchEnabled
+                    var locked = false
+                    try {
+                        locked = captureDevice.lockForConfiguration(null)
+                        if (locked) {
+                            captureDevice.torchMode =
+                                if (enabled) AVCaptureTorchModeOn else AVCaptureTorchModeOff
+                            torchEnabled = enabled
+                            scannerController?.torchEnabled = enabled
+                        }
+                    } catch (e: Throwable) {
+                        // Revert state and report
+                        torchEnabled = prev
+                        scannerController?.torchEnabled = prev
+                        result(
+                            BarcodeResult.OnFailed(
+                                RuntimeException(
+                                    e.message ?: "Torch toggle failed", e
+                                )
+                            )
+                        )
+                    } finally {
+                        if (locked) {
+                            captureDevice.unlockForConfiguration()
+                        }
+                    }
                 }
             }
-        } catch (e: Throwable) {
-            // Revert state and report
-            torchEnabled = prev
-            scannerController?.torchEnabled = prev
-            result(BarcodeResult.OnFailed(RuntimeException(e.message ?: "Torch toggle failed", e)))
-        } finally {
-            if (locked) {
-                captureDevice.unlockForConfiguration()
-            }
         }
-    }
 
-    scannerController?.onTorchChange = ::onTorchChange
+    scannerController?.onTorchChange = onTorchChange
 
     val cameraViewController = remember {
         CameraViewController(
@@ -117,7 +126,7 @@ actual fun ScannerView(
                     cameraViewController.dispose()
                 },
                 torchEnabled = torchEnabled,
-                onTorchEnabled = ::onTorchChange,
+                onTorchEnabled = onTorchChange,
                 zoomRatio = zoomRatio,
                 zoomRatioOnChange = { ratio ->
                     cameraViewController.setZoom(ratio)
