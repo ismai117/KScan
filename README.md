@@ -44,7 +44,7 @@ Add the dependency in your common module's commonMain source set
 <br>
 
 ```Kotlin
-implementation("io.github.ismai117:KScan:0.3.2")
+implementation("io.github.ismai117:KScan:0.4.0")
 ```
 
 <br>
