@@ -1,10 +1,8 @@
 rootProject.name = "KScan"
 
 include(":sample:androidApp")
-include(":kscan")
-include(":sample:desktopApp")
 include(":sample:shared")
-include(":sample:webApp")
+include(":kscan")
 
 pluginManagement {
     repositories {
