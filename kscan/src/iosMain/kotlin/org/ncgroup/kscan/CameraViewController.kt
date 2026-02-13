@@ -36,6 +36,9 @@ import platform.UIKit.UIInterfaceOrientationLandscapeLeft
 import platform.UIKit.UIInterfaceOrientationLandscapeRight
 import platform.UIKit.UIInterfaceOrientationPortraitUpsideDown
 import platform.UIKit.UIViewController
+import platform.darwin.DISPATCH_QUEUE_PRIORITY_DEFAULT
+import platform.darwin.dispatch_async
+import platform.darwin.dispatch_get_global_queue
 import platform.darwin.dispatch_get_main_queue
 
 /**
@@ -103,7 +106,9 @@ class CameraViewController(
 
         setupMetadataOutput(metadataOutput)
         setupPreviewLayer()
-        captureSession.startRunning()
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT.toLong(), 0u)) {
+            captureSession.startRunning()
+        }
     }
 
     private fun setupMetadataOutput(metadataOutput: AVCaptureMetadataOutput) {
@@ -128,15 +133,19 @@ class CameraViewController(
 
     override fun viewWillAppear(animated: Boolean) {
         super.viewWillAppear(animated)
-        if (!captureSession.isRunning()) {
-            captureSession.startRunning()
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT.toLong(), 0u)) {
+            if (!captureSession.isRunning()) {
+                captureSession.startRunning()
+            }
         }
     }
 
     override fun viewWillDisappear(animated: Boolean) {
         super.viewWillDisappear(animated)
-        if (captureSession.isRunning()) {
-            captureSession.stopRunning()
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT.toLong(), 0u)) {
+            if (captureSession.isRunning()) {
+                captureSession.stopRunning()
+            }
         }
     }
 
@@ -189,8 +198,10 @@ class CameraViewController(
 
             onBarcodeSuccess(listOf(barcode))
             barcodesDetected.clear()
-            if (::captureSession.isInitialized && captureSession.isRunning()) {
-                captureSession.stopRunning()
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT.toLong(), 0u)) {
+                if (::captureSession.isInitialized && captureSession.isRunning()) {
+                    captureSession.stopRunning()
+                }
             }
         }
     }
@@ -273,19 +284,22 @@ class CameraViewController(
     val ALL_SUPPORTED_AV_TYPES: List<AVMetadataObjectType> = AV_TO_APP_FORMAT_MAP.keys.toList()
 
     fun dispose() {
-        // Best-effort cleanup to avoid retaining camera resources
-        runCatching {
-            if (::captureSession.isInitialized) {
-                if (captureSession.isRunning()) captureSession.stopRunning()
-                // Remove inputs/outputs to break potential retain cycles
-                (captureSession.outputs as? List<AVCaptureOutput>)?.forEach { output ->
-                    runCatching { captureSession.removeOutput(output) }
-                }
-                (captureSession.inputs as? List<AVCaptureDeviceInput>)?.forEach { input ->
-                    runCatching { captureSession.removeInput(input) }
+        // Stop capture session on background thread to avoid UI unresponsiveness
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT.toLong(), 0u)) {
+            runCatching {
+                if (::captureSession.isInitialized) {
+                    if (captureSession.isRunning()) captureSession.stopRunning()
+                    // Remove inputs/outputs to break potential retain cycles
+                    (captureSession.outputs as? List<AVCaptureOutput>)?.forEach { output ->
+                        runCatching { captureSession.removeOutput(output) }
+                    }
+                    (captureSession.inputs as? List<AVCaptureDeviceInput>)?.forEach { input ->
+                        runCatching { captureSession.removeInput(input) }
+                    }
                 }
             }
         }
+        // UI cleanup on main thread
         runCatching {
             if (::previewLayer.isInitialized) {
                 previewLayer.removeFromSuperlayer()
