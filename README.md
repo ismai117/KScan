@@ -1,191 +1,122 @@
+# KScan
+
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Latest release](https://img.shields.io/github/v/release/ismai117/KScan?color=brightgreen&label=latest%20release)](https://github.com/ismai117/KScan/releases/latest)
-[![Latest build](https://img.shields.io/github/v/release/ismai117/KScan?color=orange&include_prereleases&label=latest%20build)](https://github.com/ismai117/KScan/releases)
-<br>
- 
-<h1 align="center">KScan</h1></br>
 
-<p align="center">
-Compose Multiplatform Barcode Scanning Library
-</p>
+A Compose Multiplatform barcode scanning library for Android and iOS.
 
-<p align="center">
-  <img alt="Platform Android" src="https://img.shields.io/badge/Platform-Android-brightgreen"/>
-  <img alt="Platform iOS" src="https://img.shields.io/badge/Platform-iOS-lightgray"/>
-</p>
+| Android | iOS |
+|---------|-----|
+| ![Android](https://github.com/user-attachments/assets/9bce6d77-4028-4a45-b4a2-ad78e79cc0cd) | ![iOS](https://github.com/user-attachments/assets/36900489-dea0-456b-bd17-00fcb49f9701) |
 
-<br>
+## Installation
 
-<table align="center">
-  <tr>
-    <th>Android</th>
-    <th>iOS</th>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="https://github.com/user-attachments/assets/9bce6d77-4028-4a45-b4a2-ad78e79cc0cd" height="600" />
-    </td>
-    <td align="center">
-      <img src="https://github.com/user-attachments/assets/36900489-dea0-456b-bd17-00fcb49f9701" height="600" />
-    </td>
-  </tr>
-</table>
+Add the dependency to your `commonMain` source set:
 
-<br>
-
-<strong>KScan is a Compose Multiplatform library that makes it easy to scan barcodes in your apps</strong>
-
-<br>
-
-<strong>To integrate KScan into your project</strong>
-
-Add the dependency in your common module's commonMain source set
-
-<br>
-
-```Kotlin
+```kotlin
 implementation("io.github.ismai117:KScan:0.5.0")
 ```
 
-<br>
+## Platform Setup
 
-<strong>Android - MLKit</strong>
-- Uses Google’s MLKit library for barcode scanning on Android
+**Android** - Uses Google ML Kit for barcode scanning.
 
-<strong>iOS - AVFoundation</strong>
-- Utilizes Apple’s AVFoundation framework for camera setup and barcode scanning on iOS
+**iOS** - Uses AVFoundation for camera and barcode scanning. Add this to your `Info.plist`:
 
-<br>
-Important: iOS requires you to add the "Privacy - Camera Usage Description" key to your Info.plist file inside xcode, you need to provide a reason for why you want to access the camera.
-</br>
+```xml
+<key>NSCameraUsageDescription</key>
+<string>Camera access is required for barcode scanning</string>
+```
 
-</br>
+## Usage
 
-<strong>Basic Usage</strong>
+### Basic
 
-To use KScan, simply add the ScannerView in your app like this:
-
-```Kotlin
-if (showScanner) {
-    ScannerView(
-        codeTypes = listOf(
-            BarcodeFormat.FORMAT_QR_CODE,
-            BarcodeFormat.FORMAT_EAN_13,
-        )
-    ) { result ->
-        when (result) {
-            is BarcodeResult.OnSuccess -> {
-                println("Barcode: ${result.barcode.data}, format: ${result.barcode.format}")
-            }
-            is BarcodeResult.OnFailed -> {
-                println("error: ${result.exception.message}")
-            }
-            BarcodeResult.OnCanceled -> {
-                println("scan canceled")
-            }
+```kotlin
+ScannerView(
+    codeTypes = listOf(BarcodeFormat.FORMAT_QR_CODE, BarcodeFormat.FORMAT_EAN_13)
+) { result ->
+    when (result) {
+        is BarcodeResult.OnSuccess -> {
+            println("Barcode: ${result.barcode.data}")
+        }
+        is BarcodeResult.OnFailed -> {
+            println("Error: ${result.exception.message}")
+        }
+        BarcodeResult.OnCanceled -> {
+            println("Canceled")
         }
     }
 }
 ```
 
-To dismiss the scanner, you need to manage your own state, set it to <strong>false</strong> in the right places inside the <strong>ScannerView</strong> block after you handle the results
+### Without Default UI
 
-```Kotlin
-if (showScanner) {
-    ScannerView(
-        codeTypes = listOf(
-            BarcodeFormat.FORMAT_QR_CODE,
-            BarcodeFormat.FORMAT_EAN_13,
-        )
-    ) { result ->
-        when (result) {
-            is BarcodeResult.OnSuccess -> {
-                println("Barcode: ${result.barcode.data}, format: ${result.barcode.format}")
-                showScanner = false
-            }
-            is BarcodeResult.OnFailed -> {
-                println("Error: ${result.exception.message}")
-                showScanner = false
-            }
-            BarcodeResult.OnCanceled -> {
-                showScanner = false
-            }
-        }
-    }
+```kotlin
+ScannerView(
+    codeTypes = listOf(BarcodeFormat.FORMAT_QR_CODE),
+    scannerUiOptions = null
+) { result ->
+    // handle result
 }
 ```
 
-If you want to remove the UI and just use the raw scanner, you can set the scannerUiOptions parameter to `null`
+### Custom Controls
 
-```Kotlin
-if (showScanner) {
-    ScannerView(
-        codeTypes = listOf(
-            BarcodeFormat.FORMAT_QR_CODE,
-            BarcodeFormat.FORMAT_EAN_13,
-        ),
-        scannerUiOptions = null
-    ) { result ->
-        when (result) {
-            is BarcodeResult.OnSuccess -> {
-                println("Barcode: ${result.barcode.data}, format: ${result.barcode.format}")
-                showScanner = false
-            }
-            is BarcodeResult.OnFailed -> {
-                println("Error: ${result.exception.message}")
-                showScanner = false
-            }
-            BarcodeResult.OnCanceled -> {
-                showScanner = false
-            }
-        }
-    }
-}
-```
+Use `ScannerController` for torch and zoom:
 
-To build a custom scanner UI with torch and zoom control, set `scannerUiOptions = null` and use a ScannerController.
-
-```Kotlin
+```kotlin
 val scannerController = remember { ScannerController() }
 
-if (showScanner) {
-    ScannerView(
-        codeTypes = listOf(BarcodeFormat.FORMAT_ALL_FORMATS),
-        scannerUiOptions = null,
-        scannerController = scannerController
-    ) { result ->
-        when (result) {
-            is BarcodeResult.OnSuccess -> {
-                println("Barcode: ${result.barcode.data}, format: ${result.barcode.format}")
-                showScanner = false
-            }
-            is BarcodeResult.OnFailed -> {
-                println("Error: ${result.exception.message}")
-                showScanner = false
-            }
-            BarcodeResult.OnCanceled -> {
-                showScanner = false
-            }
-        }
-    }
-
-    Column(
-        modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Button(onClick = {
-            scannerController.setTorch(!scannerController.torchEnabled)
-        }) {
-            Text("Torch ${if (scannerController.torchEnabled) "On" else "Off"}")
-        }
-        Slider(
-            value = scannerController.zoomRatio,
-            onValueChange = scannerController::setZoom,
-            valueRange = 1f..scannerController.maxZoomRatio
-        )
-    }
+ScannerView(
+    codeTypes = listOf(BarcodeFormat.FORMAT_ALL_FORMATS),
+    scannerUiOptions = null,
+    scannerController = scannerController
+) { result ->
+    // handle result
 }
+
+// Torch control
+Button(onClick = { scannerController.setTorch(!scannerController.torchEnabled) }) {
+    Text("Toggle Torch")
+}
+
+// Zoom control
+Slider(
+    value = scannerController.zoomRatio,
+    onValueChange = scannerController::setZoom,
+    valueRange = 1f..scannerController.maxZoomRatio
+)
 ```
+
+## Supported Formats
+
+| 1D Barcodes | 2D Barcodes |
+|-------------|-------------|
+| CODE_128 | QR_CODE |
+| CODE_39 | AZTEC |
+| CODE_93 | DATA_MATRIX |
+| CODABAR | PDF417 |
+| EAN_13 | |
+| EAN_8 | |
+| ITF | |
+| UPC_A | |
+| UPC_E | |
+
+Use `BarcodeFormat.FORMAT_ALL_FORMATS` to scan all supported types.
+
+## License
+
+```
+Copyright 2024 ismai117
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+```
+
 ## Contributing
 
-If you’d like to contribute, whether it’s fixing bugs, improving documentation, adding features, or helping with maintenance, your support is greatly appreciated!  
+Contributions are welcome! Feel free to open issues or submit pull requests.
