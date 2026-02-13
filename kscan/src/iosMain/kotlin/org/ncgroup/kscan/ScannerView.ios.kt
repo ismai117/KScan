@@ -1,6 +1,5 @@
 package org.ncgroup.kscan
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -113,30 +112,27 @@ actual fun ScannerView(
 
     scannerController?.maxZoomRatio = maxZoomRatio
 
-    Box(modifier = modifier) {
+    ScannerViewContent(
+        modifier = modifier,
+        colors = colors,
+        scannerUiOptions = scannerUiOptions,
+        torchEnabled = torchEnabled,
+        onTorchEnabled = onTorchChange,
+        zoomRatio = zoomRatio,
+        onZoomChange = { ratio ->
+            cameraViewController.setZoom(ratio)
+            zoomRatio = ratio
+        },
+        maxZoomRatio = maxZoomRatio,
+        onCancel = {
+            result(BarcodeResult.OnCanceled)
+            cameraViewController.dispose()
+        },
+    ) {
         UIKitViewController(
             factory = { cameraViewController },
             modifier = Modifier.fillMaxSize(),
         )
-
-        if (scannerUiOptions != null) {
-            ScannerUI(
-                onCancel = {
-                    result(BarcodeResult.OnCanceled)
-                    cameraViewController.dispose()
-                },
-                torchEnabled = torchEnabled,
-                onTorchEnabled = onTorchChange,
-                zoomRatio = zoomRatio,
-                zoomRatioOnChange = { ratio ->
-                    cameraViewController.setZoom(ratio)
-                    zoomRatio = ratio
-                },
-                maxZoomRatio = maxZoomRatio,
-                colors = colors,
-                options = scannerUiOptions,
-            )
-        }
     }
 
     DisposableEffect(Unit) {
