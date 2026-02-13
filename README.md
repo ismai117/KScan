@@ -69,8 +69,8 @@ To use KScan, simply add the ScannerView in your app like this:
 if (showScanner) {
     ScannerView(
         codeTypes = listOf(
-            BarcodeFormats.FORMAT_QR_CODE,
-            BarcodeFormats.FORMAT_EAN_13,
+            BarcodeFormat.FORMAT_QR_CODE,
+            BarcodeFormat.FORMAT_EAN_13,
         )
     ) { result ->
         when (result) {
@@ -94,8 +94,8 @@ To dismiss the scanner, you need to manage your own state, set it to <strong>fal
 if (showScanner) {
     ScannerView(
         codeTypes = listOf(
-            BarcodeFormats.FORMAT_QR_CODE,
-            BarcodeFormats.FORMAT_EAN_13,
+            BarcodeFormat.FORMAT_QR_CODE,
+            BarcodeFormat.FORMAT_EAN_13,
         )
     ) { result ->
         when (result) {
@@ -121,8 +121,8 @@ If you want to remove the UI and just use the raw scanner, you can set the scann
 if (showScanner) {
     ScannerView(
         codeTypes = listOf(
-            BarcodeFormats.FORMAT_QR_CODE,
-            BarcodeFormats.FORMAT_EAN_13,
+            BarcodeFormat.FORMAT_QR_CODE,
+            BarcodeFormat.FORMAT_EAN_13,
         ),
         scannerUiOptions = null
     ) { result ->
