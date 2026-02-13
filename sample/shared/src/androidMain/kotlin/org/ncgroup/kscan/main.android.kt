@@ -15,8 +15,6 @@ import dev.icerock.moko.permissions.compose.BindEffect
 import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
 import org.ncgroup.kscan.permissions.PermissionsViewModel
 
-actual fun getPlatformName(): String = "Android"
-
 @Composable
 fun MainView() {
     val factory = rememberPermissionsControllerFactory()
