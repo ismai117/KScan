@@ -13,7 +13,7 @@ dokka = "2.1.0"
 klint = "13.1.0"
 maven-publish = "0.34.0"
 mlkitBarcodeScanning-android = "17.3.0"
-androidx-camera = "1.5.1"
+androidx-camera = "1.5.3"
 moko = "0.20.1"
 
 [libraries]
