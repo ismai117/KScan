@@ -1,26 +1,12 @@
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
 }
 
-kotlin {
-    androidTarget()
-    sourceSets {
-        val androidMain by getting {
-            dependencies {
-                implementation(project(":sample:shared"))
-            }
-        }
-    }
-}
-
 android {
     compileSdk = libs.versions.android.compileSdk.get().toInt()
-    namespace = "org.ncgroup.kscan"
-
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+    namespace = "org.ncgroup.kscan.app"
 
     defaultConfig {
         applicationId = "org.ncgroup.kscan"
@@ -33,4 +19,8 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+}
+
+dependencies {
+    implementation(project(":sample:shared"))
 }

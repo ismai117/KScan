@@ -1,19 +1,19 @@
 [versions]
-agp = "8.13.0"
-kotlin = "2.2.21"
+agp = "9.0.1"
+kotlin = "2.3.10"
+compose = "1.10.1"
 android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "36"
-androidx-activityCompose = "1.11.0"
+androidx-activityCompose = "1.12.4"
 androidx-appcompat = "1.7.1"
 androidx-core-ktx = "1.17.0"
-androidx-lifecycle = "2.9.5"
-compose-plugin = "1.9.1"
-dokka = "2.1.0"
-klint = "13.1.0"
-maven-publish = "0.34.0"
-mlkitBarcodeScanning-android = "17.3.0"
+androidx-lifecycle = "2.9.6"
 androidx-camera = "1.5.3"
+dokka = "2.1.0"
+klint = "14.0.1"
+maven-publish = "0.36.0"
+mlkitBarcodeScanning-android = "17.3.0"
 moko = "0.20.1"
 
 [libraries]
@@ -31,6 +31,13 @@ androidx-camera-extensions = { group = "androidx.camera", name = "camera-extensi
 androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "androidx-camera" }
 androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "androidx-camera" }
 
+compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose" }
+compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose" }
+compose-material3 = { module = "org.jetbrains.compose.material3:material3", version = "1.10.0-alpha05" }
+compose-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version = "1.7.3" }
+compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose" }
+compose-ui-test = { module = "org.jetbrains.compose.ui:ui-test", version.ref = "compose" }
+
 moko-permissions = { module = "dev.icerock.moko:permissions-camera", version.ref = "moko" }
 moko-permissions-compose = { module = "dev.icerock.moko:permissions-compose", version.ref = "moko" }
 
@@ -39,8 +46,8 @@ camera = ["androidx-camera-core", "androidx-camera-lifecycle", "androidx-camera-
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
-androidLibrary = { id = "com.android.library", version.ref = "agp" }
-jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
+androidKmpLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
+jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }

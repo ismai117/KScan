@@ -1,10 +1,5 @@
-rootProject.name = "KScan"
-
-include(":sample:androidApp")
-include(":sample:shared")
-include(":kscan")
-
 pluginManagement {
+    includeBuild("gradle/build-logic")
     repositories {
         gradlePluginPortal()
         mavenCentral()
@@ -24,3 +19,9 @@ dependencyResolutionManagement {
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
 }
+
+rootProject.name = "KScan"
+
+include(":kscan")
+include(":sample:shared")
+include(":sample:androidApp")
