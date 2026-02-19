@@ -10,3 +10,6 @@ build/
 sample/iosApp/iosApp.xcodeproj/*
 !sample/iosApp/iosApp.xcodeproj/project.pbxproj
 .kotlin
+
+# Local documentation
+QR_PAYLOAD_PARSER_EXPLAINED.md
