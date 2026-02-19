@@ -18,6 +18,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -63,6 +64,8 @@ actual fun ScannerView(
     var zoomRatio by remember { mutableStateOf(1f) }
     var maxZoomRatio by remember { mutableStateOf(1f) }
 
+    val updatedResult by rememberUpdatedState(result)
+
     LaunchedEffect(camera) {
         camera?.cameraInfo?.torchState?.observe(lifecycleOwner) {
             torchEnabled = it == TorchState.ON
@@ -89,7 +92,7 @@ actual fun ScannerView(
 
     LaunchedEffect(initializationError) {
         if (initializationError != null) {
-            result(BarcodeResult.OnFailed(Exception(initializationError)))
+            updatedResult(BarcodeResult.OnFailed(Exception(initializationError)))
         }
     }
 
@@ -104,7 +107,7 @@ actual fun ScannerView(
         zoomRatio = zoomRatio,
         onZoomChange = { cameraControl?.setZoomRatio(it) },
         maxZoomRatio = maxZoomRatio,
-        onCancel = { result(BarcodeResult.OnCanceled) },
+        onCancel = { updatedResult(BarcodeResult.OnCanceled) },
     ) {
         AndroidView(
             modifier = Modifier.fillMaxSize(),
@@ -136,14 +139,14 @@ actual fun ScannerView(
                 imageAnalysis.setAnalyzer(
                     ContextCompat.getMainExecutor(ctx),
                     BarcodeAnalyzer(
-                        camera = camera,
+                        getCamera = { camera },
                         codeTypes = codeTypes,
                         onSuccess = { scannedBarcodes ->
-                            result(BarcodeResult.OnSuccess(scannedBarcodes.first()))
+                            updatedResult(BarcodeResult.OnSuccess(scannedBarcodes.first()))
                             provider.unbind(imageAnalysis)
                         },
-                        onFailed = { result(BarcodeResult.OnFailed(Exception(it))) },
-                        onCanceled = { result(BarcodeResult.OnCanceled) },
+                        onFailed = { updatedResult(BarcodeResult.OnFailed(Exception(it))) },
+                        onCanceled = { updatedResult(BarcodeResult.OnCanceled) },
                         filter = filter
                     ),
                 )

@@ -16,7 +16,7 @@ import com.google.mlkit.vision.common.InputImage
  * Features duplicate filtering (barcode must be detected twice) and auto-zoom suggestions.
  */
 class BarcodeAnalyzer(
-    private val camera: Camera?,
+    private val getCamera: () -> Camera?,
     private val codeTypes: List<BarcodeFormat>,
     private val onSuccess: (List<Barcode>) -> Unit,
     private val onFailed: (Exception) -> Unit,
@@ -28,6 +28,7 @@ class BarcodeAnalyzer(
             .setBarcodeFormats(BarcodeFormatMapper.toMlKitFormats(codeTypes))
             .setZoomSuggestionOptions(
                 ZoomSuggestionOptions.Builder { zoomRatio ->
+                    val camera = getCamera()
                     val maxZoomRatio =
                         (camera?.cameraInfo?.zoomState?.value?.maxZoomRatio ?: 1.0f)
                             .coerceAtMost(5.0f)
@@ -99,11 +100,9 @@ class BarcodeAnalyzer(
             }
             .addOnFailureListener {
                 onFailed(it)
-                imageProxy.close()
             }
             .addOnCanceledListener {
                 onCanceled()
-                imageProxy.close()
             }
             .addOnCompleteListener {
                 // CRITICAL: Always close the proxy after the final attempt
@@ -114,39 +113,40 @@ class BarcodeAnalyzer(
     @OptIn(ExperimentalGetImage::class)
     private fun createInvertedInputImage(imageProxy: ImageProxy): InputImage {
         val mediaImage = imageProxy.image ?: throw IllegalArgumentException("Image is null")
+        require(mediaImage.planes.isNotEmpty()) { "Image has no planes" }
 
-        // Extract the luminance plane
-        val yPlane = mediaImage.planes[0]
-        val yBuffer = yPlane.buffer
-        val ySize = yBuffer.remaining()
-        val yBytes = ByteArray(ySize)
-        yBuffer.get(yBytes)
-
-        // This turns the Black background (low values) into White (high values)
-        // and the Silver dots (high values) into Black (low values).
-        for (i in yBytes.indices) {
-            yBytes[i] = (255 - (yBytes[i].toInt() and 0xFF)).toByte()
-        }
-
-        // ML Kit fromByteArray requires NV21 format (Y + interleaved UV).
-        // Since we only care about luminance for barcodes, we can fake the UV data with grey.
         val width = mediaImage.width
         val height = mediaImage.height
-        val nv21Size = width * height * 3 / 2 // Standard NV21 size calculation
-        val nv21Bytes = ByteArray(nv21Size)
+        val yPixelCount = width * height
+        val nv21Bytes = ByteArray(yPixelCount * 3 / 2)
 
-        // Copy our inverted Y bytes to the start
-        System.arraycopy(yBytes, 0, nv21Bytes, 0, ySize)
+        val yPlane = mediaImage.planes[0]
+        val rowStride = yPlane.rowStride
+        require(rowStride >= width) { "Invalid Y rowStride: $rowStride, width: $width" }
 
-        // Fill the UV section with 127 (neutral grey) to avoid color noise interference
-        java.util.Arrays.fill(nv21Bytes, ySize, nv21Bytes.size, 127.toByte())
+        val yBuffer = yPlane.buffer.duplicate()
+        val rowBytes = ByteArray(width)
+
+        // Bulk-read one row at a time, then invert into output (fewer ByteBuffer.get() calls)
+        for (row in 0 until height) {
+            yBuffer.position(row * rowStride)
+            yBuffer.get(rowBytes, 0, width)
+
+            val outBase = row * width
+            for (col in 0 until width) {
+                nv21Bytes[outBase + col] = (rowBytes[col].toInt() xor 0xFF).toByte()
+            }
+        }
+
+        // Neutral chroma for grayscale in NV21 (VU interleaved)
+        java.util.Arrays.fill(nv21Bytes, yPixelCount, nv21Bytes.size, 128.toByte())
 
         return InputImage.fromByteArray(
             nv21Bytes,
             width,
             height,
             imageProxy.imageInfo.rotationDegrees,
-            InputImage.IMAGE_FORMAT_NV21
+            InputImage.IMAGE_FORMAT_NV21,
         )
     }
 
