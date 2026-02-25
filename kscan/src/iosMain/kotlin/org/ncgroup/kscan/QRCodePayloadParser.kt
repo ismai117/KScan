@@ -26,23 +26,35 @@ internal object QRCodePayloadParser {
     }
 
     internal fun decodeDataStream(codewords: ByteArray): ByteArray? {
-        val reader = BitReader(codewords)
-        if (!reader.hasAvailable(4)) return null
+        // Try both possible byte-mode length sizes:
+        // - QR versions 1–9  => 8 bits
+        // - QR versions 10–40 => 16 bits
+        for (countBits in listOf(8, 16)) {
+            val reader = BitReader(codewords)
 
-        val mode = reader.readBits(4)
+            if (!reader.hasAvailable(4)) continue
+            val mode = reader.readBits(4)
 
-        // Only handle byte mode - other modes can't have null bytes
-        if (mode != MODE_BYTE) return null
-        if (!reader.hasAvailable(8)) return null
+            // Only handle byte mode - other modes can't have null bytes
+            if (mode != MODE_BYTE) return null
 
-        val count = reader.readBits(8)
-        if (!reader.hasAvailable(count * 8)) return null
+            if (!reader.hasAvailable(countBits)) continue
+            val count = reader.readBits(countBits)
 
-        val result = ByteArray(count)
-        repeat(count) { i ->
-            result[i] = reader.readBits(8).toByte()
+            if (count <= 0) continue
+
+            // Optional sanity guard (remove if you prefer)
+            if (count > 4096) continue
+            if (!reader.hasAvailable(count * 8)) continue
+
+            val result = ByteArray(count)
+            repeat(count) { i ->
+                result[i] = reader.readBits(8).toByte()
+            }
+            return result
         }
-        return result
+
+        return null
     }
 
     @OptIn(ExperimentalForeignApi::class)
