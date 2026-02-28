@@ -14,7 +14,7 @@ A Compose Multiplatform barcode scanning library for Android and iOS.
 Add the dependency to your `commonMain` source set:
 
 ```kotlin
-implementation("io.github.ismai117:KScan:0.6.0")
+implementation("io.github.ismai117:KScan:0.7.0")
 ```
 
 ## Platform Setup
