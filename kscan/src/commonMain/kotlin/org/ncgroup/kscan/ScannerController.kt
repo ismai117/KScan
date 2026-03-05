@@ -12,16 +12,21 @@ import androidx.compose.runtime.setValue
  * updates in response to scanner state modifications.
  *
  * @property torchEnabled A boolean indicating whether the torch is currently enabled.
- *                        Defaults to `false`. Can be observed for changes.
+ *                        Defaults to `false`. This property is read-only and can be observed for changes.
+ *                        Use [setTorch] to toggle the torch.
  * @property zoomRatio The current zoom ratio of the scanner. Defaults to `1f`.
- *                     Can be observed for changes. The valid range is typically between 1f and `maxZoomRatio`.
+ *                     This property is read-only and can be observed for changes.
+ *                     The valid range is typically between 1f and [maxZoomRatio].
+ *                     Use [setZoom] to change the zoom level.
  * @property maxZoomRatio The maximum zoom ratio supported by the scanner. Defaults to `1f`.
- *                        This property is read-only from outside the `kscan` package and is set internally.
+ *                        This property is read-only and is set internally.
  */
 class ScannerController {
     var torchEnabled by mutableStateOf(false)
+        internal set
 
     var zoomRatio by mutableStateOf(1f)
+        internal set
 
     var maxZoomRatio by mutableStateOf(1f)
         internal set
