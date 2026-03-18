@@ -15,6 +15,10 @@ klint = "14.2.0"
 maven-publish = "0.36.0"
 mlkitBarcodeScanning-android = "17.3.0"
 moko = "0.20.1"
+webcam-capture = "0.3.12"
+zxing = "3.5.4"
+material3 = "1.10.0-alpha05"
+material-icons = "1.7.3"
 
 [libraries]
 androidx-activityCompose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
@@ -33,14 +37,18 @@ androidx-camera-view = { group = "androidx.camera", name = "camera-view", versio
 
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose" }
 compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose" }
-compose-material3 = { module = "org.jetbrains.compose.material3:material3", version = "1.10.0-alpha05" }
-compose-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version = "1.7.3" }
+compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3" }
+compose-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "material-icons" }
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose" }
 compose-ui-test = { module = "org.jetbrains.compose.ui:ui-test", version.ref = "compose" }
+compose-desktop = { module = "org.jetbrains.compose.desktop:desktop", version.ref = "compose" }
 
 moko-permissions = { module = "dev.icerock.moko:permissions-camera", version.ref = "moko" }
 moko-permissions-compose = { module = "dev.icerock.moko:permissions-compose", version.ref = "moko" }
 ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "compose" }
+webcam-capture = { module = "com.github.sarxos:webcam-capture", version.ref = "webcam-capture" }
+zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
+zxing-javase = { module = "com.google.zxing:javase", version.ref = "zxing" }
 
 [bundles]
 camera = ["androidx-camera-core", "androidx-camera-lifecycle", "androidx-camera-camera2", "androidx-camera-view", "androidx-camera-extensions"]

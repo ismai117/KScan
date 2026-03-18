@@ -28,6 +28,12 @@ kotlin {
             implementation(libs.compose.material3)
             implementation(libs.compose.material.icons.extended)
         }
+        jvmMain.dependencies {
+            implementation(libs.compose.desktop)
+            implementation(libs.webcam.capture)
+            implementation(libs.zxing.core)
+            implementation(libs.zxing.javase)
+        }
         commonTest.dependencies {
             implementation(libs.compose.ui.test)
         }

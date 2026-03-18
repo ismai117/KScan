@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -61,8 +62,8 @@ actual fun ScannerView(
     var cameraControl: CameraControl? by remember { mutableStateOf(null) }
 
     var torchEnabled by remember { mutableStateOf(false) }
-    var zoomRatio by remember { mutableStateOf(1f) }
-    var maxZoomRatio by remember { mutableStateOf(1f) }
+    var zoomRatio by remember { mutableFloatStateOf(1f) }
+    var maxZoomRatio by remember { mutableFloatStateOf(1f) }
 
     val updatedResult by rememberUpdatedState(result)
 
