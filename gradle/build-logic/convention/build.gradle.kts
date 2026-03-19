@@ -16,9 +16,9 @@ java {
 }
 
 dependencies {
-    compileOnly(libs.plugins.kotlinMultiplatform.toDep())
+    compileOnly(libs.plugins.kotlin.multiplatform.toDep())
     compileOnly(libs.plugins.androidKmpLibrary.toDep())
-    compileOnly(libs.plugins.jetbrainsCompose.toDep())
+    compileOnly(libs.plugins.compose.multiplatform.toDep())
     compileOnly(libs.plugins.compose.compiler.toDep())
 }
 
