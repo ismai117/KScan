@@ -21,7 +21,12 @@ implementation("io.github.ismai117:KScan:$version")
 
 **Android** - Uses Google ML Kit for barcode scanning.
 
-**iOS** - Uses AVFoundation for camera and barcode scanning. Add this to your `Info.plist`:
+**iOS** - Uses AVFoundation for camera and barcode scanning. 
+
+**Windows / macOS / Linux** - Uses JavaCV for camera and ZXing for barcode scanning.
+
+## Permissions
+**Android, iOS, macOS** - Before displaying the `ScannerView`, your application must request and be granted camera permissions by the operating system. On iOS & macOS, add this to your `Info.plist`:
 
 ```xml
 <key>NSCameraUsageDescription</key>
