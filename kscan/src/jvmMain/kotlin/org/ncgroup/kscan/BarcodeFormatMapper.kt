@@ -34,6 +34,6 @@ internal fun com.google.zxing.BarcodeFormat.toKScanFormat(): BarcodeFormat {
         com.google.zxing.BarcodeFormat.PDF_417 -> BarcodeFormat.FORMAT_PDF417
         com.google.zxing.BarcodeFormat.AZTEC -> BarcodeFormat.FORMAT_AZTEC
         com.google.zxing.BarcodeFormat.DATA_MATRIX -> BarcodeFormat.FORMAT_DATA_MATRIX
-        else -> BarcodeFormat.FORMAT_ALL_FORMATS
+        else -> BarcodeFormat.TYPE_UNKNOWN
     }
 }
