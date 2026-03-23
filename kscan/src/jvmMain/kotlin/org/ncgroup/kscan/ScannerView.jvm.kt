@@ -22,6 +22,8 @@ import com.google.zxing.ResultMetadataType
 import com.google.zxing.common.HybridBinarizer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -140,12 +142,6 @@ actual fun ScannerView(
                         val image = converter.convert(frame)
 
                         frameChannel.trySend(image)
-
-                        coroutineScope.launch(Dispatchers.Default) {
-                            val composeBitmap = image.toComposeImageBitmap()
-
-                            cameraFrameBitmap = composeBitmap
-                        }
                     } catch (_: org.bytedeco.javacv.FrameGrabber.Exception) {
                         continue
                     }
@@ -164,11 +160,22 @@ actual fun ScannerView(
             }
         }
 
+        val uiUpdateJob = coroutineScope.launch(Dispatchers.Default) {
+            frameChannel.consumeAsFlow().collectLatest { image ->
+                val composeBitmap = image.toComposeImageBitmap()
+
+                withContext(Dispatchers.Main) {
+                    cameraFrameBitmap = composeBitmap
+                }
+            }
+        }
+
         onDispose {
             isScanning = false
 
             cameraJob.cancel()
             scannerJob.cancel()
+            uiUpdateJob.cancel()
             frameChannel.close()
         }
     }
