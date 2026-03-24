@@ -3,22 +3,11 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Latest release](https://img.shields.io/github/v/release/ismai117/KScan?color=brightgreen&label=latest%20release)](https://github.com/ismai117/KScan/releases/latest)
 
-A Compose Multiplatform barcode scanning library for Android and iOS.
+A Compose Multiplatform barcode scanning library for Android, iOS and Desktop.
 
-## 📱 Android
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/9bce6d77-4028-4a45-b4a2-ad78e79cc0cd" height="600">
-</p>
-
-## 🍎 iOS
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/36900489-dea0-456b-bd17-00fcb49f9701" height="600">
-</p>
-
-## 💻 Desktop
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/70f97858-f9cd-49e2-aa7f-257d8aa650aa" height="600">
-</p>
+| Android | iOS | Desktop |
+|---------|-----|---------|
+| <p><img src="https://github.com/user-attachments/assets/9bce6d77-4028-4a45-b4a2-ad78e79cc0cd" height="600"></p> | <p><img src="https://github.com/user-attachments/assets/36900489-dea0-456b-bd17-00fcb49f9701" height="600"></p> | <p><img src="DESKTOP_URL" height="600"></p> |
 
 ## Installation
 
