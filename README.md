@@ -7,7 +7,7 @@ A Compose Multiplatform barcode scanning library for Android, iOS and Desktop.
 
 | Android | iOS | Desktop |
 |---------|-----|---------|
-| <img src="[ANDROID_URL](https://github.com/user-attachments/assets/9bce6d77-4028-4a45-b4a2-ad78e79cc0cd)" height="600"/> | <img src="[IOS_URL](https://github.com/user-attachments/assets/36900489-dea0-456b-bd17-00fcb49f9701)" height="600"/> | <img src="DESKTOP_URL" height="600"/> |
+| <img src="https://github.com/user-attachments/assets/9bce6d77-4028-4a45-b4a2-ad78e79cc0cd" height="600"/> | <img src="https://github.com/user-attachments/assets/36900489-dea0-456b-bd17-00fcb49f9701" height="600"/> | <img src="DESKTOP_URL" height="600"/> |
 
 ## Installation
 
