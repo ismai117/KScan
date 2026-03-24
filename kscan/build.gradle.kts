@@ -45,7 +45,7 @@ kotlin {
 mavenPublishing {
     publishToMavenCentral()
     signAllPublications()
-    coordinates("io.github.ismai117", "KScan", "0.7.1")
+    coordinates("io.github.ismai117", "KScan", "0.8.1")
 
     pom {
         name.set(project.name)
