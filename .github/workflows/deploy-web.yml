@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - feature/web-support
   workflow_dispatch:
 
 permissions:
