@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZXing-JS Barcode Scanner Test</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #eee;
+        }
+        h1 { text-align: center; color: #00d9ff; font-size: 1.5em; }
+        .container { display: flex; flex-direction: column; gap: 15px; }
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 640px;
+            margin: 0 auto;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+        }
+        video { width: 100%; display: block; }
+        .overlay {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px; height: 200px;
+            border: 3px solid #00d9ff;
+            border-radius: 12px;
+            pointer-events: none;
+        }
+        .controls { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            background: #00d9ff;
+            color: #1a1a2e;
+            font-weight: 600;
+        }
+        button:disabled { background: #555; }
+        .result-box {
+            background: #16213e;
+            padding: 15px;
+            border-radius: 12px;
+        }
+        .result-box h3 { margin: 0 0 10px 0; color: #00d9ff; font-size: 1em; }
+        #result {
+            font-family: monospace;
+            font-size: 14px;
+            word-break: break-all;
+            background: #0f0f23;
+            padding: 10px;
+            border-radius: 8px;
+            min-height: 50px;
+            white-space: pre-wrap;
+        }
+        #result.success { border: 2px solid #00ff88; color: #00ff88; }
+        #result.error { border: 2px solid #ff4444; color: #ff4444; }
+        .status { text-align: center; padding: 10px; border-radius: 8px; background: #16213e; }
+        .history-item {
+            background: #0f0f23;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+        .history-item .format { color: #00d9ff; font-weight: bold; margin-right: 10px; }
+        select {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #0f3460;
+            background: #16213e;
+            color: #eee;
+        }
+    </style>
+</head>
+<body>
+    <h1>ZXing-JS Scanner Test</h1>
+    <div class="container">
+        <div class="controls">
+            <button id="startBtn">Start Scanner</button>
+            <button id="stopBtn" disabled>Stop</button>
+            <select id="cameraSelect"><option value="">Loading...</option></select>
+        </div>
+        <div id="status" class="status">Loading ZXing library...</div>
+        <div class="video-container">
+            <video id="video" playsinline></video>
+            <div class="overlay"></div>
+        </div>
+        <div class="result-box">
+            <h3>Last Scanned Result</h3>
+            <div id="result">No barcode scanned yet...</div>
+        </div>
+        <div class="result-box">
+            <h3>Scan History</h3>
+            <div id="history"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { BrowserMultiFormatReader } from 'https://esm.sh/@aspect-build/aspect-js@0.1.1';
+
+        const video = document.getElementById('video');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const resultDiv = document.getElementById('result');
+        const statusDiv = document.getElementById('status');
+        const historyDiv = document.getElementById('history');
+        const cameraSelect = document.getElementById('cameraSelect');
+
+        let codeReader = null;
+        let selectedDeviceId = null;
+
+        async function init() {
+            try {
+                codeReader = new BrowserMultiFormatReader();
+                console.log('ZXing initialized');
+
+                statusDiv.textContent = 'Getting cameras...';
+                const devices = await codeReader.listVideoInputDevices();
+                console.log('Devices:', devices);
+
+                cameraSelect.innerHTML = '';
+                if (devices.length === 0) {
+                    cameraSelect.innerHTML = '<option>No cameras</option>';
+                    statusDiv.textContent = 'No camera found!';
+                    statusDiv.style.color = '#ff4444';
+                    return;
+                }
+
+                devices.forEach((device, i) => {
+                    const option = document.createElement('option');
+                    option.value = device.deviceId;
+                    option.text = device.label || `Camera ${i + 1}`;
+                    cameraSelect.appendChild(option);
+                });
+
+                // Prefer back camera on mobile
+                const backCam = devices.find(d => d.label.toLowerCase().includes('back'));
+                selectedDeviceId = backCam ? backCam.deviceId : devices[0].deviceId;
+                cameraSelect.value = selectedDeviceId;
+
+                statusDiv.textContent = 'Ready! Tap "Start Scanner"';
+                statusDiv.style.color = '#00ff88';
+
+            } catch (error) {
+                console.error('Init error:', error);
+                statusDiv.textContent = 'Error: ' + error.message;
+                statusDiv.style.color = '#ff4444';
+            }
+        }
+
+        cameraSelect.addEventListener('change', (e) => {
+            selectedDeviceId = e.target.value;
+        });
+
+        startBtn.addEventListener('click', async () => {
+            if (!codeReader) return;
+
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            statusDiv.textContent = 'Starting camera...';
+
+            try {
+                await codeReader.decodeFromVideoDevice(
+                    selectedDeviceId,
+                    video,
+                    (result, error) => {
+                        if (result) {
+                            const format = result.getBarcodeFormat();
+                            const text = result.getText();
+
+                            resultDiv.textContent = `Format: ${format}\nData: ${text}`;
+                            resultDiv.className = 'success';
+
+                            const item = document.createElement('div');
+                            item.className = 'history-item';
+                            item.innerHTML = `<span class="format">${format}</span><span>${text}</span>`;
+                            historyDiv.insertBefore(item, historyDiv.firstChild);
+
+                            while (historyDiv.children.length > 10) {
+                                historyDiv.removeChild(historyDiv.lastChild);
+                            }
+
+                            statusDiv.textContent = 'Barcode found!';
+                        }
+                        if (error && error.name !== 'NotFoundException') {
+                            console.error('Decode error:', error);
+                        }
+                    }
+                );
+                statusDiv.textContent = 'Scanning... Point at a barcode';
+            } catch (error) {
+                console.error('Start error:', error);
+                statusDiv.textContent = 'Error: ' + error.message;
+                resultDiv.className = 'error';
+                resultDiv.textContent = error.message;
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+            }
+        });
+
+        stopBtn.addEventListener('click', () => {
+            if (codeReader) codeReader.reset();
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            statusDiv.textContent = 'Stopped';
+        });
+
+        init();
+    </script>
+</body>
+</html>
