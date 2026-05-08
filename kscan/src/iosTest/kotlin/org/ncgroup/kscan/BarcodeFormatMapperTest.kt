@@ -2,6 +2,7 @@ package org.ncgroup.kscan
 
 import platform.AVFoundation.AVMetadataObjectTypeCode128Code
 import platform.AVFoundation.AVMetadataObjectTypeEAN13Code
+import platform.AVFoundation.AVMetadataObjectTypeInterleaved2of5Code
 import platform.AVFoundation.AVMetadataObjectTypeQRCode
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -59,6 +60,13 @@ class BarcodeFormatMapperTest {
         val result = BarcodeFormatMapper.toAppFormat(AVMetadataObjectTypeCode128Code)
 
         assertEquals(BarcodeFormat.FORMAT_CODE_128, result)
+    }
+
+    @Test
+    fun `GIVEN interleaved2of5 av type WHEN toAppFormat THEN returns app format`() {
+        val result = BarcodeFormatMapper.toAppFormat(AVMetadataObjectTypeInterleaved2of5Code)
+
+        assertEquals(BarcodeFormat.FORMAT_ITF, result)
     }
 
     @Test

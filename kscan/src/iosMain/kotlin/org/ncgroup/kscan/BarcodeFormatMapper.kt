@@ -8,6 +8,7 @@ import platform.AVFoundation.AVMetadataObjectTypeCode93Code
 import platform.AVFoundation.AVMetadataObjectTypeDataMatrixCode
 import platform.AVFoundation.AVMetadataObjectTypeEAN13Code
 import platform.AVFoundation.AVMetadataObjectTypeEAN8Code
+import platform.AVFoundation.AVMetadataObjectTypeInterleaved2of5Code
 import platform.AVFoundation.AVMetadataObjectTypePDF417Code
 import platform.AVFoundation.AVMetadataObjectTypeQRCode
 import platform.AVFoundation.AVMetadataObjectTypeUPCECode
@@ -28,6 +29,7 @@ internal object BarcodeFormatMapper {
         AVMetadataObjectTypePDF417Code to BarcodeFormat.FORMAT_PDF417,
         AVMetadataObjectTypeAztecCode to BarcodeFormat.FORMAT_AZTEC,
         AVMetadataObjectTypeDataMatrixCode to BarcodeFormat.FORMAT_DATA_MATRIX,
+        AVMetadataObjectTypeInterleaved2of5Code to BarcodeFormat.FORMAT_ITF,
     )
 
     private val APP_TO_AV_FORMAT_MAP: Map<BarcodeFormat, AVMetadataObjectType> =
