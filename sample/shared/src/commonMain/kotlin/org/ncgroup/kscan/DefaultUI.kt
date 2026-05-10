@@ -23,17 +23,25 @@ fun DefaultUI() {
     var barcode by remember { mutableStateOf("") }
     var format by remember { mutableStateOf("") }
 
-    Scaffold { padding ->
-        Box(
-            modifier = Modifier.fillMaxSize().padding(padding),
-        ) {
+    Scaffold(
+        topBar = {
+            if (!showScanner) {
+                ModeSelector()
+            }
+        }
+    ) { padding ->
+        Box(modifier = Modifier.fillMaxSize()) {
             Column(
-                modifier = Modifier.align(Alignment.Center),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
             ) {
-                Text(text = barcode)
-                Text(text = format)
+                if (barcode.isNotEmpty()) {
+                    Text(text = "Data: $barcode")
+                    Text(text = "Format: $format")
+                }
                 Button(
                     onClick = { showScanner = true },
                 ) {
@@ -43,10 +51,7 @@ fun DefaultUI() {
 
             if (showScanner) {
                 ScannerView(
-                    codeTypes =
-                        listOf(
-                            BarcodeFormat.FORMAT_ALL_FORMATS,
-                        ),
+                    codeTypes = listOf(BarcodeFormat.FORMAT_ALL_FORMATS),
                 ) { result ->
                     when (result) {
                         is BarcodeResult.OnSuccess -> {

@@ -24,6 +24,7 @@ kotlin {
             implementation(libs.compose.components.resources)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
+            implementation(libs.imagepickerkmp)
             api(project(":kscan"))
         }
         androidMain.dependencies {

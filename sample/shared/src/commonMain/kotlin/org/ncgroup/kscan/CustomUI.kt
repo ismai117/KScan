@@ -19,24 +19,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun CustomUI(modifier: Modifier = Modifier) {
+fun CustomUI() {
     var showScanner by remember { mutableStateOf(false) }
     var barcode by remember { mutableStateOf("") }
     var format by remember { mutableStateOf("") }
 
     val scannerController = remember { ScannerController() }
 
-    Scaffold { padding ->
-        Box(
-            modifier = Modifier.fillMaxSize().padding(padding),
-        ) {
+    Scaffold(
+        topBar = {
+            if (!showScanner) {
+                ModeSelector()
+            }
+        }
+    ) { padding ->
+        Box(modifier = Modifier.fillMaxSize()) {
             Column(
-                modifier = Modifier.align(Alignment.Center),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
             ) {
-                Text(text = barcode)
-                Text(text = format)
+                if (barcode.isNotEmpty()) {
+                    Text(text = "Data: $barcode")
+                    Text(text = "Format: $format")
+                }
                 Button(
                     onClick = { showScanner = true },
                 ) {
@@ -46,10 +54,7 @@ fun CustomUI(modifier: Modifier = Modifier) {
 
             if (showScanner) {
                 ScannerView(
-                    codeTypes =
-                        listOf(
-                            BarcodeFormat.FORMAT_ALL_FORMATS,
-                        ),
+                    codeTypes = listOf(BarcodeFormat.FORMAT_ALL_FORMATS),
                     scannerUiOptions = null,
                     scannerController = scannerController,
                 ) { result ->
@@ -68,12 +73,11 @@ fun CustomUI(modifier: Modifier = Modifier) {
                         }
                     }
                 }
-                Box(modifier = modifier.fillMaxSize()) {
+                Box(modifier = Modifier.fillMaxSize()) {
                     Column(
-                        modifier =
-                            modifier
-                                .padding(bottom = 24.dp)
-                                .align(Alignment.BottomCenter),
+                        modifier = Modifier
+                            .padding(bottom = 24.dp)
+                            .align(Alignment.BottomCenter),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Button(
