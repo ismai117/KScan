@@ -1,17 +1,17 @@
 [versions]
-agp = "9.1.0"
-kotlin = "2.3.20"
-compose = "1.10.2"
-kotlinx-coroutines = "1.10.2"
+agp = "9.1.1"
+kotlin = "2.3.21"
+compose = "1.10.3"
+kotlinx-coroutines = "1.11.0"
 android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "36"
 androidx-activityCompose = "1.13.0"
 androidx-appcompat = "1.7.1"
 androidx-core-ktx = "1.18.0"
-androidx-lifecycle = "2.9.6"
-androidx-camera = "1.5.3"
-dokka = "2.1.0"
+androidx-lifecycle = "2.10.0"
+androidx-camera = "1.6.1"
+dokka = "2.2.0"
 klint = "14.2.0"
 maven-publish = "0.36.0"
 mlkitBarcodeScanning-android = "17.3.0"
@@ -19,8 +19,9 @@ moko = "0.20.1"
 zxing = "3.5.4"
 material3 = "1.10.0-alpha05"
 material-icons = "1.7.3"
-javacv = "1.5.10"
-opencv = "4.9.0-1.5.10"
+imagepickerkmp = "1.0.41"
+javacv = "1.5.13"
+opencv = "4.13.0-1.5.13"
 
 [libraries]
 androidx-activityCompose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
@@ -53,6 +54,7 @@ moko-permissions-compose = { module = "dev.icerock.moko:permissions-compose", ve
 ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "compose" }
 zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
 zxing-javase = { module = "com.google.zxing:javase", version.ref = "zxing" }
+imagepickerkmp = { module = "io.github.ismoy:imagepickerkmp", version.ref = "imagepickerkmp" }
 javacv = { module = "org.bytedeco:javacv", version.ref = "javacv" }
 opencv-platform = { module = "org.bytedeco:opencv-platform", version.ref = "opencv" }
 
