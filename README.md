@@ -94,6 +94,31 @@ Slider(
 )
 ```
 
+### Scanning from Images
+
+Use `scanImage` to scan barcodes from static images (gallery, screenshots, downloaded images) instead of the live camera feed:
+
+```kotlin
+scanImage(
+    imageBytes = imageBytes, // ByteArray of the image (PNG, JPEG)
+    codeTypes = listOf(BarcodeFormat.FORMAT_ALL_FORMATS),
+    filter = { barcode -> true }, // Optional: filter detected barcodes
+) { result ->
+    when (result) {
+        is BarcodeResult.OnSuccess -> {
+            println("Barcode: ${result.barcode.data}")
+            println("Format: ${result.barcode.format}")
+        }
+        is BarcodeResult.OnFailed -> {
+            println("Error: ${result.exception.message}")
+        }
+        BarcodeResult.OnCanceled -> {
+            // Not applicable for image scanning
+        }
+    }
+}
+```
+
 ## Supported Formats
 
 | 1D Barcodes | 2D Barcodes |
