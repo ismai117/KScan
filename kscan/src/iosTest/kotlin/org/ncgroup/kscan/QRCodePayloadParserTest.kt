@@ -155,6 +155,44 @@ class QRCodePayloadParserTest {
     }
 
     @Test
+    fun `GIVEN 16-bit byte then alphanumeric segments WHEN decodeDataStream THEN concatenated`() {
+        // QR v10-26 uses 16-bit byte count and 11-bit alphanumeric count. Both
+        // widths must come from the same version group — this guards against
+        // mixing widths from different groups when retrying.
+        val prefix = "https://example.com/i/"
+        val suffix = "ABC123-240101"
+        val payload = buildMultiSegmentPayload(
+            listOf(
+                Segment.Byte(prefix.encodeToByteArray(), countBits = 16),
+                Segment.Alphanumeric(suffix, countBits = 11),
+            ),
+        )
+
+        val result = QRCodePayloadParser.decodeDataStream(payload)
+
+        assertNotNull(result)
+        assertEquals(prefix + suffix, result.decodeToString())
+    }
+
+    @Test
+    fun `GIVEN 16-bit byte then numeric segments WHEN decodeDataStream THEN concatenated`() {
+        // QR v10-26 uses 16-bit byte count and 12-bit numeric count.
+        val prefix = "ref="
+        val digits = "987654321"
+        val payload = buildMultiSegmentPayload(
+            listOf(
+                Segment.Byte(prefix.encodeToByteArray(), countBits = 16),
+                Segment.Numeric(digits, countBits = 12),
+            ),
+        )
+
+        val result = QRCodePayloadParser.decodeDataStream(payload)
+
+        assertNotNull(result)
+        assertEquals(prefix + digits, result.decodeToString())
+    }
+
+    @Test
     fun `GIVEN kanji mode WHEN decodeDataStream THEN returns null`() {
         // Mode 1000 (8) = Kanji. The branch should bail out unconditionally.
         val bits = mutableListOf<Int>()
@@ -169,9 +207,9 @@ class QRCodePayloadParserTest {
     // region Helpers
 
     private sealed class Segment {
-        class Byte(val data: ByteArray) : Segment()
-        class Alphanumeric(val text: String) : Segment()
-        class Numeric(val digits: String) : Segment()
+        class Byte(val data: ByteArray, val countBits: Int = 8) : Segment()
+        class Alphanumeric(val text: String, val countBits: Int = 9) : Segment()
+        class Numeric(val digits: String, val countBits: Int = 10) : Segment()
     }
 
     private fun buildMultiSegmentPayload(segments: List<Segment>): ByteArray {
@@ -180,13 +218,13 @@ class QRCodePayloadParserTest {
             when (seg) {
                 is Segment.Byte -> {
                     bits.addAll(listOf(0, 1, 0, 0)) // Mode: 0100
-                    addBits(bits, seg.data.size, 8)
+                    addBits(bits, seg.data.size, seg.countBits)
                     seg.data.forEach { addBits(bits, it.toInt() and 0xFF, 8) }
                 }
                 is Segment.Alphanumeric -> {
                     val chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ \$%*+-./:"
                     bits.addAll(listOf(0, 0, 1, 0)) // Mode: 0010
-                    addBits(bits, seg.text.length, 9)
+                    addBits(bits, seg.text.length, seg.countBits)
                     var i = 0
                     while (i + 2 <= seg.text.length) {
                         addBits(
@@ -202,7 +240,7 @@ class QRCodePayloadParserTest {
                 }
                 is Segment.Numeric -> {
                     bits.addAll(listOf(0, 0, 0, 1)) // Mode: 0001
-                    addBits(bits, seg.digits.length, 10)
+                    addBits(bits, seg.digits.length, seg.countBits)
                     var i = 0
                     while (i + 3 <= seg.digits.length) {
                         addBits(bits, seg.digits.substring(i, i + 3).toInt(), 10)

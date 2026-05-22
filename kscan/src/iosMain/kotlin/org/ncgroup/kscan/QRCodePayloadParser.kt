@@ -39,141 +39,163 @@ internal object QRCodePayloadParser {
         return decodeDataStream(codewords)
     }
 
+    /**
+     * Character-count indicator widths per QR version group (ISO/IEC 18004 Table 3).
+     *
+     * Within a single QR symbol all segments share the same version, so all three
+     * widths must come from the same row. We try each row in turn; the first one
+     * that decodes cleanly and contains at least one byte segment wins.
+     */
+    private data class VersionWidths(
+        val byteCount: Int,
+        val alphaCount: Int,
+        val numericCount: Int,
+    )
+
+    private val VERSION_GROUPS = listOf(
+        VersionWidths(byteCount = 8, alphaCount = 9, numericCount = 10),   // v1–9
+        VersionWidths(byteCount = 16, alphaCount = 11, numericCount = 12), // v10–26
+        VersionWidths(byteCount = 16, alphaCount = 13, numericCount = 14), // v27–40
+    )
+
     internal fun decodeDataStream(codewords: ByteArray): ByteArray? {
-        // The byte-mode length field width depends on QR version:
-        // - QR versions 1–9  => 8 bits
-        // - QR versions 10–40 => 16 bits
-        // Alphanumeric/numeric have their own fixed widths per the spec (9/10 bits
-        // for v1-9, which is all we attempt to support here).
-        for (byteCountBits in listOf(8, 16)) {
-            val reader = BitReader(codewords)
-            val result = mutableListOf<Byte>()
-            var hadByteSegment = false
-            var aborted = false
+        for (widths in VERSION_GROUPS) {
+            val result = tryDecodeWithWidths(codewords, widths)
+            if (result != null) return result
+        }
+        return null
+    }
 
-            while (reader.hasAvailable(4)) {
-                val mode = reader.readBits(4)
-                if (mode == MODE_TERMINATOR) break
+    private fun tryDecodeWithWidths(
+        codewords: ByteArray,
+        widths: VersionWidths,
+    ): ByteArray? {
+        val reader = BitReader(codewords)
+        val result = mutableListOf<Byte>()
+        var hadByteSegment = false
+        var aborted = false
 
-                when (mode) {
-                    MODE_BYTE -> {
-                        if (!reader.hasAvailable(byteCountBits)) {
-                            aborted = true
-                            break
-                        }
-                        val count = reader.readBits(byteCountBits)
-                        if (count !in 1..4096 || !reader.hasAvailable(count * 8)) {
-                            aborted = true
-                            break
-                        }
-                        hadByteSegment = true
-                        repeat(count) { result.add(reader.readBits(8).toByte()) }
-                    }
+        while (reader.hasAvailable(4)) {
+            val mode = reader.readBits(4)
+            if (mode == MODE_TERMINATOR) break
 
-                    MODE_ALPHANUMERIC -> {
-                        if (!reader.hasAvailable(9)) {
-                            aborted = true
-                            break
-                        }
-                        val count = reader.readBits(9)
-                        val sb = StringBuilder()
-                        val pairs = count / 2
-                        val remainder = count % 2
-                        var ok = true
-                        repeat(pairs) {
-                            if (!ok) return@repeat
-                            if (!reader.hasAvailable(11)) {
-                                ok = false
-                                return@repeat
-                            }
-                            val v = reader.readBits(11)
-                            val hi = v / 45
-                            val lo = v % 45
-                            if (hi !in ALPHANUMERIC_TABLE.indices ||
-                                lo !in ALPHANUMERIC_TABLE.indices
-                            ) {
-                                ok = false
-                                return@repeat
-                            }
-                            sb.append(ALPHANUMERIC_TABLE[hi])
-                            sb.append(ALPHANUMERIC_TABLE[lo])
-                        }
-                        if (ok && remainder == 1) {
-                            if (!reader.hasAvailable(6)) {
-                                ok = false
-                            } else {
-                                val v = reader.readBits(6)
-                                if (v !in ALPHANUMERIC_TABLE.indices) {
-                                    ok = false
-                                } else {
-                                    sb.append(ALPHANUMERIC_TABLE[v])
-                                }
-                            }
-                        }
-                        if (!ok) {
-                            aborted = true
-                            break
-                        }
-                        appendIsoLatin1(result, sb.toString())
-                    }
-
-                    MODE_NUMERIC -> {
-                        if (!reader.hasAvailable(10)) {
-                            aborted = true
-                            break
-                        }
-                        val count = reader.readBits(10)
-                        val sb = StringBuilder()
-                        val triples = count / 3
-                        val rem = count % 3
-                        var ok = true
-                        repeat(triples) {
-                            if (!ok) return@repeat
-                            if (!reader.hasAvailable(10)) {
-                                ok = false
-                                return@repeat
-                            }
-                            sb.append(reader.readBits(10).toString().padStart(3, '0'))
-                        }
-                        if (ok) {
-                            when (rem) {
-                                2 -> if (reader.hasAvailable(7)) {
-                                    sb.append(reader.readBits(7).toString().padStart(2, '0'))
-                                } else {
-                                    ok = false
-                                }
-                                1 -> if (reader.hasAvailable(4)) {
-                                    sb.append(reader.readBits(4).toString())
-                                } else {
-                                    ok = false
-                                }
-                            }
-                        }
-                        if (!ok) {
-                            aborted = true
-                            break
-                        }
-                        appendIsoLatin1(result, sb.toString())
-                    }
-
-                    else -> {
-                        // Kanji, ECI, structured-append, FNC1, or unknown — can't
-                        // safely decode here. Abort this attempt; if the mode was
-                        // caused by trying the wrong byte-count width, the next
-                        // attempt can still succeed. Otherwise we'll fall back to
-                        // stringValue after all attempts fail.
+            when (mode) {
+                MODE_BYTE -> {
+                    if (!reader.hasAvailable(widths.byteCount)) {
                         aborted = true
                         break
                     }
+                    val count = reader.readBits(widths.byteCount)
+                    if (count !in 1..4096 || !reader.hasAvailable(count * 8)) {
+                        aborted = true
+                        break
+                    }
+                    hadByteSegment = true
+                    repeat(count) { result.add(reader.readBits(8).toByte()) }
                 }
-            }
 
-            if (!aborted && hadByteSegment && result.isNotEmpty()) {
-                return result.toByteArray()
+                MODE_ALPHANUMERIC -> {
+                    if (!reader.hasAvailable(widths.alphaCount)) {
+                        aborted = true
+                        break
+                    }
+                    val count = reader.readBits(widths.alphaCount)
+                    val decoded = decodeAlphanumeric(reader, count)
+                    if (decoded == null) {
+                        aborted = true
+                        break
+                    }
+                    appendIsoLatin1(result, decoded)
+                }
+
+                MODE_NUMERIC -> {
+                    if (!reader.hasAvailable(widths.numericCount)) {
+                        aborted = true
+                        break
+                    }
+                    val count = reader.readBits(widths.numericCount)
+                    val decoded = decodeNumeric(reader, count)
+                    if (decoded == null) {
+                        aborted = true
+                        break
+                    }
+                    appendIsoLatin1(result, decoded)
+                }
+
+                else -> {
+                    // Kanji, ECI, structured-append, FNC1, or unknown — can't
+                    // safely decode here. Abort this attempt; the next version
+                    // group may still succeed. If all attempts fail we return
+                    // null and the caller falls back to stringValue.
+                    aborted = true
+                    break
+                }
             }
         }
 
-        return null
+        return if (!aborted && hadByteSegment && result.isNotEmpty()) {
+            result.toByteArray()
+        } else {
+            null
+        }
+    }
+
+    private fun decodeAlphanumeric(reader: BitReader, count: Int): String? {
+        if (count < 0) return null
+        val sb = StringBuilder(count)
+        val pairs = count / 2
+        val remainder = count % 2
+        repeat(pairs) {
+            if (!reader.hasAvailable(11)) return null
+            val v = reader.readBits(11)
+            val hi = v / 45
+            val lo = v % 45
+            if (hi !in ALPHANUMERIC_TABLE.indices ||
+                lo !in ALPHANUMERIC_TABLE.indices
+            ) {
+                return null
+            }
+            sb.append(ALPHANUMERIC_TABLE[hi])
+            sb.append(ALPHANUMERIC_TABLE[lo])
+        }
+        if (remainder == 1) {
+            if (!reader.hasAvailable(6)) return null
+            val v = reader.readBits(6)
+            if (v !in ALPHANUMERIC_TABLE.indices) return null
+            sb.append(ALPHANUMERIC_TABLE[v])
+        }
+        return sb.toString()
+    }
+
+    private fun decodeNumeric(reader: BitReader, count: Int): String? {
+        if (count < 0) return null
+        val sb = StringBuilder(count)
+        val triples = count / 3
+        val rem = count % 3
+        repeat(triples) {
+            if (!reader.hasAvailable(10)) return null
+            val value = reader.readBits(10)
+            // QR spec: each 10-bit group encodes exactly 0..999.
+            if (value > 999) return null
+            sb.append(value.toString().padStart(3, '0'))
+        }
+        when (rem) {
+            2 -> {
+                if (!reader.hasAvailable(7)) return null
+                val value = reader.readBits(7)
+                // QR spec: 7-bit tail encodes exactly 0..99.
+                if (value > 99) return null
+                sb.append(value.toString().padStart(2, '0'))
+            }
+            1 -> {
+                if (!reader.hasAvailable(4)) return null
+                val value = reader.readBits(4)
+                // QR spec: 4-bit tail encodes exactly 0..9.
+                if (value > 9) return null
+                sb.append(value.toString())
+            }
+        }
+        return sb.toString()
     }
 
     private fun appendIsoLatin1(dest: MutableList<Byte>, s: String) {
