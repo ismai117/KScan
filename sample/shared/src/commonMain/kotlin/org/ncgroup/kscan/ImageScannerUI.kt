@@ -34,6 +34,7 @@ fun ImageScannerUI(modifier: Modifier = Modifier) {
     var format by remember { mutableStateOf("") }
     var error by remember { mutableStateOf("") }
     var isScanning by remember { mutableStateOf(false) }
+    var picked by remember { mutableStateOf("") }
 
     val picker = rememberImagePickerKMP(config = ImagePickerKMPConfig())
     val pickerResult = picker.result
@@ -42,13 +43,15 @@ fun ImageScannerUI(modifier: Modifier = Modifier) {
         when (pickerResult) {
             is ImagePickerResult.Success -> {
                 pickerResult.photos.firstOrNull()?.let { photo ->
+                    val raw = photo.loadBytes()
+                    picked = describeBytes(raw)
                     barcode = ""
                     format = ""
                     error = ""
                     isScanning = true
 
                     scanImage(
-                        imageBytes = imageBytesOf(photo.loadBytes()),
+                        imageBytes = imageBytesOf(raw),
                         codeTypes = listOf(BarcodeFormat.FORMAT_ALL_FORMATS),
                     ) { result ->
                         isScanning = false
@@ -98,6 +101,10 @@ fun ImageScannerUI(modifier: Modifier = Modifier) {
                     Text(text = error, color = Color.Red)
                 }
 
+                if (picked.isNotEmpty()) {
+                    Text(text = picked)
+                }
+
                 if (busy) {
                     CircularProgressIndicator()
                     Text(text = if (isScanning) "Scanning..." else "Loading image...")
@@ -144,3 +151,16 @@ private fun imageBytesOf(picked: ByteArray): ByteArray {
 }
 
 private fun Char.isBase64Character(): Boolean = isLetterOrDigit() || this == '+' || this == '/' || this == '=' || this == '\n' || this == '\r'
+
+/** What the picker handed back, so a failure can be diagnosed on the device. */
+private fun describeBytes(bytes: ByteArray): String {
+    val hex = bytes.take(8).joinToString(" ") {
+        val v = it.toInt() and 0xFF
+        v.toString(16).padStart(2, '0')
+    }
+    val text = bytes.take(24).toByteArray().decodeToString()
+        .map { if (it.code in 32..126) it else '.' }
+        .joinToString("")
+
+    return "picked ${bytes.size} bytes | $hex | $text"
+}
