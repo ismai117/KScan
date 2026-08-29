@@ -1,0 +1,34 @@
+# Changelog
+
+All notable changes to this project are documented here. The format follows
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html). Being pre-1.0, breaking
+changes raise the minor version.
+
+## [0.10.0] - Unreleased
+
+### Added
+
+- Web support. The `wasmJs` target existed before but did nothing: `ScannerView` had an
+  empty body and `scanImage` always failed. Both are implemented, decoding through the
+  browser's `BarcodeDetector` API with a polyfill fallback for browsers without it.
+- `KScanWeb` for the polyfill and ZXing wasm URLs, debug logging, and camera selection.
+- `availableCameras()` and `CameraDevice` for listing the cameras a browser will open.
+
+### Changed
+
+- **Breaking.** `ScannerView` no longer draws a UI. It renders the camera preview and
+  reports what it decodes; controls and overlays are the caller's to build.
+- **Breaking.** `ScannerView`'s parameter order is now `codeTypes` then `modifier`.
+- `modifier` is applied on every platform. Android, desktop and web previously replaced
+  it with `fillMaxSize()` and iOS appended `fillMaxSize()` to it.
+
+### Removed
+
+- **Breaking.** `ScannerColors`, `scannerColors()`, `ScannerUiOptions` and `ScannerUI()`.
+- **Breaking.** `ScannerView`'s `colors` and `scannerUiOptions` parameters.
+
+### Fixed
+
+- The ML Kit detector is closed when scanning stops. Both the camera and the still-image
+  path on Android leaked it, the latter once per `scanImage` call.

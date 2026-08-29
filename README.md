@@ -139,19 +139,24 @@ scanImage(
 
 ## Supported Formats
 
-| 1D Barcodes | 2D Barcodes |
-|-------------|-------------|
-| CODE_128 | QR_CODE |
-| CODE_39 | AZTEC |
-| CODE_93 | DATA_MATRIX |
-| CODABAR | PDF417 |
-| EAN_13 | |
-| EAN_8 | |
-| ITF | |
-| UPC_A | |
-| UPC_E | |
+| | Android | iOS | Desktop | Web |
+|---|:---:|:---:|:---:|:---:|
+| CODE_128, CODE_39, CODE_93 | ✅ | ✅ | ✅ | ✅ |
+| EAN_13, EAN_8 | ✅ | ✅ | ✅ | ✅ |
+| UPC_E | ✅ | ✅ | ✅ | ✅ |
+| ITF | ✅ | camera only | ✅ | ✅ |
+| CODABAR | ✅ | ❌ | ✅ | ✅ |
+| UPC_A | ✅ | as EAN_13 | ✅ | ✅ |
+| QR_CODE, AZTEC, DATA_MATRIX, PDF417 | ✅ | ✅ | ✅ | ✅ |
 
-Use `BarcodeFormat.FORMAT_ALL_FORMATS` to scan all supported types.
+Use `BarcodeFormat.FORMAT_ALL_FORMATS` to scan every format the platform supports.
+
+iOS decodes the live camera with AVFoundation and still images with Vision, which
+recognise slightly different sets: ITF is available to the camera but not to `scanImage`.
+AVFoundation reports UPC-A as EAN-13 with a leading zero, so ask for
+`FORMAT_EAN_13` and strip it. Web depends on the browser — a native `BarcodeDetector`
+may cover less than the polyfill, and KScan fails the scan rather than silently
+returning nothing when none of the requested formats are available.
 
 ## License
 
@@ -168,3 +173,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 ## Contributing
 
 Contributions are welcome! Feel free to open issues or submit pull requests.
+
+The public API is checked against `kscan/api`. If a change alters it deliberately, run
+`./gradlew :kscan:updateLegacyAbi` and commit the updated dump; CI fails on an
+undeclared change. Run `./gradlew spotlessApply` before pushing.
