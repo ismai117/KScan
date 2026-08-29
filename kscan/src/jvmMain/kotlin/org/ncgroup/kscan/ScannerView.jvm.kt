@@ -144,7 +144,7 @@ public actual fun ScannerView(
             var localGrabber: OpenCVFrameGrabber? = null
 
             try {
-                localGrabber = OpenCVFrameGrabber(0).apply {
+                localGrabber = OpenCVFrameGrabber(KScanDesktop.cameraIndex).apply {
                     imageWidth = 1920
                     imageHeight = 1080
                     setVideoOption("focus_auto", "1")
@@ -165,7 +165,15 @@ public actual fun ScannerView(
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    updatedResult(BarcodeResult.OnFailed(e))
+                    updatedResult(
+                        BarcodeResult.OnFailed(
+                            Exception(
+                                "Could not open camera ${KScanDesktop.cameraIndex}. " +
+                                    "Another index may be available.",
+                                e,
+                            ),
+                        ),
+                    )
                 }
             } finally {
                 try {
