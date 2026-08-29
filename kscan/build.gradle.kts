@@ -48,7 +48,6 @@ kotlin {
             implementation(libs.javacv)
             implementation(libs.opencv.platform)
             implementation(libs.zxing.core)
-            implementation(libs.zxing.javase)
         }
         commonTest.dependencies {
             implementation(libs.compose.ui.test)

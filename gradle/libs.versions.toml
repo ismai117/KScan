@@ -55,7 +55,6 @@ moko-permissions-compose = { module = "dev.icerock.moko:permissions-compose", ve
 ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "compose" }
 composeRules-ktlint = { module = "io.nlopez.compose.rules:ktlint", version.ref = "composeRules" }
 zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
-zxing-javase = { module = "com.google.zxing:javase", version.ref = "zxing" }
 javacv = { module = "org.bytedeco:javacv", version.ref = "javacv" }
 opencv-platform = { module = "org.bytedeco:opencv-platform", version.ref = "opencv" }
 
