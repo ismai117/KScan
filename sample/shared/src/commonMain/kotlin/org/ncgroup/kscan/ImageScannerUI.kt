@@ -18,16 +18,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.github.ismoy.imagepickerkmp.extensions.loadBytes
 import io.github.ismoy.imagepickerkmp.picker.ImagePickerKMPConfig
 import io.github.ismoy.imagepickerkmp.picker.ImagePickerResult
 import io.github.ismoy.imagepickerkmp.picker.rememberImagePickerKMP
 
-/** Scans a barcode out of an image taken with the camera or picked from the gallery. */
+/** Scanning a barcode out of a still image rather than the camera feed. */
 @Composable
 fun ImageScannerUI(modifier: Modifier = Modifier) {
-    val scan = remember { ScanState() }
+    var barcode by remember { mutableStateOf("") }
+    var format by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf("") }
     var isScanning by remember { mutableStateOf(false) }
 
     val picker = rememberImagePickerKMP(config = ImagePickerKMPConfig())
@@ -37,21 +40,35 @@ fun ImageScannerUI(modifier: Modifier = Modifier) {
         when (pickerResult) {
             is ImagePickerResult.Success -> {
                 pickerResult.photos.firstOrNull()?.let { photo ->
-                    scan.clear()
+                    barcode = ""
+                    format = ""
+                    error = ""
                     isScanning = true
+
                     scanImage(
                         imageBytes = photo.loadBytes(),
                         codeTypes = listOf(BarcodeFormat.FORMAT_ALL_FORMATS),
                     ) { result ->
                         isScanning = false
-                        scan.accept(result)
+                        when (result) {
+                            is BarcodeResult.OnSuccess -> {
+                                barcode = result.barcode.data
+                                format = result.barcode.format
+                            }
+
+                            is BarcodeResult.OnFailed -> {
+                                error = "Error: ${result.exception.message}"
+                            }
+
+                            BarcodeResult.OnCanceled -> Unit
+                        }
                     }
                 }
                 picker.reset()
             }
 
             is ImagePickerResult.Error -> {
-                scan.accept(BarcodeResult.OnFailed(pickerResult.exception))
+                error = "Error: ${pickerResult.exception.message}"
                 picker.reset()
             }
 
@@ -70,7 +87,14 @@ fun ImageScannerUI(modifier: Modifier = Modifier) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                ScanResult(scan)
+                if (barcode.isNotEmpty()) {
+                    Text(text = "Data: $barcode")
+                    Text(text = "Format: $format")
+                }
+
+                if (error.isNotEmpty()) {
+                    Text(text = error, color = Color.Red)
+                }
 
                 if (busy) {
                     CircularProgressIndicator()
@@ -78,10 +102,10 @@ fun ImageScannerUI(modifier: Modifier = Modifier) {
                 }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = picker::launchCamera, enabled = !busy) {
+                    Button(onClick = { picker.launchCamera() }, enabled = !busy) {
                         Text(text = "Camera")
                     }
-                    Button(onClick = picker::launchGallery, enabled = !busy) {
+                    Button(onClick = { picker.launchGallery() }, enabled = !busy) {
                         Text(text = "Gallery")
                     }
                 }
