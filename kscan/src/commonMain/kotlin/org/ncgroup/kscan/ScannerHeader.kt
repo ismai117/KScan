@@ -74,7 +74,7 @@ internal fun ScannerHeader(
             }
         },
         colors =
-        TopAppBarDefaults.centerAlignedTopAppBarColors(
+        TopAppBarDefaults.topAppBarColors(
             containerColor = containerColor,
             navigationIconContentColor = navigationIconColor,
             titleContentColor = titleColor,
