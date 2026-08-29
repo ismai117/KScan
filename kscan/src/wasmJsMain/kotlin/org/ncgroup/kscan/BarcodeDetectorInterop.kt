@@ -174,7 +174,7 @@ internal fun DetectedBarcode.toBarcode(): Barcode {
 
     return Barcode(
         data = data,
-        format = BarcodeFormatMapper.toAppFormat(format.toString()).toString(),
+        format = BarcodeFormatMapper.toAppFormat(format.toString()),
         rawBytes = data.encodeToByteArray(),
     )
 }

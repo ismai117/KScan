@@ -185,7 +185,7 @@ internal class CameraViewController(
             val barcode =
                 Barcode(
                     data = data,
-                    format = appSpecificFormat.toString(),
+                    format = appSpecificFormat,
                     rawBytes = rawBytes,
                 )
 

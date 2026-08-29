@@ -4,12 +4,12 @@ package org.ncgroup.kscan
  * Represents a scanned barcode.
  *
  * @property data The decoded String data from the barcode.
- * @property format The format of the barcode (e.g., QR_CODE, EAN_13).
+ * @property format The format the barcode was decoded as.
  * @property rawBytes The raw byte data from the barcode.
  */
 public data class Barcode(
     val data: String,
-    val format: String,
+    val format: BarcodeFormat,
     val rawBytes: ByteArray,
 ) {
     override fun equals(other: Any?): Boolean {

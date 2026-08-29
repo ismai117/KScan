@@ -71,7 +71,7 @@ public actual fun scanImage(
 
                 Barcode(
                     data = payloadString,
-                    format = appFormat.toString(),
+                    format = appFormat,
                     rawBytes = payloadString.encodeToByteArray(),
                 )
             }

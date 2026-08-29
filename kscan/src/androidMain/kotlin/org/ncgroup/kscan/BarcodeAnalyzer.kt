@@ -21,7 +21,6 @@ internal class BarcodeAnalyzer(
     private val onSuccess: (List<Barcode>) -> Unit,
     private val onFailed: (Exception) -> Unit,
     private val filter: (Barcode) -> Boolean,
-    private val onCanceled: () -> Unit,
 ) : ImageAnalysis.Analyzer {
     private val scannerOptions =
         BarcodeScannerOptions.Builder()
@@ -92,7 +91,6 @@ internal class BarcodeAnalyzer(
                 imageProxy.close()
             }
             .addOnCanceledListener {
-                onCanceled()
                 imageProxy.close()
             }
     }
@@ -116,9 +114,6 @@ internal class BarcodeAnalyzer(
             }
             .addOnFailureListener {
                 onFailed(it)
-            }
-            .addOnCanceledListener {
-                onCanceled()
             }
             .addOnCompleteListener {
                 // CRITICAL: Always close the proxy after the final attempt
@@ -178,7 +173,7 @@ internal class BarcodeAnalyzer(
                 val detectedAppBarcode =
                     Barcode(
                         data = displayValue,
-                        format = BarcodeFormatMapper.toAppFormat(mlKitBarcode.format).toString(),
+                        format = BarcodeFormatMapper.toAppFormat(mlKitBarcode.format),
                         rawBytes = mlKitBarcode.rawBytes ?: displayValue.encodeToByteArray(),
                     )
 

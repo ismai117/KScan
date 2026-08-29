@@ -74,7 +74,7 @@ internal fun Result.toBarcode(): Barcode {
 
     return Barcode(
         data = text,
-        format = barcodeFormat.toKScanFormat().toString(),
+        format = barcodeFormat.toKScanFormat(),
         rawBytes = segments?.firstOrNull() ?: text.toByteArray(Charsets.ISO_8859_1),
     )
 }

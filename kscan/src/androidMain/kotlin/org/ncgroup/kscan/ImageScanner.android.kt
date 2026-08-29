@@ -42,7 +42,7 @@ public actual fun scanImage(
 
                     Barcode(
                         data = displayValue,
-                        format = appFormat.toString(),
+                        format = appFormat,
                         rawBytes = mlKitBarcode.rawBytes ?: displayValue.encodeToByteArray(),
                     )
                 }
