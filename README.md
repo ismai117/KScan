@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Latest release](https://img.shields.io/github/v/release/ismai117/KScan?color=brightgreen&label=latest%20release)](https://github.com/ismai117/KScan/releases/latest)
 
-A Compose Multiplatform barcode scanning library for Android, iOS and Desktop.
+A Compose Multiplatform barcode scanning library for Android, iOS, Desktop and Web.
 
 | Android | iOS | Desktop |
 |---------|-----|---------|
@@ -24,6 +24,15 @@ implementation("io.github.ismai117:KScan:$version")
 **iOS** - Uses AVFoundation for camera and barcode scanning. 
 
 **Windows / macOS / Linux** - Uses JavaCV for camera and ZXing for barcode scanning.
+
+**Web** - Uses the browser's [BarcodeDetector API](https://developer.mozilla.org/docs/Web/API/BarcodeDetector). Chromium-based browsers implement it natively; elsewhere KScan loads a polyfill from a CDN the first time you scan. Self-host it, or set either to `null` to disable the fallback:
+
+```kotlin
+KScanWeb.barcodeDetectorPolyfillUrl = "/assets/barcode-detector.js"
+KScanWeb.zxingWasmUrl = "/assets/zxing_reader.wasm"
+```
+
+`availableCameras()` lists the cameras the browser will open; pass an id to `KScanWeb.cameraDeviceId` to pick one. The preview is an HTML element the browser stacks above the Compose canvas, so place controls beside it rather than over it.
 
 ## Permissions
 **Android, iOS, macOS** - Before displaying the `ScannerView`, your application must request and be granted camera permissions by the operating system. On iOS & macOS, add this to your `Info.plist`:
