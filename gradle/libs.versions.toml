@@ -21,7 +21,6 @@ moko = "0.20.1"
 zxing = "3.5.4"
 material3 = "1.10.0-alpha05"
 material-icons = "1.7.3"
-imagepickerkmp = "1.1.7"
 javacv = "1.5.14"
 opencv = "4.14.0-1.5.14"
 
@@ -57,7 +56,6 @@ ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", v
 composeRules-ktlint = { module = "io.nlopez.compose.rules:ktlint", version.ref = "composeRules" }
 zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
 zxing-javase = { module = "com.google.zxing:javase", version.ref = "zxing" }
-imagepickerkmp = { module = "io.github.ismoy:imagepickerkmp", version.ref = "imagepickerkmp" }
 javacv = { module = "org.bytedeco:javacv", version.ref = "javacv" }
 opencv-platform = { module = "org.bytedeco:opencv-platform", version.ref = "opencv" }
 
