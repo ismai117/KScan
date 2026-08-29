@@ -38,7 +38,11 @@ internal fun createVideoElement(): HTMLVideoElement = js(
  * request. Some devices and browsers reject a constraint set outright rather
  * than negotiating down, even when every entry is `ideal`.
  */
-internal fun startCamera(video: HTMLVideoElement, debug: Boolean): Promise<JsAny?> = js(
+internal fun startCamera(
+    video: HTMLVideoElement,
+    deviceId: String,
+    debug: Boolean,
+): Promise<JsAny?> = js(
     """(async () => {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 throw new Error(
@@ -46,17 +50,20 @@ internal fun startCamera(video: HTMLVideoElement, debug: Boolean): Promise<JsAny
                 );
             }
 
-            const preferred = {
-                video: {
-                    facingMode: { ideal: 'environment' },
-                    // Without these the browser hands back 640x480, which is too
-                    // coarse to resolve most barcodes.
-                    width: { ideal: 1920 },
-                    height: { ideal: 1080 },
-                    frameRate: { ideal: 30 },
-                },
-                audio: false,
+            // Without a resolution the browser hands back 640x480, which is too
+            // coarse to resolve most barcodes. A requested device is asked for
+            // exactly; naming one and a facing mode together can conflict.
+            const constraints = {
+                width: { ideal: 1920 },
+                height: { ideal: 1080 },
+                frameRate: { ideal: 30 },
             };
+            if (deviceId) {
+                constraints.deviceId = { exact: deviceId };
+            } else {
+                constraints.facingMode = { ideal: 'environment' };
+            }
+            const preferred = { video: constraints, audio: false };
 
             let stream;
             try {

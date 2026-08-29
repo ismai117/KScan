@@ -88,7 +88,11 @@ public actual fun ScannerView(
 
     LaunchedEffect(codeTypes) {
         try {
-            startCamera(video, KScanWeb.debugLogging).await()
+            startCamera(
+                video = video,
+                deviceId = KScanWeb.cameraDeviceId.orEmpty(),
+                debug = KScanWeb.debugLogging,
+            ).await()
 
             val capabilities = cameraCapabilities(video)
             scannerController?.maxZoomRatio =

@@ -59,4 +59,12 @@ public object KScanWeb {
      * ```
      */
     public var debugLogging: Boolean = false
+
+    /**
+     * Identifier of the camera [ScannerView] opens, from [availableCameras].
+     *
+     * `null` lets the browser choose, preferring a rear-facing camera where the
+     * device has one.
+     */
+    public var cameraDeviceId: String? = null
 }
