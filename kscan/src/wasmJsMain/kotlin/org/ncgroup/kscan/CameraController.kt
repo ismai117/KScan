@@ -17,7 +17,16 @@ internal external interface CameraCapabilities : JsAny {
     val maxZoomRatio: Double
 }
 
-/** Creates the `<video>` element that renders the camera preview. */
+/**
+ * Creates the `<video>` element that renders the camera preview.
+ *
+ * It starts hidden. Compose sizes the element's container a frame after the
+ * element is inserted, and until it does, the `100%` below resolves against a
+ * parent of no particular size, leaving the video at the 300x150 every video
+ * element defaults to. Revealing it on the first decoded frame skips that: by
+ * then the camera has been granted, opened and delivered an image, which is
+ * many frames after the container was measured.
+ */
 internal fun createVideoElement(): HTMLVideoElement = js(
     """(() => {
             const video = document.createElement('video');
@@ -31,6 +40,11 @@ internal fun createVideoElement(): HTMLVideoElement = js(
             video.style.width = '100%';
             video.style.height = '100%';
             video.style.objectFit = 'cover';
+            // Hidden rather than absent, so it still takes up its layout box.
+            video.style.visibility = 'hidden';
+            video.addEventListener('loadeddata', () => {
+                video.style.visibility = 'visible';
+            });
             return video;
         })()""",
 )
