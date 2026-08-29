@@ -27,6 +27,10 @@ internal fun createVideoElement(): HTMLVideoElement = js(
             // Safari on iOS only honours the attribute form.
             video.setAttribute('playsinline', '');
             video.setAttribute('muted', '');
+            video.style.display = 'block';
+            video.style.width = '100%';
+            video.style.height = '100%';
+            video.style.objectFit = 'cover';
             return video;
         })()""",
 )
