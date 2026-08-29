@@ -30,6 +30,10 @@ kotlin {
     }
 }
 
+tasks.withType<JavaExec>().configureEach {
+    systemProperty("kscan.camera", providers.gradleProperty("kscan.camera").getOrElse("0"))
+}
+
 compose.desktop {
     application {
         mainClass = "MainKt"
