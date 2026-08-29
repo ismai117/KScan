@@ -133,11 +133,23 @@ internal fun detectFromVideoFrame(
         })()""",
 )
 
-/** Decodes [dataUrl] into an `ImageBitmap`. */
-internal fun imageBitmapFromDataUrl(dataUrl: String): Promise<JsAny> = js(
+/**
+ * Decodes base64 [data] into an `ImageBitmap`.
+ *
+ * [mimeType] may be empty, in which case the browser identifies the format from
+ * the bytes themselves.
+ */
+internal fun imageBitmapFromBase64(data: String, mimeType: String): Promise<JsAny> = js(
     """(async () => {
-            const response = await fetch(dataUrl);
-            return await createImageBitmap(await response.blob());
+            const binary = atob(data);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+            const blob = mimeType
+                ? new Blob([bytes], { type: mimeType })
+                : new Blob([bytes]);
+            return await createImageBitmap(blob);
         })()""",
 )
 

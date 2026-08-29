@@ -15,13 +15,6 @@ public actual fun scanImage(
     filter: (Barcode) -> Boolean,
     result: (BarcodeResult) -> Unit,
 ) {
-    val mimeType = sniffImageMimeType(imageBytes)
-
-    if (mimeType == null) {
-        result(BarcodeResult.OnFailed(Exception("Failed to decode image bytes")))
-        return
-    }
-
     MainScope().launch {
         try {
             val detector = barcodeDetector(
@@ -31,10 +24,10 @@ public actual fun scanImage(
                 debug = KScanWeb.debugLogging,
             )
 
-            val bitmap =
-                imageBitmapFromDataUrl(
-                    "data:$mimeType;base64," + Base64.encode(imageBytes),
-                ).await()
+            val bitmap = imageBitmapFromBase64(
+                data = Base64.encode(imageBytes),
+                mimeType = sniffImageMimeType(imageBytes),
+            ).await()
 
             val detectedBarcodes = try {
                 detectFrom(detector, bitmap).await().toList()
@@ -61,10 +54,10 @@ public actual fun scanImage(
 }
 
 /**
- * Returns the MIME type for [imageBytes] based on its magic number, or `null` if
- * the bytes are not a recognised image format.
+ * Returns the MIME type for [imageBytes] based on its magic number, or an empty
+ * string when the format is not recognised, leaving the browser to identify it.
  */
-private fun sniffImageMimeType(imageBytes: ByteArray): String? {
+private fun sniffImageMimeType(imageBytes: ByteArray): String {
     fun matches(vararg signature: Int): Boolean {
         if (imageBytes.size < signature.size) return false
         return signature.withIndex().all { (index, byte) -> imageBytes[index] == byte.toByte() }
@@ -83,6 +76,17 @@ private fun sniffImageMimeType(imageBytes: ByteArray): String? {
             imageBytes.size >= 12 &&
             imageBytes.copyOfRange(8, 12).decodeToString() == "WEBP" -> "image/webp"
 
-        else -> null
+        // An ISO base media file: a photo straight off a phone is usually HEIC.
+        imageBytes.size >= 12 &&
+            imageBytes.copyOfRange(4, 8).decodeToString() == "ftyp" -> {
+            when (imageBytes.copyOfRange(8, 12).decodeToString()) {
+                "heic", "heix", "hevc", "heim", "heis" -> "image/heic"
+                "mif1", "msf1" -> "image/heif"
+                "avif" -> "image/avif"
+                else -> ""
+            }
+        }
+
+        else -> ""
     }
 }
