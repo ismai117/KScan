@@ -21,7 +21,6 @@ package org.ncgroup.kscan
  *     when (result) {
  *         is BarcodeResult.OnSuccess -> println(result.barcode.data)
  *         is BarcodeResult.OnFailed -> println(result.exception.message)
- *         is BarcodeResult.OnCanceled -> { /* not applicable */ }
  *     }
  * }
  * ```

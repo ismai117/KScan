@@ -144,9 +144,6 @@ public actual fun ScannerView(
                             ),
                         )
                     },
-                    onCanceled = {
-                        updatedResult(BarcodeResult.OnCanceled)
-                    },
                     filter = filter,
                 )
 
