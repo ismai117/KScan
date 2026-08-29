@@ -24,6 +24,8 @@ import io.github.ismoy.imagepickerkmp.extensions.loadBytes
 import io.github.ismoy.imagepickerkmp.picker.ImagePickerKMPConfig
 import io.github.ismoy.imagepickerkmp.picker.ImagePickerResult
 import io.github.ismoy.imagepickerkmp.picker.rememberImagePickerKMP
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 /** Scanning a barcode out of a still image rather than the camera feed. */
 @Composable
@@ -46,7 +48,7 @@ fun ImageScannerUI(modifier: Modifier = Modifier) {
                     isScanning = true
 
                     scanImage(
-                        imageBytes = photo.loadBytes(),
+                        imageBytes = imageBytesOf(photo.loadBytes()),
                         codeTypes = listOf(BarcodeFormat.FORMAT_ALL_FORMATS),
                     ) { result ->
                         isScanning = false
@@ -112,4 +114,22 @@ fun ImageScannerUI(modifier: Modifier = Modifier) {
             }
         }
     }
+}
+
+/**
+ * Returns the picked image's bytes.
+ *
+ * On web the picker reads files with FileReader.readAsDataURL and hands back
+ * the text of that data URL rather than the image, so the payload is decoded
+ * here. Other platforms already return the bytes and are left alone.
+ */
+@OptIn(ExperimentalEncodingApi::class)
+private fun imageBytesOf(bytes: ByteArray): ByteArray {
+    val prefix = bytes.take(5).toByteArray().decodeToString()
+    if (prefix != "data:") return bytes
+
+    val text = bytes.decodeToString()
+    val payload = text.substringAfter("base64,", missingDelimiterValue = "")
+
+    return if (payload.isEmpty()) bytes else Base64.decode(payload)
 }
