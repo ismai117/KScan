@@ -15,46 +15,47 @@ import dev.icerock.moko.permissions.compose.BindEffect
 import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
 import org.ncgroup.kscan.permissions.PermissionsViewModel
 
-fun MainViewController() =
-    ComposeUIViewController {
-        val factory = rememberPermissionsControllerFactory()
-        val controller = remember(factory) { factory.createPermissionsController() }
-        BindEffect(controller)
+fun MainViewController() = ComposeUIViewController {
+    val factory = rememberPermissionsControllerFactory()
+    val controller = remember(factory) { factory.createPermissionsController() }
+    BindEffect(controller)
 
-        val viewModel =
-            viewModel {
-                PermissionsViewModel(controller = controller)
-            }
+    val viewModel =
+        viewModel {
+            PermissionsViewModel(controller = controller)
+        }
 
-        Box(
-            modifier = Modifier.fillMaxSize(),
-        ) {
-            when (viewModel.state) {
-                PermissionState.DeniedAlways -> {
-                    Column(modifier = Modifier.align(Alignment.Center)) {
-                        Text(text = "Permission always denied")
-                        Button(
-                            onClick = {
-                                controller.openAppSettings()
-                            },
-                        ) {
-                            Text(text = "Open settings")
-                        }
-                    }
-                }
-                PermissionState.Granted -> {
-                    App()
-                }
-                else -> {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        when (viewModel.state) {
+            PermissionState.DeniedAlways -> {
+                Column(modifier = Modifier.align(Alignment.Center)) {
+                    Text(text = "Permission always denied")
                     Button(
                         onClick = {
-                            viewModel.provideOrRequestPermission()
+                            controller.openAppSettings()
                         },
-                        modifier = Modifier.align(Alignment.Center),
                     ) {
-                        Text(text = "Request permission")
+                        Text(text = "Open settings")
                     }
+                }
+            }
+
+            PermissionState.Granted -> {
+                App()
+            }
+
+            else -> {
+                Button(
+                    onClick = {
+                        viewModel.provideOrRequestPermission()
+                    },
+                    modifier = Modifier.align(Alignment.Center),
+                ) {
+                    Text(text = "Request permission")
                 }
             }
         }
     }
+}

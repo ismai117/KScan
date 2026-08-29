@@ -15,7 +15,7 @@ enum class ScannerMode {
 }
 
 class ScannerModeState(
-    initial: ScannerMode = ScannerMode.Default
+    initial: ScannerMode = ScannerMode.Default,
 ) {
     var mode by mutableStateOf(initial)
 }

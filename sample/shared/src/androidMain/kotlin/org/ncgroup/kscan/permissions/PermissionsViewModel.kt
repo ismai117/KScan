@@ -31,9 +31,9 @@ class PermissionsViewModel(
             try {
                 controller.providePermission(Permission.CAMERA)
                 state = PermissionState.Granted
-            } catch (e: DeniedAlwaysException) {
+            } catch (_: DeniedAlwaysException) {
                 state = PermissionState.DeniedAlways
-            } catch (e: DeniedException) {
+            } catch (_: DeniedException) {
                 state = PermissionState.Denied
             } catch (e: RequestCanceledException) {
                 e.printStackTrace()

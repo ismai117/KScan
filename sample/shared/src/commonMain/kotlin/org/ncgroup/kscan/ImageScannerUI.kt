@@ -18,116 +18,70 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import io.github.ismoy.imagepickerkmp.domain.extensions.loadBytes
-import io.github.ismoy.imagepickerkmp.features.imagepicker.config.ImagePickerKMPConfig
-import io.github.ismoy.imagepickerkmp.features.imagepicker.model.ImagePickerResult
-import io.github.ismoy.imagepickerkmp.features.imagepicker.ui.rememberImagePickerKMP
+import io.github.ismoy.imagepickerkmp.extensions.loadBytes
+import io.github.ismoy.imagepickerkmp.picker.ImagePickerKMPConfig
+import io.github.ismoy.imagepickerkmp.picker.ImagePickerResult
+import io.github.ismoy.imagepickerkmp.picker.rememberImagePickerKMP
 
+/** Scans a barcode out of an image taken with the camera or picked from the gallery. */
 @Composable
 fun ImageScannerUI(modifier: Modifier = Modifier) {
-    var barcode by remember { mutableStateOf("") }
-    var format by remember { mutableStateOf("") }
+    val scan = remember { ScanState() }
     var isScanning by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
 
-    val picker = rememberImagePickerKMP(
-        config = ImagePickerKMPConfig()
-    )
+    val picker = rememberImagePickerKMP(config = ImagePickerKMPConfig())
     val pickerResult = picker.result
 
     LaunchedEffect(pickerResult) {
         when (pickerResult) {
             is ImagePickerResult.Success -> {
-                val photo = pickerResult.photos.firstOrNull()
-                if (photo != null) {
+                pickerResult.photos.firstOrNull()?.let { photo ->
+                    scan.clear()
                     isScanning = true
-                    errorMessage = ""
-                    barcode = ""
-                    format = ""
-
-                    val imageBytes = photo.loadBytes()
                     scanImage(
-                        imageBytes = imageBytes,
+                        imageBytes = photo.loadBytes(),
                         codeTypes = listOf(BarcodeFormat.FORMAT_ALL_FORMATS),
                     ) { result ->
                         isScanning = false
-                        when (result) {
-                            is BarcodeResult.OnSuccess -> {
-                                barcode = result.barcode.data
-                                format = result.barcode.format
-                            }
-                            is BarcodeResult.OnFailed -> {
-                                errorMessage = "Error: ${result.exception.message}"
-                            }
-                            BarcodeResult.OnCanceled -> {
-                                // Not applicable for image scanning
-                            }
-                        }
+                        scan.accept(result)
                     }
                 }
                 picker.reset()
             }
+
             is ImagePickerResult.Error -> {
-                errorMessage = "Error: ${pickerResult.exception.message}"
+                scan.accept(BarcodeResult.OnFailed(pickerResult.exception))
                 picker.reset()
             }
-            is ImagePickerResult.Dismissed -> {
-                picker.reset()
-            }
-            else -> {}
+
+            is ImagePickerResult.Dismissed -> picker.reset()
+
+            else -> Unit
         }
     }
 
-    Scaffold(
-        topBar = {
-            ModeSelector()
-        }
-    ) { padding ->
-        Box(
-            modifier = modifier.fillMaxSize().padding(padding),
-        ) {
+    val busy = isScanning || pickerResult is ImagePickerResult.Loading
+
+    Scaffold(modifier = modifier, topBar = { ModeSelector() }) { padding ->
+        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
             Column(
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                if (barcode.isNotEmpty()) {
-                    Text(text = "Data: $barcode")
-                    Text(text = "Format: $format")
+                ScanResult(scan)
+
+                if (busy) {
+                    CircularProgressIndicator()
+                    Text(text = if (isScanning) "Scanning..." else "Loading image...")
                 }
 
-                if (errorMessage.isNotEmpty()) {
-                    Text(text = errorMessage, color = Color.Red)
-                }
-
-                when (pickerResult) {
-                    is ImagePickerResult.Loading -> {
-                        CircularProgressIndicator()
-                        Text(text = "Loading image...")
-                    }
-                    else -> {
-                        if (isScanning) {
-                            CircularProgressIndicator()
-                            Text(text = "Scanning...")
-                        }
-                    }
-                }
-
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Button(
-                        onClick = { picker.launchCamera() },
-                        enabled = !isScanning && pickerResult !is ImagePickerResult.Loading,
-                    ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(onClick = picker::launchCamera, enabled = !busy) {
                         Text(text = "Camera")
                     }
-                    Button(
-                        onClick = { picker.launchGallery() },
-                        enabled = !isScanning && pickerResult !is ImagePickerResult.Loading,
-                    ) {
+                    Button(onClick = picker::launchGallery, enabled = !busy) {
                         Text(text = "Gallery")
                     }
                 }
