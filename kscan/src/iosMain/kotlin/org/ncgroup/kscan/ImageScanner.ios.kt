@@ -63,7 +63,7 @@ public actual fun scanImage(
         val matchingBarcode = observations
             .mapNotNull { observation ->
                 val symbology = observation.symbology ?: return@mapNotNull null
-                val appFormat = symbologyToAppFormat(symbology)
+                val appFormat = visionFormats.appFormat(symbology)
 
                 if (!isRequestedFormat(appFormat, codeTypes)) return@mapNotNull null
 
@@ -84,8 +84,7 @@ public actual fun scanImage(
         }
     }
 
-    // Set symbologies to detect
-    val symbologies = toVisionSymbologies(codeTypes)
+    val symbologies = visionFormats.platformFormats(codeTypes)
     if (symbologies.isNotEmpty()) {
         request.setSymbologies(symbologies)
     }
@@ -97,49 +96,21 @@ public actual fun scanImage(
     }
 }
 
-private fun symbologyToAppFormat(symbology: String): BarcodeFormat = when (symbology) {
-    VNBarcodeSymbologyQR -> BarcodeFormat.FORMAT_QR_CODE
-    VNBarcodeSymbologyEAN13 -> BarcodeFormat.FORMAT_EAN_13
-    VNBarcodeSymbologyEAN8 -> BarcodeFormat.FORMAT_EAN_8
-    VNBarcodeSymbologyCode128 -> BarcodeFormat.FORMAT_CODE_128
-    VNBarcodeSymbologyCode39 -> BarcodeFormat.FORMAT_CODE_39
-    VNBarcodeSymbologyCode93 -> BarcodeFormat.FORMAT_CODE_93
-    VNBarcodeSymbologyUPCE -> BarcodeFormat.FORMAT_UPC_E
-    VNBarcodeSymbologyPDF417 -> BarcodeFormat.FORMAT_PDF417
-    VNBarcodeSymbologyAztec -> BarcodeFormat.FORMAT_AZTEC
-    VNBarcodeSymbologyDataMatrix -> BarcodeFormat.FORMAT_DATA_MATRIX
-    else -> BarcodeFormat.TYPE_UNKNOWN
-}
-
-private fun toVisionSymbologies(appFormats: List<BarcodeFormat>): List<String> {
-    if (appFormats.isEmpty() || appFormats.contains(BarcodeFormat.FORMAT_ALL_FORMATS)) {
-        return listOfNotNull(
-            VNBarcodeSymbologyQR,
-            VNBarcodeSymbologyEAN13,
-            VNBarcodeSymbologyEAN8,
-            VNBarcodeSymbologyCode128,
-            VNBarcodeSymbologyCode39,
-            VNBarcodeSymbologyCode93,
-            VNBarcodeSymbologyUPCE,
-            VNBarcodeSymbologyPDF417,
-            VNBarcodeSymbologyAztec,
-            VNBarcodeSymbologyDataMatrix,
-        )
-    }
-
-    return appFormats.mapNotNull { format ->
-        when (format) {
-            BarcodeFormat.FORMAT_QR_CODE -> VNBarcodeSymbologyQR
-            BarcodeFormat.FORMAT_EAN_13 -> VNBarcodeSymbologyEAN13
-            BarcodeFormat.FORMAT_EAN_8 -> VNBarcodeSymbologyEAN8
-            BarcodeFormat.FORMAT_CODE_128 -> VNBarcodeSymbologyCode128
-            BarcodeFormat.FORMAT_CODE_39 -> VNBarcodeSymbologyCode39
-            BarcodeFormat.FORMAT_CODE_93 -> VNBarcodeSymbologyCode93
-            BarcodeFormat.FORMAT_UPC_E -> VNBarcodeSymbologyUPCE
-            BarcodeFormat.FORMAT_PDF417 -> VNBarcodeSymbologyPDF417
-            BarcodeFormat.FORMAT_AZTEC -> VNBarcodeSymbologyAztec
-            BarcodeFormat.FORMAT_DATA_MATRIX -> VNBarcodeSymbologyDataMatrix
-            else -> null
-        }
-    }
-}
+/**
+ * Still images decode through Vision, which names its formats differently from the
+ * AVFoundation metadata types the live camera reports.
+ */
+private val visionFormats = FormatMap(
+    mapOf(
+        VNBarcodeSymbologyQR to BarcodeFormat.FORMAT_QR_CODE,
+        VNBarcodeSymbologyEAN13 to BarcodeFormat.FORMAT_EAN_13,
+        VNBarcodeSymbologyEAN8 to BarcodeFormat.FORMAT_EAN_8,
+        VNBarcodeSymbologyCode128 to BarcodeFormat.FORMAT_CODE_128,
+        VNBarcodeSymbologyCode39 to BarcodeFormat.FORMAT_CODE_39,
+        VNBarcodeSymbologyCode93 to BarcodeFormat.FORMAT_CODE_93,
+        VNBarcodeSymbologyUPCE to BarcodeFormat.FORMAT_UPC_E,
+        VNBarcodeSymbologyPDF417 to BarcodeFormat.FORMAT_PDF417,
+        VNBarcodeSymbologyAztec to BarcodeFormat.FORMAT_AZTEC,
+        VNBarcodeSymbologyDataMatrix to BarcodeFormat.FORMAT_DATA_MATRIX,
+    ),
+)

@@ -6,8 +6,6 @@ import platform.AVFoundation.AVMetadataObjectTypeInterleaved2of5Code
 import platform.AVFoundation.AVMetadataObjectTypeQRCode
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 class BarcodeFormatMapperTest {
 
@@ -74,19 +72,5 @@ class BarcodeFormatMapperTest {
         val result = BarcodeFormatMapper.toAppFormat("unknown_type")
 
         assertEquals(BarcodeFormat.TYPE_UNKNOWN, result)
-    }
-
-    @Test
-    fun `GIVEN known av type WHEN isKnownFormat THEN returns true`() {
-        val result = BarcodeFormatMapper.isKnownFormat(AVMetadataObjectTypeQRCode)
-
-        assertTrue(result)
-    }
-
-    @Test
-    fun `GIVEN unknown av type WHEN isKnownFormat THEN returns false`() {
-        val result = BarcodeFormatMapper.isKnownFormat("unknown_type")
-
-        assertFalse(result)
     }
 }

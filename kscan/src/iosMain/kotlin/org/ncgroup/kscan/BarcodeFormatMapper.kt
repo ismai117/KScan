@@ -18,33 +18,25 @@ import platform.AVFoundation.AVMetadataObjectTypeUPCECode
  */
 internal object BarcodeFormatMapper {
 
-    private val AV_TO_APP_FORMAT_MAP: Map<AVMetadataObjectType, BarcodeFormat> = mapOf(
-        AVMetadataObjectTypeQRCode to BarcodeFormat.FORMAT_QR_CODE,
-        AVMetadataObjectTypeEAN13Code to BarcodeFormat.FORMAT_EAN_13,
-        AVMetadataObjectTypeEAN8Code to BarcodeFormat.FORMAT_EAN_8,
-        AVMetadataObjectTypeCode128Code to BarcodeFormat.FORMAT_CODE_128,
-        AVMetadataObjectTypeCode39Code to BarcodeFormat.FORMAT_CODE_39,
-        AVMetadataObjectTypeCode93Code to BarcodeFormat.FORMAT_CODE_93,
-        AVMetadataObjectTypeUPCECode to BarcodeFormat.FORMAT_UPC_E,
-        AVMetadataObjectTypePDF417Code to BarcodeFormat.FORMAT_PDF417,
-        AVMetadataObjectTypeAztecCode to BarcodeFormat.FORMAT_AZTEC,
-        AVMetadataObjectTypeDataMatrixCode to BarcodeFormat.FORMAT_DATA_MATRIX,
-        AVMetadataObjectTypeInterleaved2of5Code to BarcodeFormat.FORMAT_ITF,
+    private val formats = FormatMap(
+        mapOf(
+            AVMetadataObjectTypeQRCode to BarcodeFormat.FORMAT_QR_CODE,
+            AVMetadataObjectTypeEAN13Code to BarcodeFormat.FORMAT_EAN_13,
+            AVMetadataObjectTypeEAN8Code to BarcodeFormat.FORMAT_EAN_8,
+            AVMetadataObjectTypeCode128Code to BarcodeFormat.FORMAT_CODE_128,
+            AVMetadataObjectTypeCode39Code to BarcodeFormat.FORMAT_CODE_39,
+            AVMetadataObjectTypeCode93Code to BarcodeFormat.FORMAT_CODE_93,
+            AVMetadataObjectTypeUPCECode to BarcodeFormat.FORMAT_UPC_E,
+            AVMetadataObjectTypePDF417Code to BarcodeFormat.FORMAT_PDF417,
+            AVMetadataObjectTypeAztecCode to BarcodeFormat.FORMAT_AZTEC,
+            AVMetadataObjectTypeDataMatrixCode to BarcodeFormat.FORMAT_DATA_MATRIX,
+            AVMetadataObjectTypeInterleaved2of5Code to BarcodeFormat.FORMAT_ITF,
+        ),
     )
 
-    private val APP_TO_AV_FORMAT_MAP: Map<BarcodeFormat, AVMetadataObjectType> =
-        AV_TO_APP_FORMAT_MAP.entries.associateBy({ it.value }) { it.key }
+    val allSupportedTypes: List<AVMetadataObjectType> = formats.all
 
-    val allSupportedTypes: List<AVMetadataObjectType> = AV_TO_APP_FORMAT_MAP.keys.toList()
+    fun toAvTypes(appFormats: List<BarcodeFormat>): List<AVMetadataObjectType> = formats.platformFormats(appFormats)
 
-    fun toAvTypes(appFormats: List<BarcodeFormat>): List<AVMetadataObjectType> {
-        if (appFormats.isEmpty() || appFormats.contains(BarcodeFormat.FORMAT_ALL_FORMATS)) {
-            return allSupportedTypes
-        }
-        return appFormats.mapNotNull { APP_TO_AV_FORMAT_MAP[it] }
-    }
-
-    fun toAppFormat(avType: AVMetadataObjectType): BarcodeFormat = AV_TO_APP_FORMAT_MAP[avType] ?: BarcodeFormat.TYPE_UNKNOWN
-
-    fun isKnownFormat(avType: AVMetadataObjectType): Boolean = AV_TO_APP_FORMAT_MAP.containsKey(avType)
+    fun toAppFormat(avType: AVMetadataObjectType): BarcodeFormat = formats.appFormat(avType)
 }

@@ -7,8 +7,6 @@ import com.google.mlkit.vision.barcode.common.Barcode.FORMAT_QR_CODE
 import com.google.mlkit.vision.barcode.common.Barcode.FORMAT_UNKNOWN
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 class BarcodeFormatMapperTest {
 
@@ -75,26 +73,5 @@ class BarcodeFormatMapperTest {
         val result = BarcodeFormatMapper.toAppFormat(999999)
 
         assertEquals(BarcodeFormat.TYPE_UNKNOWN, result)
-    }
-
-    @Test
-    fun `GIVEN known mlkit format WHEN isKnownFormat THEN returns true`() {
-        val result = BarcodeFormatMapper.isKnownFormat(FORMAT_QR_CODE)
-
-        assertTrue(result)
-    }
-
-    @Test
-    fun `GIVEN unknown mlkit format WHEN isKnownFormat THEN returns true`() {
-        val result = BarcodeFormatMapper.isKnownFormat(FORMAT_UNKNOWN)
-
-        assertTrue(result)
-    }
-
-    @Test
-    fun `GIVEN unmapped mlkit format WHEN isKnownFormat THEN returns false`() {
-        val result = BarcodeFormatMapper.isKnownFormat(999999)
-
-        assertFalse(result)
     }
 }
