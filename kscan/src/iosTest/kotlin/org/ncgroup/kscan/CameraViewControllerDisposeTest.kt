@@ -10,7 +10,6 @@ class CameraViewControllerDisposeTest {
         codeTypes = emptyList(),
         onBarcodeSuccess = { /* no-op */ },
         onBarcodeFailed = { /* no-op */ },
-        onBarcodeCanceled = { /* no-op */ },
         filter = { true },
         onMaxZoomRatioAvailable = { /* no-op */ },
     )
