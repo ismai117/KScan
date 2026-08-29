@@ -73,6 +73,9 @@ jobs:
       - name: Gradle setup
         uses: ./.github/actions/gradle-setup
 
+      - name: Check public API
+        run: ./gradlew :kscan:checkLegacyAbi
+
       - name: Run iOS unit tests
         run: ./gradlew :kscan:iosSimulatorArm64Test
 

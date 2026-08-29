@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 
 plugins {
     id("kscan.kmp.library")
@@ -8,6 +9,9 @@ plugins {
 
 kotlin {
     explicitApi()
+
+    @OptIn(ExperimentalAbiValidation::class)
+    abiValidation {}
 
     android {
         namespace = "org.ncgroup.kscan"
