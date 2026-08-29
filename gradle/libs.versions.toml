@@ -1,27 +1,29 @@
 [versions]
-agp = "9.1.1"
-kotlin = "2.3.21"
-compose = "1.10.3"
+agp = "9.2.1"
+kotlin = "2.4.10"
+compose = "1.12.0"
 kotlinx-coroutines = "1.11.0"
-android-compileSdk = "36"
+android-compileSdk = "37"
 android-minSdk = "24"
-android-targetSdk = "36"
+android-targetSdk = "37"
 androidx-activityCompose = "1.13.0"
-androidx-appcompat = "1.7.1"
-androidx-core-ktx = "1.18.0"
-androidx-lifecycle = "2.10.0"
-androidx-camera = "1.6.1"
+androidx-appcompat = "1.8.0"
+androidx-core-ktx = "1.19.0"
+androidx-lifecycle = "2.11.0"
+androidx-camera = "1.6.2"
 dokka = "2.2.0"
-klint = "14.2.0"
-maven-publish = "0.36.0"
+spotless = "8.10.0"
+ktlint = "1.8.0"
+composeRules = "0.6.4"
+maven-publish = "0.37.0"
 mlkitBarcodeScanning-android = "17.3.0"
 moko = "0.20.1"
 zxing = "3.5.4"
 material3 = "1.10.0-alpha05"
 material-icons = "1.7.3"
-imagepickerkmp = "1.0.41"
-javacv = "1.5.13"
-opencv = "4.13.0-1.5.13"
+imagepickerkmp = "1.1.7"
+javacv = "1.5.14"
+opencv = "4.14.0-1.5.14"
 
 [libraries]
 androidx-activityCompose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
@@ -52,6 +54,7 @@ compose-desktop = { module = "org.jetbrains.compose.desktop:desktop", version.re
 moko-permissions = { module = "dev.icerock.moko:permissions-camera", version.ref = "moko" }
 moko-permissions-compose = { module = "dev.icerock.moko:permissions-compose", version.ref = "moko" }
 ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "compose" }
+composeRules-ktlint = { module = "io.nlopez.compose.rules:ktlint", version.ref = "composeRules" }
 zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
 zxing-javase = { module = "com.google.zxing:javase", version.ref = "zxing" }
 imagepickerkmp = { module = "io.github.ismoy:imagepickerkmp", version.ref = "imagepickerkmp" }
@@ -70,5 +73,5 @@ compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
-ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "klint" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 mavenPublish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish" }
