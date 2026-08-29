@@ -21,8 +21,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-/** How long to wait between detection passes over the live preview. */
-private const val SCAN_INTERVAL_MS = 100L
+/**
+ * How long to wait between detection passes over the live preview.
+ *
+ * The camera is asked for 30fps, so sampling faster than a frame arrives is
+ * wasted. A pass costs about 10ms with a native detector and about 33ms with the
+ * polyfill, so this stays well inside the frame budget.
+ */
+private const val SCAN_INTERVAL_MS = 33L
 
 /**
  * Web draws the camera preview only: [colors] and [scannerUiOptions] are accepted
