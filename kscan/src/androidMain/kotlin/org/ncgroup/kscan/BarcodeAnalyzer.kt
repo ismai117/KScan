@@ -31,19 +31,19 @@ internal class BarcodeAnalyzer(
                     val camera = getCamera()
                     val maxZoomRatio =
                         (camera?.cameraInfo?.zoomState?.value?.maxZoomRatio ?: 1.0f)
-                            .coerceAtMost(5.0f)
+                            .coerceAtMost(MAX_ZOOM_RATIO)
                     if (zoomRatio <= maxZoomRatio) {
                         camera?.cameraControl?.setZoomRatio(zoomRatio)
                         true
                     } else {
                         false
                     }
-                }.setMaxSupportedZoomRatio(5.0f).build(),
+                }.setMaxSupportedZoomRatio(MAX_ZOOM_RATIO).build(),
             )
             .build()
 
     private val scanner = BarcodeScanning.getClient(scannerOptions)
-    private val barcodesDetected = mutableMapOf<String, Int>()
+    private val repeated = RepeatedDetection()
     private var hasSuccessfullyProcessedBarcode = false
 
     /** Counts frames that held no barcode, to pace the inverted rescan. */
@@ -174,10 +174,7 @@ internal class BarcodeAnalyzer(
         for (mlKitBarcode in mlKitBarcodes) {
             val displayValue = mlKitBarcode.displayValue ?: continue
 
-            val seen = (barcodesDetected[displayValue] ?: 0) + 1
-            barcodesDetected[displayValue] = seen
-
-            if (seen >= 2) {
+            if (repeated.accept(displayValue)) {
                 val detectedAppBarcode =
                     Barcode(
                         data = displayValue,
@@ -189,7 +186,7 @@ internal class BarcodeAnalyzer(
                 if (!filter(detectedAppBarcode)) continue
 
                 onSuccess(listOf(detectedAppBarcode))
-                barcodesDetected.clear()
+                repeated.reset()
                 hasSuccessfullyProcessedBarcode = true
                 break
             }

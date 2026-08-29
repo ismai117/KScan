@@ -34,9 +34,6 @@ import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_global_queue
 import platform.darwin.dispatch_get_main_queue
 
-/** Zoom beyond this is rarely usable for scanning. */
-private const val MAX_ZOOM_RATIO = 5.0f
-
 /**
  * UIViewController that manages camera preview and barcode scanning using AVFoundation.
  *
@@ -55,7 +52,7 @@ internal class CameraViewController(
     private lateinit var previewLayer: AVCaptureVideoPreviewLayer
     private lateinit var videoInput: AVCaptureDeviceInput
 
-    private val barcodesDetected = mutableMapOf<String, Int>()
+    private val repeated = RepeatedDetection()
 
     /** Ceiling shared by the reported maximum and by [setZoom]. */
     private val maxZoomRatio: Float by lazy {
@@ -172,9 +169,7 @@ internal class CameraViewController(
         val type = barcodeObject.type
         val key = value.ifEmpty { type.toString() }
 
-        barcodesDetected[key] = (barcodesDetected[key] ?: 0) + 1
-
-        if ((barcodesDetected[key] ?: 0) >= 2) {
+        if (repeated.accept(key)) {
             val appSpecificFormat = BarcodeFormatMapper.toAppFormat(type)
 
             val rawBytes = extractRawBytes(barcodeObject, value)
@@ -197,7 +192,7 @@ internal class CameraViewController(
             if (!filter(barcode)) return
 
             onBarcodeSuccess(listOf(barcode))
-            barcodesDetected.clear()
+            repeated.reset()
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT.toLong(), 0u)) {
                 if (::captureSession.isInitialized && captureSession.isRunning()) {
                     captureSession.stopRunning()
@@ -284,6 +279,6 @@ internal class CameraViewController(
                 previewLayer.removeFromSuperlayer()
             }
         }
-        barcodesDetected.clear()
+        repeated.reset()
     }
 }
