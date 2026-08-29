@@ -61,9 +61,6 @@ ScannerView(
         is BarcodeResult.OnFailed -> {
             println("Error: ${result.exception.message}")
         }
-        BarcodeResult.OnCanceled -> {
-            println("Canceled")
-        }
     }
 }
 ```
@@ -129,9 +126,6 @@ scanImage(
         }
         is BarcodeResult.OnFailed -> {
             println("Error: ${result.exception.message}")
-        }
-        BarcodeResult.OnCanceled -> {
-            // Not applicable for image scanning
         }
     }
 }

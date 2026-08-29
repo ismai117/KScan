@@ -1,14 +1,14 @@
 public final class org/ncgroup/kscan/Barcode {
 	public static final field $stable I
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;[B)V
+	public fun <init> (Ljava/lang/String;Lorg/ncgroup/kscan/BarcodeFormat;[B)V
 	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/lang/String;
+	public final fun component2 ()Lorg/ncgroup/kscan/BarcodeFormat;
 	public final fun component3 ()[B
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;[B)Lorg/ncgroup/kscan/Barcode;
-	public static synthetic fun copy$default (Lorg/ncgroup/kscan/Barcode;Ljava/lang/String;Ljava/lang/String;[BILjava/lang/Object;)Lorg/ncgroup/kscan/Barcode;
+	public final fun copy (Ljava/lang/String;Lorg/ncgroup/kscan/BarcodeFormat;[B)Lorg/ncgroup/kscan/Barcode;
+	public static synthetic fun copy$default (Lorg/ncgroup/kscan/Barcode;Ljava/lang/String;Lorg/ncgroup/kscan/BarcodeFormat;[BILjava/lang/Object;)Lorg/ncgroup/kscan/Barcode;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getData ()Ljava/lang/String;
-	public final fun getFormat ()Ljava/lang/String;
+	public final fun getFormat ()Lorg/ncgroup/kscan/BarcodeFormat;
 	public final fun getRawBytes ()[B
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
@@ -36,14 +36,6 @@ public final class org/ncgroup/kscan/BarcodeFormat : java/lang/Enum {
 }
 
 public abstract interface class org/ncgroup/kscan/BarcodeResult {
-}
-
-public final class org/ncgroup/kscan/BarcodeResult$OnCanceled : org/ncgroup/kscan/BarcodeResult {
-	public static final field $stable I
-	public static final field INSTANCE Lorg/ncgroup/kscan/BarcodeResult$OnCanceled;
-	public fun equals (Ljava/lang/Object;)Z
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
 }
 
 public final class org/ncgroup/kscan/BarcodeResult$OnFailed : org/ncgroup/kscan/BarcodeResult {

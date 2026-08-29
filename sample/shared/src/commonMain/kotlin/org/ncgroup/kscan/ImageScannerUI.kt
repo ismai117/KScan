@@ -40,14 +40,12 @@ fun ImageScannerUI(modifier: Modifier = Modifier) {
             when (result) {
                 is BarcodeResult.OnSuccess -> {
                     barcode = result.barcode.data
-                    format = result.barcode.format
+                    format = result.barcode.format.name
                 }
 
                 is BarcodeResult.OnFailed -> {
                     error = "Error: ${result.exception.message}"
                 }
-
-                BarcodeResult.OnCanceled -> Unit
             }
         }
     }

@@ -56,28 +56,22 @@ sealed interface org.ncgroup.kscan/BarcodeResult { // org.ncgroup.kscan/BarcodeR
         final fun hashCode(): kotlin/Int // org.ncgroup.kscan/BarcodeResult.OnSuccess.hashCode|hashCode(){}[0]
         final fun toString(): kotlin/String // org.ncgroup.kscan/BarcodeResult.OnSuccess.toString|toString(){}[0]
     }
-
-    final object OnCanceled : org.ncgroup.kscan/BarcodeResult { // org.ncgroup.kscan/BarcodeResult.OnCanceled|null[0]
-        final fun equals(kotlin/Any?): kotlin/Boolean // org.ncgroup.kscan/BarcodeResult.OnCanceled.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // org.ncgroup.kscan/BarcodeResult.OnCanceled.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // org.ncgroup.kscan/BarcodeResult.OnCanceled.toString|toString(){}[0]
-    }
 }
 
 final class org.ncgroup.kscan/Barcode { // org.ncgroup.kscan/Barcode|null[0]
-    constructor <init>(kotlin/String, kotlin/String, kotlin/ByteArray) // org.ncgroup.kscan/Barcode.<init>|<init>(kotlin.String;kotlin.String;kotlin.ByteArray){}[0]
+    constructor <init>(kotlin/String, org.ncgroup.kscan/BarcodeFormat, kotlin/ByteArray) // org.ncgroup.kscan/Barcode.<init>|<init>(kotlin.String;org.ncgroup.kscan.BarcodeFormat;kotlin.ByteArray){}[0]
 
     final val data // org.ncgroup.kscan/Barcode.data|{}data[0]
         final fun <get-data>(): kotlin/String // org.ncgroup.kscan/Barcode.data.<get-data>|<get-data>(){}[0]
     final val format // org.ncgroup.kscan/Barcode.format|{}format[0]
-        final fun <get-format>(): kotlin/String // org.ncgroup.kscan/Barcode.format.<get-format>|<get-format>(){}[0]
+        final fun <get-format>(): org.ncgroup.kscan/BarcodeFormat // org.ncgroup.kscan/Barcode.format.<get-format>|<get-format>(){}[0]
     final val rawBytes // org.ncgroup.kscan/Barcode.rawBytes|{}rawBytes[0]
         final fun <get-rawBytes>(): kotlin/ByteArray // org.ncgroup.kscan/Barcode.rawBytes.<get-rawBytes>|<get-rawBytes>(){}[0]
 
     final fun component1(): kotlin/String // org.ncgroup.kscan/Barcode.component1|component1(){}[0]
-    final fun component2(): kotlin/String // org.ncgroup.kscan/Barcode.component2|component2(){}[0]
+    final fun component2(): org.ncgroup.kscan/BarcodeFormat // org.ncgroup.kscan/Barcode.component2|component2(){}[0]
     final fun component3(): kotlin/ByteArray // org.ncgroup.kscan/Barcode.component3|component3(){}[0]
-    final fun copy(kotlin/String = ..., kotlin/String = ..., kotlin/ByteArray = ...): org.ncgroup.kscan/Barcode // org.ncgroup.kscan/Barcode.copy|copy(kotlin.String;kotlin.String;kotlin.ByteArray){}[0]
+    final fun copy(kotlin/String = ..., org.ncgroup.kscan/BarcodeFormat = ..., kotlin/ByteArray = ...): org.ncgroup.kscan/Barcode // org.ncgroup.kscan/Barcode.copy|copy(kotlin.String;org.ncgroup.kscan.BarcodeFormat;kotlin.ByteArray){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // org.ncgroup.kscan/Barcode.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // org.ncgroup.kscan/Barcode.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // org.ncgroup.kscan/Barcode.toString|toString(){}[0]
@@ -98,14 +92,12 @@ final class org.ncgroup.kscan/ScannerController { // org.ncgroup.kscan/ScannerCo
 }
 
 final val org.ncgroup.kscan/org_ncgroup_kscan_Barcode$stableprop // org.ncgroup.kscan/org_ncgroup_kscan_Barcode$stableprop|#static{}org_ncgroup_kscan_Barcode$stableprop[0]
-final val org.ncgroup.kscan/org_ncgroup_kscan_BarcodeResult_OnCanceled$stableprop // org.ncgroup.kscan/org_ncgroup_kscan_BarcodeResult_OnCanceled$stableprop|#static{}org_ncgroup_kscan_BarcodeResult_OnCanceled$stableprop[0]
 final val org.ncgroup.kscan/org_ncgroup_kscan_BarcodeResult_OnFailed$stableprop // org.ncgroup.kscan/org_ncgroup_kscan_BarcodeResult_OnFailed$stableprop|#static{}org_ncgroup_kscan_BarcodeResult_OnFailed$stableprop[0]
 final val org.ncgroup.kscan/org_ncgroup_kscan_BarcodeResult_OnSuccess$stableprop // org.ncgroup.kscan/org_ncgroup_kscan_BarcodeResult_OnSuccess$stableprop|#static{}org_ncgroup_kscan_BarcodeResult_OnSuccess$stableprop[0]
 final val org.ncgroup.kscan/org_ncgroup_kscan_ScannerController$stableprop // org.ncgroup.kscan/org_ncgroup_kscan_ScannerController$stableprop|#static{}org_ncgroup_kscan_ScannerController$stableprop[0]
 
 final fun org.ncgroup.kscan/ScannerView(kotlin.collections/List<org.ncgroup.kscan/BarcodeFormat>, androidx.compose.ui/Modifier?, org.ncgroup.kscan/ScannerController?, kotlin/Function1<org.ncgroup.kscan/Barcode, kotlin/Boolean>?, kotlin/Function1<org.ncgroup.kscan/BarcodeResult, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // org.ncgroup.kscan/ScannerView|ScannerView(kotlin.collections.List<org.ncgroup.kscan.BarcodeFormat>;androidx.compose.ui.Modifier?;org.ncgroup.kscan.ScannerController?;kotlin.Function1<org.ncgroup.kscan.Barcode,kotlin.Boolean>?;kotlin.Function1<org.ncgroup.kscan.BarcodeResult,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
 final fun org.ncgroup.kscan/org_ncgroup_kscan_Barcode$stableprop_getter(): kotlin/Int // org.ncgroup.kscan/org_ncgroup_kscan_Barcode$stableprop_getter|org_ncgroup_kscan_Barcode$stableprop_getter(){}[0]
-final fun org.ncgroup.kscan/org_ncgroup_kscan_BarcodeResult_OnCanceled$stableprop_getter(): kotlin/Int // org.ncgroup.kscan/org_ncgroup_kscan_BarcodeResult_OnCanceled$stableprop_getter|org_ncgroup_kscan_BarcodeResult_OnCanceled$stableprop_getter(){}[0]
 final fun org.ncgroup.kscan/org_ncgroup_kscan_BarcodeResult_OnFailed$stableprop_getter(): kotlin/Int // org.ncgroup.kscan/org_ncgroup_kscan_BarcodeResult_OnFailed$stableprop_getter|org_ncgroup_kscan_BarcodeResult_OnFailed$stableprop_getter(){}[0]
 final fun org.ncgroup.kscan/org_ncgroup_kscan_BarcodeResult_OnSuccess$stableprop_getter(): kotlin/Int // org.ncgroup.kscan/org_ncgroup_kscan_BarcodeResult_OnSuccess$stableprop_getter|org_ncgroup_kscan_BarcodeResult_OnSuccess$stableprop_getter(){}[0]
 final fun org.ncgroup.kscan/org_ncgroup_kscan_ScannerController$stableprop_getter(): kotlin/Int // org.ncgroup.kscan/org_ncgroup_kscan_ScannerController$stableprop_getter|org_ncgroup_kscan_ScannerController$stableprop_getter(){}[0]

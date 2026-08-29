@@ -20,6 +20,8 @@ changes raise the minor version.
 - **Breaking.** `ScannerView` no longer draws a UI. It renders the camera preview and
   reports what it decodes; controls and overlays are the caller's to build.
 - **Breaking.** `ScannerView`'s parameter order is now `codeTypes` then `modifier`.
+- **Breaking.** `Barcode.format` is a `BarcodeFormat` rather than a `String`, so it can
+  be matched against the enum instead of compared as text. Call `.name` for the old value.
 - `modifier` is applied on every platform. Android, desktop and web previously replaced
   it with `fillMaxSize()` and iOS appended `fillMaxSize()` to it.
 
@@ -27,6 +29,9 @@ changes raise the minor version.
 
 - **Breaking.** `ScannerColors`, `scannerColors()`, `ScannerUiOptions` and `ScannerUI()`.
 - **Breaking.** `ScannerView`'s `colors` and `scannerUiOptions` parameters.
+- **Breaking.** `BarcodeResult.OnCanceled`. Only Android ever emitted it, and only when
+  ML Kit's detection task was cancelled, which KScan never does. A scan now either
+  succeeds or fails.
 
 ### Fixed
 
