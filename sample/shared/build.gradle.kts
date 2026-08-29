@@ -5,7 +5,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "org.ncgroup.kscan.shared"
         compileSdk =
             libs.versions.android.compileSdk

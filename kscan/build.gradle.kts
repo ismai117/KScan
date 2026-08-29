@@ -9,7 +9,7 @@ plugins {
 kotlin {
     explicitApi()
 
-    androidLibrary {
+    android {
         namespace = "org.ncgroup.kscan"
         compileSdk =
             libs.versions.android.compileSdk
@@ -28,6 +28,8 @@ kotlin {
             consumerKeepRules.files(rootProject.file("consumer-rules.pro"))
             consumerKeepRules.publish = true
         }
+
+        withHostTest {}
     }
 
     sourceSets {

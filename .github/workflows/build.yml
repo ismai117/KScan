@@ -21,7 +21,7 @@ jobs:
         uses: ./.github/actions/gradle-setup
 
       - name: Run unit tests
-        run: ./gradlew jvmTest
+        run: ./gradlew jvmTest testAndroidHostTest
 
       - name: Upload test reports
         uses: actions/upload-artifact@v4
@@ -72,6 +72,9 @@ jobs:
 
       - name: Gradle setup
         uses: ./.github/actions/gradle-setup
+
+      - name: Run iOS unit tests
+        run: ./gradlew :kscan:iosSimulatorArm64Test
 
       - name: Build iOS simulator app
         run: |
