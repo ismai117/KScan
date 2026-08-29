@@ -3,7 +3,9 @@ package org.ncgroup.kscan
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
@@ -57,47 +59,63 @@ fun CustomUI(modifier: Modifier = Modifier) {
             }
 
             if (showScanner) {
-                ScannerView(
-                    codeTypes = listOf(BarcodeFormat.FORMAT_ALL_FORMATS),
-                    scannerUiOptions = null,
-                    scannerController = scannerController,
-                ) { result ->
-                    when (result) {
-                        is BarcodeResult.OnSuccess -> {
-                            barcode = result.barcode.data
-                            format = result.barcode.format
-                            error = ""
-                        }
-
-                        is BarcodeResult.OnFailed -> {
-                            error = "Error: ${result.exception.message}"
-                        }
-
-                        BarcodeResult.OnCanceled -> Unit
-                    }
-                    showScanner = false
-                }
-
-                Column(
-                    modifier = Modifier.padding(bottom = 24.dp).align(Alignment.BottomCenter),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Button(
-                        onClick = {
-                            scannerController.setTorch(!scannerController.torchEnabled)
-                        },
+                // The controls sit beside the preview, not over it: on web the
+                // preview is an HTML element that covers anything drawn on top of
+                // it and swallows clicks in that area.
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(text = "Torch ${if (scannerController.torchEnabled) "On" else "Off"}")
+                        Button(
+                            onClick = {
+                                scannerController.setTorch(!scannerController.torchEnabled)
+                            },
+                        ) {
+                            Text(
+                                text = "Torch ${if (scannerController.torchEnabled) "On" else "Off"}",
+                            )
+                        }
+
+                        Button(onClick = { showScanner = false }) {
+                            Text(text = "Close")
+                        }
                     }
 
-                    Text(text = "Zoom: ${scannerController.zoomRatio}")
+                    Text(
+                        text = "Zoom: ${scannerController.zoomRatio}",
+                        modifier = Modifier.padding(horizontal = 12.dp),
+                    )
 
                     Slider(
                         value = scannerController.zoomRatio,
                         onValueChange = { ratio -> scannerController.setZoom(ratio) },
                         valueRange = 1f..scannerController.maxZoomRatio,
-                        modifier = Modifier.padding(horizontal = 24.dp),
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
                     )
+
+                    ScannerView(
+                        modifier = Modifier.fillMaxWidth().weight(1f),
+                        codeTypes = listOf(BarcodeFormat.FORMAT_ALL_FORMATS),
+                        scannerUiOptions = null,
+                        scannerController = scannerController,
+                    ) { result ->
+                        when (result) {
+                            is BarcodeResult.OnSuccess -> {
+                                barcode = result.barcode.data
+                                format = result.barcode.format
+                                error = ""
+                            }
+
+                            is BarcodeResult.OnFailed -> {
+                                error = "Error: ${result.exception.message}"
+                            }
+
+                            BarcodeResult.OnCanceled -> Unit
+                        }
+                        showScanner = false
+                    }
                 }
             }
         }

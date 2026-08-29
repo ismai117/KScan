@@ -20,6 +20,7 @@ import kotlinx.coroutines.await
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * How long to wait between detection passes over the live preview.
@@ -126,7 +127,7 @@ public actual fun ScannerView(
                         break
                     }
                 }
-                delay(SCAN_INTERVAL_MS)
+                delay(SCAN_INTERVAL_MS.milliseconds)
             }
         } catch (e: Throwable) {
             updatedResult(BarcodeResult.OnFailed(Exception(e.message ?: e.toString())))
