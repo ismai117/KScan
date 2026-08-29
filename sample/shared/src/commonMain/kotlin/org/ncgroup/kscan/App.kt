@@ -9,13 +9,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 
 enum class ScannerMode {
-    Default,
+    Basic,
     Custom,
     Image,
 }
 
 class ScannerModeState(
-    initial: ScannerMode = ScannerMode.Default,
+    initial: ScannerMode = ScannerMode.Basic,
 ) {
     var mode by mutableStateOf(initial)
 }
@@ -28,7 +28,7 @@ fun App() {
 
     CompositionLocalProvider(LocalScannerModeState provides scannerModeState) {
         when (scannerModeState.mode) {
-            ScannerMode.Default -> DefaultUI()
+            ScannerMode.Basic -> BasicUI()
             ScannerMode.Custom -> CustomUI()
             ScannerMode.Image -> ImageScannerUI()
         }

@@ -1,9 +1,5 @@
-@file:OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
-
 package org.ncgroup.kscan
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -32,32 +28,24 @@ import kotlin.time.Duration.Companion.milliseconds
 private const val SCAN_INTERVAL_MS = 33L
 
 /**
- * Web draws the camera preview only: [colors] and [scannerUiOptions] are accepted
- * for source compatibility but nothing is rendered over the preview yet.
+ * Web draws the camera preview only, and the preview is an HTML element composed
+ * into the scene rather than something Compose paints. The browser stacks that
+ * element above the canvas Compose draws into, so content drawn over the preview
+ * is not reliably visible, and the element consumes input events over its own
+ * area. Keep your controls beside the preview rather than on top of it.
  *
- * The preview is an HTML element composed into the scene, and the browser stacks
- * it above the canvas Compose draws into, so overlay content is not reliably
- * visible. Everything else behaves as it does on the other platforms:
+ * Everything else behaves as it does on the other platforms:
  *
  * - [scannerController] drives torch and zoom, since those act on the camera
  *   track rather than on the DOM, and reports [ScannerController.maxZoomRatio]
  *   so a caller can bound its own zoom control.
  * - [filter] and [result] are unchanged.
- *
- * Build your own controls around `ScannerView` and drive them through
- * [scannerController]. Keep them outside the preview's bounds: an interop element
- * also consumes input events over its own area.
- *
- * Once overlay rendering is possible on web, [ScannerViewContent] can be restored
- * here and this file behaves like the other platforms with no API change.
  */
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalWasmJsInterop::class)
 @Composable
 public actual fun ScannerView(
     codeTypes: List<BarcodeFormat>,
     modifier: Modifier,
-    colors: ScannerColors,
-    scannerUiOptions: ScannerUiOptions?,
     scannerController: ScannerController?,
     filter: (Barcode) -> Boolean,
     result: (BarcodeResult) -> Unit,
@@ -105,6 +93,8 @@ public actual fun ScannerView(
             scannerController?.maxZoomRatio =
                 capabilities.maxZoomRatio.toFloat().coerceAtLeast(1f)
 
+            val repeated = RepeatedDetection()
+
             val detector = barcodeDetector(
                 formats = BarcodeFormatMapper.toWebFormats(codeTypes),
                 polyfillUrl = KScanWeb.barcodeDetectorPolyfillUrl.orEmpty(),
@@ -121,7 +111,7 @@ public actual fun ScannerView(
 
                     val matchingBarcode = detected.firstMatching(codeTypes, updatedFilter)
 
-                    if (matchingBarcode != null) {
+                    if (matchingBarcode != null && repeated.accept(matchingBarcode.data)) {
                         isScanning = false
                         updatedResult(BarcodeResult.OnSuccess(matchingBarcode))
                         break
@@ -134,17 +124,17 @@ public actual fun ScannerView(
         }
     }
 
-    Box(modifier = modifier) {
-        HtmlElementView(
-            factory = { video },
-            modifier = Modifier.fillMaxSize(),
-        )
-    }
+    HtmlElementView(
+        factory = { video },
+        modifier = modifier,
+    )
 
     DisposableEffect(Unit) {
         onDispose {
             isScanning = false
             stopCamera(video)
+            scannerController?.onTorchChange = null
+            scannerController?.onZoomChange = null
         }
     }
 }

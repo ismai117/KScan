@@ -35,6 +35,10 @@ implementation("io.github.ismai117:KScan:$version")
 
 ## Usage
 
+`ScannerView` draws the camera preview and reports what it decodes. It draws
+nothing else: the torch button, the zoom control, the close affordance and any
+overlay are yours to build around it.
+
 ### Basic
 
 ```kotlin
@@ -55,27 +59,32 @@ ScannerView(
 }
 ```
 
-### Without Default UI
+The preview fills the space it is given, so size and place it with `modifier`:
 
 ```kotlin
-ScannerView(
-    codeTypes = listOf(BarcodeFormat.FORMAT_QR_CODE),
-    scannerUiOptions = null
-) { result ->
-    // handle result
+Column {
+    Button(onClick = { showScanner = false }) { Text("Close") }
+
+    ScannerView(
+        modifier = Modifier.fillMaxWidth().weight(1f),
+        codeTypes = listOf(BarcodeFormat.FORMAT_ALL_FORMATS),
+    ) { result ->
+        // handle result
+    }
 }
 ```
 
 ### Custom Controls
 
-Use `ScannerController` for torch and zoom:
+Use `ScannerController` for torch and zoom. It is live only while the
+`ScannerView` it was passed to is composed. Desktop cameras expose neither, so
+`maxZoomRatio` stays at `1f` there.
 
 ```kotlin
 val scannerController = remember { ScannerController() }
 
 ScannerView(
     codeTypes = listOf(BarcodeFormat.FORMAT_ALL_FORMATS),
-    scannerUiOptions = null,
     scannerController = scannerController
 ) { result ->
     // handle result

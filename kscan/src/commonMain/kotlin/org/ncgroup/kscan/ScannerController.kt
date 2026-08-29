@@ -12,6 +12,11 @@ import androidx.compose.runtime.setValue
  * It uses mutable state properties that can be observed for changes, allowing UI
  * updates in response to scanner state modifications.
  *
+ * Pass an instance to [ScannerView] and drive it from your own controls. It is
+ * live only while that scanner is composed: [setTorch] and [setZoom] do nothing
+ * before or after, and desktop cameras expose neither, so [maxZoomRatio] stays at
+ * `1f` there and a zoom control has nothing to span.
+ *
  * @property torchEnabled A boolean indicating whether the torch is currently enabled.
  *                        Defaults to `false`. This property is read-only and can be observed for changes.
  *                        Use [setTorch] to toggle the torch.

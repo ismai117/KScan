@@ -26,9 +26,9 @@ fun ModeSelector(modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
     ) {
         FilterChip(
-            selected = modeState.mode == ScannerMode.Default,
-            onClick = { modeState.mode = ScannerMode.Default },
-            label = { Text("Default") },
+            selected = modeState.mode == ScannerMode.Basic,
+            onClick = { modeState.mode = ScannerMode.Basic },
+            label = { Text("Basic") },
         )
         FilterChip(
             selected = modeState.mode == ScannerMode.Custom,

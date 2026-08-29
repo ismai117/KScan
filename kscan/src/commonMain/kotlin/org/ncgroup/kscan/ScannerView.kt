@@ -5,22 +5,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 /**
- * A composable function that displays a scanner view for scanning barcodes.
+ * Draws the camera preview and reports the barcodes decoded from it.
  *
- * @param modifier The modifier to be applied to the scanner view.
- * @param codeTypes The list of barcode formats to be scanned.
- * @param colors The colors to be used for the scanner view.
- * @param scannerUiOptions The UI options to be used for the scanner UI. Will hide the UI if set to `null`.
- * @param scannerController An optional controller for controlling the scanner.
- * @param filter An optional lambda which can be used to filter out results before receiving a [BarcodeResult]
+ * The preview is all this draws: a torch button, a zoom control, a close
+ * affordance and any overlay are the caller's to build. Pass a
+ * [ScannerController] to drive torch and zoom from those controls.
+ *
+ * @param codeTypes The barcode formats to scan for, or [BarcodeFormat.FORMAT_ALL_FORMATS] for every supported format.
+ * @param modifier The modifier applied to the preview. Fills the available space by default.
+ * @param scannerController An optional controller for torch and zoom.
+ * @param filter Called with each decoded barcode; returning `false` keeps scanning.
  * @param result A callback function that is invoked when a barcode is scanned.
  */
 @Composable
 public expect fun ScannerView(
     codeTypes: List<BarcodeFormat>,
     modifier: Modifier = Modifier.fillMaxSize(),
-    colors: ScannerColors = ScannerColors(),
-    scannerUiOptions: ScannerUiOptions? = ScannerUiOptions(),
     scannerController: ScannerController? = null,
     filter: (Barcode) -> Boolean = { true },
     result: (BarcodeResult) -> Unit,

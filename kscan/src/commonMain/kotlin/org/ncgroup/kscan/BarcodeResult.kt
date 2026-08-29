@@ -5,7 +5,7 @@ package org.ncgroup.kscan
  * It can be one of three states:
  * - [OnSuccess]: Indicates that a barcode was successfully scanned.
  * - [OnFailed]: Indicates that the barcode scanning failed due to an error.
- * - [OnCanceled]: Indicates that the barcode scanning was canceled by the user.
+ * - [OnCanceled]: Indicates that a decode was canceled before it finished.
  */
 public sealed interface BarcodeResult {
     public data class OnSuccess(val barcode: Barcode) : BarcodeResult

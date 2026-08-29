@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
@@ -18,9 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
-/** Scanning with the UI KScan draws for you. */
 @Composable
-fun DefaultUI(modifier: Modifier = Modifier) {
+fun BasicUI(modifier: Modifier = Modifier) {
     var showScanner by remember { mutableStateOf(false) }
     var barcode by remember { mutableStateOf("") }
     var format by remember { mutableStateOf("") }
@@ -51,23 +51,33 @@ fun DefaultUI(modifier: Modifier = Modifier) {
             }
 
             if (showScanner) {
-                ScannerView(
-                    codeTypes = listOf(BarcodeFormat.FORMAT_ALL_FORMATS),
-                ) { result ->
-                    when (result) {
-                        is BarcodeResult.OnSuccess -> {
-                            barcode = result.barcode.data
-                            format = result.barcode.format
-                            error = ""
-                        }
-
-                        is BarcodeResult.OnFailed -> {
-                            error = "Error: ${result.exception.message}"
-                        }
-
-                        BarcodeResult.OnCanceled -> Unit
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Button(
+                        onClick = { showScanner = false },
+                        modifier = Modifier.padding(12.dp),
+                    ) {
+                        Text(text = "Close")
                     }
-                    showScanner = false
+
+                    ScannerView(
+                        modifier = Modifier.fillMaxWidth().weight(1f),
+                        codeTypes = listOf(BarcodeFormat.FORMAT_ALL_FORMATS),
+                    ) { result ->
+                        when (result) {
+                            is BarcodeResult.OnSuccess -> {
+                                barcode = result.barcode.data
+                                format = result.barcode.format
+                                error = ""
+                            }
+
+                            is BarcodeResult.OnFailed -> {
+                                error = "Error: ${result.exception.message}"
+                            }
+
+                            BarcodeResult.OnCanceled -> Unit
+                        }
+                        showScanner = false
+                    }
                 }
             }
         }

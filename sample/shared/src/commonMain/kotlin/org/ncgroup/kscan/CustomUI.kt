@@ -21,10 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
-/**
- * Scanning with KScan's own UI switched off, driving torch and zoom through a
- * [ScannerController].
- */
 @Composable
 fun CustomUI(modifier: Modifier = Modifier) {
     var showScanner by remember { mutableStateOf(false) }
@@ -59,9 +55,6 @@ fun CustomUI(modifier: Modifier = Modifier) {
             }
 
             if (showScanner) {
-                // The controls sit beside the preview, not over it: on web the
-                // preview is an HTML element that covers anything drawn on top of
-                // it and swallows clicks in that area.
                 Column(modifier = Modifier.fillMaxSize()) {
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(12.dp),
@@ -98,7 +91,6 @@ fun CustomUI(modifier: Modifier = Modifier) {
                     ScannerView(
                         modifier = Modifier.fillMaxWidth().weight(1f),
                         codeTypes = listOf(BarcodeFormat.FORMAT_ALL_FORMATS),
-                        scannerUiOptions = null,
                         scannerController = scannerController,
                     ) { result ->
                         when (result) {

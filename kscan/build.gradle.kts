@@ -38,7 +38,6 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
-            implementation(libs.compose.material3)
         }
         wasmJsMain.dependencies {
             implementation(libs.kotlinx.coroutines)
@@ -50,7 +49,6 @@ kotlin {
             implementation(libs.zxing.core)
         }
         commonTest.dependencies {
-            implementation(libs.compose.ui.test)
             implementation(kotlin("test"))
         }
     }

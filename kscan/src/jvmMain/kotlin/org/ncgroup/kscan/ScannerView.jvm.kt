@@ -1,7 +1,6 @@
 package org.ncgroup.kscan
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -15,10 +14,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import com.google.zxing.BinaryBitmap
-import com.google.zxing.DecodeHintType
-import com.google.zxing.MultiFormatReader
 import com.google.zxing.NotFoundException
-import com.google.zxing.ResultMetadataType
 import com.google.zxing.common.HybridBinarizer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -30,14 +26,11 @@ import kotlinx.coroutines.withContext
 import org.bytedeco.javacv.Java2DFrameConverter
 import org.bytedeco.javacv.OpenCVFrameGrabber
 import java.awt.image.BufferedImage
-import java.util.EnumMap
 
 @Composable
 public actual fun ScannerView(
     codeTypes: List<BarcodeFormat>,
     modifier: Modifier,
-    colors: ScannerColors,
-    scannerUiOptions: ScannerUiOptions?,
     scannerController: ScannerController?,
     filter: (Barcode) -> Boolean,
     result: (BarcodeResult) -> Unit,
@@ -48,39 +41,15 @@ public actual fun ScannerView(
     var cameraFrameBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     var isScanning by remember { mutableStateOf(true) }
 
-    val adjustedUiOptions = scannerUiOptions?.copy(
-        showTorch = false,
-        showZoom = false,
-    )
-
-    scannerController?.apply {
-        maxZoomRatio = 1f
-        onTorchChange = {}
-        onZoomChange = {}
-    }
-
     DisposableEffect(Unit) {
         val frameChannel = Channel<BufferedImage>(Channel.CONFLATED)
 
         val scannerJob = coroutineScope.launch(Dispatchers.Default) {
-            val reader = MultiFormatReader()
-            val hints: MutableMap<DecodeHintType, Any> = EnumMap(DecodeHintType::class.java)
-
-            val hasAllFormats = codeTypes.isEmpty() || codeTypes.contains(BarcodeFormat.FORMAT_ALL_FORMATS)
-
-            if (!hasAllFormats) {
-                val formats = codeTypes.mapNotNull { it.toZxingFormat() }
-                if (formats.isNotEmpty()) {
-                    hints[DecodeHintType.POSSIBLE_FORMATS] = formats
-                }
-            }
-            hints[DecodeHintType.CHARACTER_SET] = "ISO-8859-1"
-            hints[DecodeHintType.TRY_HARDER] = true
-
-            reader.setHints(hints)
+            val reader = zxingReader(codeTypes)
+            val repeated = RepeatedDetection()
 
             var rgbPixels: IntArray? = null
-            var fastSource: FastLuminanceSource? = null
+            var source: GrayLuminanceSource? = null
 
             for (image in frameChannel) {
                 if (!isActive || !isScanning) break
@@ -91,39 +60,19 @@ public actual fun ScannerView(
 
                     if (rgbPixels == null || rgbPixels.size != width * height) {
                         rgbPixels = IntArray(width * height)
-                        fastSource = FastLuminanceSource(width, height)
+                        source = GrayLuminanceSource(width, height)
                     }
 
                     image.getRGB(0, 0, width, height, rgbPixels, 0, width)
+                    writeLuminances(rgbPixels, source!!.luminances)
 
-                    val luminances = fastSource!!.luminances
-
-                    for (i in rgbPixels.indices) {
-                        val pixel = rgbPixels[i]
-                        val r = (pixel shr 16) and 0xff
-                        val g = (pixel shr 8) and 0xff
-                        val b = pixel and 0xff
-
-                        luminances[i] = ((r + (g shl 1) + b) shr 2).toByte()
-                    }
-
-                    val binaryBitmap = BinaryBitmap(HybridBinarizer(fastSource))
+                    val binaryBitmap = BinaryBitmap(HybridBinarizer(source))
                     val result = reader.decodeWithState(binaryBitmap)
 
-                    val bytes = if (result.resultMetadata.containsKey(ResultMetadataType.BYTE_SEGMENTS)) {
-                        val byteSegments = result.resultMetadata[ResultMetadataType.BYTE_SEGMENTS] as? MutableList<ByteArray?>
-
-                        byteSegments?.firstOrNull() ?: byteArrayOf()
-                    } else {
-                        null
-                    } ?: result.text.toByteArray(Charsets.ISO_8859_1)
+                    if (!repeated.accept(result.text)) continue
 
                     withContext(Dispatchers.Main) {
-                        val barcode = Barcode(
-                            data = result.text,
-                            format = result.barcodeFormat.toKScanFormat().toString(),
-                            rawBytes = bytes,
-                        )
+                        val barcode = result.toBarcode()
 
                         if (updatedFilter(barcode)) {
                             isScanning = false
@@ -205,43 +154,12 @@ public actual fun ScannerView(
         }
     }
 
-    ScannerViewContent(
-        modifier = modifier,
-        colors = colors,
-        scannerUiOptions = adjustedUiOptions,
-        torchEnabled = false,
-        onTorchChange = {},
-        zoomRatio = 1f,
-        onZoomChange = {},
-        maxZoomRatio = 1f,
-        onCancel = {
-            isScanning = false
-            updatedResult(BarcodeResult.OnCanceled)
-        },
-    ) {
-        cameraFrameBitmap?.let { bitmap ->
-            Image(
-                bitmap = bitmap,
-                contentDescription = "Camera Feed",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop,
-            )
-        }
+    cameraFrameBitmap?.let { bitmap ->
+        Image(
+            bitmap = bitmap,
+            contentDescription = "Camera Feed",
+            modifier = modifier,
+            contentScale = ContentScale.Crop,
+        )
     }
-}
-
-private class FastLuminanceSource(
-    width: Int,
-    height: Int,
-) : com.google.zxing.LuminanceSource(width, height) {
-    val luminances = ByteArray(width * height)
-
-    override fun getRow(y: Int, row: ByteArray?): ByteArray {
-        val width = width
-        val res = if (row == null || row.size < width) ByteArray(width) else row
-        System.arraycopy(luminances, y * width, res, 0, width)
-        return res
-    }
-
-    override fun getMatrix(): ByteArray = luminances
 }
