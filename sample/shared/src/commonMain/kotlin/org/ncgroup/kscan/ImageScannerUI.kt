@@ -117,19 +117,30 @@ fun ImageScannerUI(modifier: Modifier = Modifier) {
 }
 
 /**
- * Returns the picked image's bytes.
+ * Returns the picked image's bytes, whatever shape the picker handed back.
  *
- * On web the picker reads files with FileReader.readAsDataURL and hands back
- * the text of that data URL rather than the image, so the payload is decoded
- * here. Other platforms already return the bytes and are left alone.
+ * On web imagepickerkmp reads files with FileReader.readAsDataURL, so what
+ * arrives is the text of a data URL rather than an image. Other platforms return
+ * the bytes already, and are recognised as such and passed through.
  */
 @OptIn(ExperimentalEncodingApi::class)
-private fun imageBytesOf(bytes: ByteArray): ByteArray {
-    val prefix = bytes.take(5).toByteArray().decodeToString()
-    if (prefix != "data:") return bytes
+private fun imageBytesOf(picked: ByteArray): ByteArray {
+    val head = picked.take(64).toByteArray().decodeToString()
 
-    val text = bytes.decodeToString()
-    val payload = text.substringAfter("base64,", missingDelimiterValue = "")
+    val encoded = when {
+        // "data:image/png;base64,iVBOR..."
+        head.startsWith("data:") -> picked.decodeToString().substringAfter("base64,", "")
 
-    return if (payload.isEmpty()) bytes else Base64.decode(payload)
+        // bare base64, with no data URL wrapping it
+        head.isNotEmpty() && head.all { it.isBase64Character() } -> picked.decodeToString()
+
+        // already an image
+        else -> ""
+    }
+
+    if (encoded.isEmpty()) return picked
+
+    return runCatching { Base64.decode(encoded) }.getOrDefault(picked)
 }
+
+private fun Char.isBase64Character(): Boolean = isLetterOrDigit() || this == '+' || this == '/' || this == '=' || this == '\n' || this == '\r'
