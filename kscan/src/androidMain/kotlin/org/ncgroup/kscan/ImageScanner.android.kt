@@ -59,4 +59,7 @@ public actual fun scanImage(
         .addOnFailureListener { exception ->
             result(BarcodeResult.OnFailed(exception))
         }
+        .addOnCompleteListener {
+            scanner.close()
+        }
 }

@@ -4,6 +4,7 @@ package org.ncgroup.kscan
 
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.await
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -15,7 +16,9 @@ public actual fun scanImage(
     filter: (Barcode) -> Boolean,
     result: (BarcodeResult) -> Unit,
 ) {
-    MainScope().launch {
+    val scope = MainScope()
+
+    scope.launch {
         try {
             val detector = barcodeDetector(
                 formats = BarcodeFormatMapper.toWebFormats(codeTypes),
@@ -49,6 +52,8 @@ public actual fun scanImage(
             }
         } catch (e: Throwable) {
             result(BarcodeResult.OnFailed(Exception(e.message ?: e.toString())))
+        } finally {
+            scope.cancel()
         }
     }
 }

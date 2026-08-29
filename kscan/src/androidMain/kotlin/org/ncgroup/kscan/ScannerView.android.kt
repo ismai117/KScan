@@ -57,6 +57,7 @@ public actual fun ScannerView(
 
     var camera: Camera? by remember { mutableStateOf(null) }
     var cameraControl: CameraControl? by remember { mutableStateOf(null) }
+    var analyzer: BarcodeAnalyzer? by remember { mutableStateOf(null) }
 
     val updatedResult by rememberUpdatedState(result)
 
@@ -124,33 +125,34 @@ public actual fun ScannerView(
                     )
                     .build()
 
-                imageAnalysis.setAnalyzer(
-                    ContextCompat.getMainExecutor(ctx),
-                    BarcodeAnalyzer(
-                        getCamera = { camera },
-                        codeTypes = codeTypes,
-                        onSuccess = { scannedBarcodes ->
-                            updatedResult(
-                                BarcodeResult.OnSuccess(
-                                    scannedBarcodes.first(),
-                                ),
-                            )
+                val barcodeAnalyzer = BarcodeAnalyzer(
+                    getCamera = { camera },
+                    codeTypes = codeTypes,
+                    onSuccess = { scannedBarcodes ->
+                        updatedResult(
+                            BarcodeResult.OnSuccess(
+                                scannedBarcodes.first(),
+                            ),
+                        )
 
-                            provider.unbind(imageAnalysis)
-                        },
-                        onFailed = {
-                            updatedResult(
-                                BarcodeResult.OnFailed(
-                                    Exception(it),
-                                ),
-                            )
-                        },
-                        onCanceled = {
-                            updatedResult(BarcodeResult.OnCanceled)
-                        },
-                        filter = filter,
-                    ),
+                        provider.unbind(imageAnalysis)
+                    },
+                    onFailed = {
+                        updatedResult(
+                            BarcodeResult.OnFailed(
+                                Exception(it),
+                            ),
+                        )
+                    },
+                    onCanceled = {
+                        updatedResult(BarcodeResult.OnCanceled)
+                    },
+                    filter = filter,
                 )
+
+                analyzer = barcodeAnalyzer
+
+                imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(ctx), barcodeAnalyzer)
 
                 camera = bindCamera(
                     lifecycleOwner = lifecycleOwner,
@@ -173,6 +175,8 @@ public actual fun ScannerView(
     DisposableEffect(Unit) {
         onDispose {
             cameraProvider?.unbindAll()
+            analyzer?.close()
+            analyzer = null
             camera = null
             cameraControl = null
             scannerController?.onTorchChange = null

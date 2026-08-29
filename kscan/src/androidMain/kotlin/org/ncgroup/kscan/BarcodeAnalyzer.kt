@@ -197,6 +197,11 @@ internal class BarcodeAnalyzer(
         mlKitBarcode: com.google.mlkit.vision.barcode.common.Barcode,
     ): Boolean = isRequestedFormat(BarcodeFormatMapper.toAppFormat(mlKitBarcode.format), codeTypes)
 
+    /** Releases the ML Kit detector, which holds native resources until closed. */
+    fun close() {
+        scanner.close()
+    }
+
     private companion object {
         /** Invert and rescan one frame in this many that held no barcode. */
         const val INVERTED_SCAN_INTERVAL = 4
