@@ -7,7 +7,7 @@ package org.ncgroup.kscan
  * @property format The format of the barcode (e.g., QR_CODE, EAN_13).
  * @property rawBytes The raw byte data from the barcode.
  */
-data class Barcode(
+public data class Barcode(
     val data: String,
     val format: String,
     val rawBytes: ByteArray,

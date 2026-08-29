@@ -15,7 +15,7 @@ import com.google.mlkit.vision.common.InputImage
  *
  * Features duplicate filtering (barcode must be detected twice) and auto-zoom suggestions.
  */
-class BarcodeAnalyzer(
+internal class BarcodeAnalyzer(
     private val getCamera: () -> Camera?,
     private val codeTypes: List<BarcodeFormat>,
     private val onSuccess: (List<Barcode>) -> Unit,
@@ -46,6 +46,17 @@ class BarcodeAnalyzer(
     private val barcodesDetected = mutableMapOf<String, Int>()
     private var hasSuccessfullyProcessedBarcode = false
 
+    /** Counts frames that held no barcode, to pace the inverted rescan. */
+    private var emptyFrames = 0
+
+    /**
+     * Reused across frames. Inverting allocates roughly 1.5 bytes per pixel, which
+     * at 1080p is about 3 MB, and the analyzer only ever inverts one frame at a
+     * time: ImageAnalysis does not deliver the next frame until the current proxy
+     * is closed, which happens after the inverted scan completes.
+     */
+    private var invertedBuffer: ByteArray? = null
+
     @OptIn(ExperimentalGetImage::class)
     override fun analyze(imageProxy: ImageProxy) {
         if (hasSuccessfullyProcessedBarcode) {
@@ -63,13 +74,17 @@ class BarcodeAnalyzer(
 
         scanner.process(image)
             .addOnSuccessListener { barcodes ->
-                val relevantBarcodes = barcodes.filter { isRequestedFormat(it) }
+                val relevantBarcodes = barcodes.filter { isRequested(it) }
                 if (relevantBarcodes.isNotEmpty()) {
                     processFoundBarcodes(relevantBarcodes)
                     imageProxy.close()
-                } else {
-                    // If no barcodes found, try scanning the inverted image
+                } else if (emptyFrames++ % INVERTED_SCAN_INTERVAL == 0) {
+                    // Inverted (light-on-dark) codes need a second pass, which ML Kit
+                    // will not do itself. Inverting costs a full-frame copy, so it is
+                    // paced rather than run on every frame.
                     scanInverted(imageProxy)
+                } else {
+                    imageProxy.close()
                 }
             }
             .addOnFailureListener {
@@ -82,18 +97,19 @@ class BarcodeAnalyzer(
             }
     }
 
+    // A frame that cannot be inverted is dropped rather than reported: this runs
+    // per frame, and the caller cannot act on it.
     private fun scanInverted(imageProxy: ImageProxy) {
         val invertedImage = try {
             createInvertedInputImage(imageProxy)
         } catch (e: Exception) {
-            // Conversion failed, clean up and exit
             imageProxy.close()
             return
         }
 
         scanner.process(invertedImage)
             .addOnSuccessListener { barcodes ->
-                val relevantBarcodes = barcodes.filter { isRequestedFormat(it) }
+                val relevantBarcodes = barcodes.filter { isRequested(it) }
                 if (relevantBarcodes.isNotEmpty()) {
                     processFoundBarcodes(relevantBarcodes)
                 }
@@ -118,7 +134,9 @@ class BarcodeAnalyzer(
         val width = mediaImage.width
         val height = mediaImage.height
         val yPixelCount = width * height
-        val nv21Bytes = ByteArray(yPixelCount * 3 / 2)
+        val nv21Size = yPixelCount * 3 / 2
+        val nv21Bytes = invertedBuffer?.takeIf { it.size == nv21Size }
+            ?: ByteArray(nv21Size).also { invertedBuffer = it }
 
         val yPlane = mediaImage.planes[0]
         val rowStride = yPlane.rowStride
@@ -155,19 +173,20 @@ class BarcodeAnalyzer(
 
         for (mlKitBarcode in mlKitBarcodes) {
             val displayValue = mlKitBarcode.displayValue ?: continue
-            val rawBytes = mlKitBarcode.rawBytes ?: displayValue.encodeToByteArray()
 
-            barcodesDetected[displayValue] = (barcodesDetected[displayValue] ?: 0) + 1
-            if ((barcodesDetected[displayValue] ?: 0) >= 2) {
-                val appSpecificFormat = BarcodeFormatMapper.toAppFormat(mlKitBarcode.format)
+            val seen = (barcodesDetected[displayValue] ?: 0) + 1
+            barcodesDetected[displayValue] = seen
+
+            if (seen >= 2) {
                 val detectedAppBarcode =
                     Barcode(
                         data = displayValue,
-                        format = appSpecificFormat.toString(),
-                        rawBytes = rawBytes,
+                        format = BarcodeFormatMapper.toAppFormat(mlKitBarcode.format).toString(),
+                        rawBytes = mlKitBarcode.rawBytes ?: displayValue.encodeToByteArray(),
                     )
 
-                if (!filter(detectedAppBarcode)) return
+                // Rejected by the caller: keep looking at the rest of the frame.
+                if (!filter(detectedAppBarcode)) continue
 
                 onSuccess(listOf(detectedAppBarcode))
                 barcodesDetected.clear()
@@ -177,11 +196,12 @@ class BarcodeAnalyzer(
         }
     }
 
-    private fun isRequestedFormat(mlKitBarcode: com.google.mlkit.vision.barcode.common.Barcode): Boolean {
-        if (codeTypes.contains(BarcodeFormat.FORMAT_ALL_FORMATS)) {
-            return BarcodeFormatMapper.isKnownFormat(mlKitBarcode.format)
-        }
-        val appFormat = BarcodeFormatMapper.toAppFormat(mlKitBarcode.format)
-        return codeTypes.contains(appFormat)
+    private fun isRequested(
+        mlKitBarcode: com.google.mlkit.vision.barcode.common.Barcode,
+    ): Boolean = isRequestedFormat(BarcodeFormatMapper.toAppFormat(mlKitBarcode.format), codeTypes)
+
+    private companion object {
+        /** Invert and rescan one frame in this many that held no barcode. */
+        const val INVERTED_SCAN_INTERVAL = 4
     }
 }

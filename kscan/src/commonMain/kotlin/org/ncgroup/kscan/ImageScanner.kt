@@ -26,7 +26,7 @@ package org.ncgroup.kscan
  * }
  * ```
  */
-expect fun scanImage(
+public expect fun scanImage(
     imageBytes: ByteArray,
     codeTypes: List<BarcodeFormat> = listOf(BarcodeFormat.FORMAT_ALL_FORMATS),
     filter: (Barcode) -> Boolean = { true },

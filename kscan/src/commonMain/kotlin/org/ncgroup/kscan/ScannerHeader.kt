@@ -1,9 +1,5 @@
 package org.ncgroup.kscan
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Cancel
-import androidx.compose.material.icons.filled.FlashOff
-import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -21,7 +17,7 @@ import androidx.compose.ui.graphics.Color
  * @param onCancel A callback function that is invoked when the cancel button is clicked.
  * @param showTorch A boolean value that determines whether to show the torch button or not.
  * @param torchEnabled A boolean value that indicates whether the torch is enabled.
- * @param onTorchEnabled A callback function that is invoked when the torch toggle button is clicked.
+ * @param onTorchChange A callback function that is invoked when the torch toggle button is clicked.
  * @param containerColor The color of the container.
  * @param navigationIconColor The color of the navigation icon.
  * @param titleColor The color of the title.
@@ -30,12 +26,12 @@ import androidx.compose.ui.graphics.Color
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ScannerHeader(
-    modifier: Modifier = Modifier,
     onCancel: () -> Unit,
     showTorch: Boolean,
     torchEnabled: Boolean,
-    onTorchEnabled: (Boolean) -> Unit,
+    onTorchChange: (Boolean) -> Unit,
     title: String,
+    modifier: Modifier = Modifier,
     containerColor: Color = Color(0xFF291544),
     navigationIconColor: Color = Color.White,
     titleColor: Color = Color.White,
@@ -54,7 +50,7 @@ internal fun ScannerHeader(
                 },
             ) {
                 Icon(
-                    imageVector = Icons.Default.Cancel,
+                    imageVector = ScannerIcons.Cancel,
                     contentDescription = null,
                 )
             }
@@ -64,26 +60,26 @@ internal fun ScannerHeader(
                 IconButton(
                     onClick = {
                         if (torchEnabled) {
-                            onTorchEnabled(false)
+                            onTorchChange(false)
                         } else {
-                            onTorchEnabled(true)
+                            onTorchChange(true)
                         }
                     },
                 ) {
                     Icon(
-                        imageVector = if (torchEnabled) Icons.Default.FlashOn else Icons.Default.FlashOff,
+                        imageVector = if (torchEnabled) ScannerIcons.FlashOn else ScannerIcons.FlashOff,
                         contentDescription = null,
                     )
                 }
             }
         },
         colors =
-            TopAppBarDefaults.centerAlignedTopAppBarColors(
-                containerColor = containerColor,
-                navigationIconContentColor = navigationIconColor,
-                titleContentColor = titleColor,
-                actionIconContentColor = actionIconColor,
-            ),
+        TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = containerColor,
+            navigationIconContentColor = navigationIconColor,
+            titleContentColor = titleColor,
+            actionIconContentColor = actionIconColor,
+        ),
         modifier = modifier,
     )
 }

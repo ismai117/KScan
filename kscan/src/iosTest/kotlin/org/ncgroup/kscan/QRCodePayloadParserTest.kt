@@ -22,7 +22,7 @@ class QRCodePayloadParserTest {
     @Test
     fun `GIVEN byte mode with null byte WHEN decodeDataStream THEN preserves null byte`() {
         val payload = buildByteModePayload(
-            byteArrayOf('H'.code.toByte(), 'i'.code.toByte(), 0x00, '!'.code.toByte())
+            byteArrayOf('H'.code.toByte(), 'i'.code.toByte(), 0x00, '!'.code.toByte()),
         )
 
         val result = QRCodePayloadParser.decodeDataStream(payload)
@@ -61,7 +61,7 @@ class QRCodePayloadParserTest {
     @Test
     fun `GIVEN hello world with null byte WHEN decodeDataStream THEN full data preserved`() {
         val payload = buildByteModePayload(
-            byteArrayOf(0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x00, 0x57, 0x6F, 0x72, 0x6C, 0x64)
+            byteArrayOf(0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x00, 0x57, 0x6F, 0x72, 0x6C, 0x64),
         )
 
         val result = QRCodePayloadParser.decodeDataStream(payload)
@@ -221,6 +221,7 @@ class QRCodePayloadParserTest {
                     addBits(bits, seg.data.size, seg.countBits)
                     seg.data.forEach { addBits(bits, it.toInt() and 0xFF, 8) }
                 }
+
                 is Segment.Alphanumeric -> {
                     val chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ \$%*+-./:"
                     bits.addAll(listOf(0, 0, 1, 0)) // Mode: 0010
@@ -238,6 +239,7 @@ class QRCodePayloadParserTest {
                         addBits(bits, chars.indexOf(seg.text[i]), 6)
                     }
                 }
+
                 is Segment.Numeric -> {
                     bits.addAll(listOf(0, 0, 0, 1)) // Mode: 0001
                     addBits(bits, seg.digits.length, seg.countBits)
@@ -275,8 +277,11 @@ class QRCodePayloadParserTest {
             addBits(bits, digits.substring(i, i + 3).toInt(), 10)
             i += 3
         }
-        if (digits.length - i == 2) addBits(bits, digits.substring(i).toInt(), 7)
-        else if (digits.length - i == 1) addBits(bits, digits.substring(i).toInt(), 4)
+        if (digits.length - i == 2) {
+            addBits(bits, digits.substring(i).toInt(), 7)
+        } else if (digits.length - i == 1) {
+            addBits(bits, digits.substring(i).toInt(), 4)
+        }
         bits.addAll(listOf(0, 0, 0, 0))
         return packBits(bits)
     }
@@ -300,11 +305,9 @@ class QRCodePayloadParserTest {
         for (i in (count - 1) downTo 0) bits.add((value shr i) and 1)
     }
 
-    private fun packBits(bits: List<Int>): ByteArray {
-        return bits.chunked(8).map { chunk ->
-            chunk.foldIndexed(0) { idx, acc, bit -> acc or (bit shl (7 - idx)) }.toByte()
-        }.toByteArray()
-    }
+    private fun packBits(bits: List<Int>): ByteArray = bits.chunked(8).map { chunk ->
+        chunk.foldIndexed(0) { idx, acc, bit -> acc or (bit shl (7 - idx)) }.toByte()
+    }.toByteArray()
 
     // endregion
 }

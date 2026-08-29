@@ -30,7 +30,7 @@ internal fun ScannerBarcodeFrame(
     Box(
         modifier = modifier.size(260.dp),
     ) {
-        Canvas(modifier = modifier.fillMaxSize()) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
             val width = size.width
             val height = size.height
             val strokeWidth = frameWidth.dp.toPx()

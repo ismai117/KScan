@@ -10,15 +10,15 @@ import androidx.compose.ui.Modifier
  */
 @Composable
 internal fun ScannerViewContent(
-    modifier: Modifier,
     colors: ScannerColors,
     scannerUiOptions: ScannerUiOptions?,
     torchEnabled: Boolean,
-    onTorchEnabled: (Boolean) -> Unit,
+    onTorchChange: (Boolean) -> Unit,
     zoomRatio: Float,
     onZoomChange: (Float) -> Unit,
     maxZoomRatio: Float,
     onCancel: () -> Unit,
+    modifier: Modifier = Modifier,
     cameraContent: @Composable () -> Unit,
 ) {
     Box(modifier = modifier) {
@@ -28,7 +28,7 @@ internal fun ScannerViewContent(
             ScannerUI(
                 onCancel = onCancel,
                 torchEnabled = torchEnabled,
-                onTorchEnabled = onTorchEnabled,
+                onTorchChange = onTorchChange,
                 zoomRatio = zoomRatio,
                 zoomRatioOnChange = onZoomChange,
                 maxZoomRatio = maxZoomRatio,

@@ -33,23 +33,24 @@ import java.awt.image.BufferedImage
 import java.util.EnumMap
 
 @Composable
-actual fun ScannerView(
-    modifier: Modifier,
+public actual fun ScannerView(
     codeTypes: List<BarcodeFormat>,
+    modifier: Modifier,
     colors: ScannerColors,
     scannerUiOptions: ScannerUiOptions?,
     scannerController: ScannerController?,
     filter: (Barcode) -> Boolean,
-    result: (BarcodeResult) -> Unit
+    result: (BarcodeResult) -> Unit,
 ) {
     val updatedResult by rememberUpdatedState(result)
+    val updatedFilter by rememberUpdatedState(filter)
     val coroutineScope = rememberCoroutineScope()
     var cameraFrameBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     var isScanning by remember { mutableStateOf(true) }
 
     val adjustedUiOptions = scannerUiOptions?.copy(
         showTorch = false,
-        showZoom = false
+        showZoom = false,
     )
 
     scannerController?.apply {
@@ -121,10 +122,10 @@ actual fun ScannerView(
                         val barcode = Barcode(
                             data = result.text,
                             format = result.barcodeFormat.toKScanFormat().toString(),
-                            rawBytes = bytes
+                            rawBytes = bytes,
                         )
 
-                        if (filter(barcode)) {
+                        if (updatedFilter(barcode)) {
                             isScanning = false
                             updatedResult(BarcodeResult.OnSuccess(barcode))
                         }
@@ -201,21 +202,21 @@ actual fun ScannerView(
         colors = colors,
         scannerUiOptions = adjustedUiOptions,
         torchEnabled = false,
-        onTorchEnabled = {},
+        onTorchChange = {},
         zoomRatio = 1f,
         onZoomChange = {},
         maxZoomRatio = 1f,
         onCancel = {
             isScanning = false
             updatedResult(BarcodeResult.OnCanceled)
-        }
+        },
     ) {
         cameraFrameBitmap?.let { bitmap ->
             Image(
                 bitmap = bitmap,
                 contentDescription = "Camera Feed",
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
             )
         }
     }
@@ -223,7 +224,7 @@ actual fun ScannerView(
 
 private class FastLuminanceSource(
     width: Int,
-    height: Int
+    height: Int,
 ) : com.google.zxing.LuminanceSource(width, height) {
     val luminances = ByteArray(width * height)
 

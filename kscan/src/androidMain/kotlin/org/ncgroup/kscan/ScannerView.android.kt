@@ -29,9 +29,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 
 @Composable
-actual fun ScannerView(
-    modifier: Modifier,
+public actual fun ScannerView(
     codeTypes: List<BarcodeFormat>,
+    modifier: Modifier,
     colors: ScannerColors,
     scannerUiOptions: ScannerUiOptions?,
     scannerController: ScannerController?,
@@ -104,7 +104,7 @@ actual fun ScannerView(
         colors = colors,
         scannerUiOptions = scannerUiOptions,
         torchEnabled = torchEnabled,
-        onTorchEnabled = { cameraControl?.enableTorch(it) },
+        onTorchChange = { cameraControl?.enableTorch(it) },
         zoomRatio = zoomRatio,
         onZoomChange = { cameraControl?.setZoomRatio(it) },
         maxZoomRatio = maxZoomRatio,
@@ -129,10 +129,10 @@ actual fun ScannerView(
                                 .setResolutionStrategy(
                                     ResolutionStrategy(
                                         Size(1280, 720),
-                                        ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER
-                                    )
+                                        ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER,
+                                    ),
                                 )
-                                .build()
+                                .build(),
                         )
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build()
@@ -148,7 +148,7 @@ actual fun ScannerView(
                         },
                         onFailed = { updatedResult(BarcodeResult.OnFailed(Exception(it))) },
                         onCanceled = { updatedResult(BarcodeResult.OnCanceled) },
-                        filter = filter
+                        filter = filter,
                     ),
                 )
 
@@ -188,19 +188,17 @@ internal fun bindCamera(
     imageAnalysis: ImageAnalysis,
     result: (BarcodeResult) -> Unit,
     cameraControl: (CameraControl?) -> Unit,
-): Camera? {
-    return runCatching {
-        cameraProviderFuture?.unbindAll()
-        cameraProviderFuture?.bindToLifecycle(
-            lifecycleOwner,
-            selector,
-            preview,
-            imageAnalysis,
-        ).also {
-            cameraControl(it?.cameraControl)
-        }
-    }.getOrElse {
-        result(BarcodeResult.OnFailed(Exception(it)))
-        null
+): Camera? = runCatching {
+    cameraProviderFuture?.unbindAll()
+    cameraProviderFuture?.bindToLifecycle(
+        lifecycleOwner,
+        selector,
+        preview,
+        imageAnalysis,
+    ).also {
+        cameraControl(it?.cameraControl)
     }
+}.getOrElse {
+    result(BarcodeResult.OnFailed(Exception(it)))
+    null
 }

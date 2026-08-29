@@ -53,7 +53,7 @@ internal object QRCodePayloadParser {
     )
 
     private val VERSION_GROUPS = listOf(
-        VersionWidths(byteCount = 8, alphaCount = 9, numericCount = 10),   // v1–9
+        VersionWidths(byteCount = 8, alphaCount = 9, numericCount = 10), // v1–9
         VersionWidths(byteCount = 16, alphaCount = 11, numericCount = 12), // v10–26
         VersionWidths(byteCount = 16, alphaCount = 13, numericCount = 14), // v27–40
     )
@@ -187,6 +187,7 @@ internal object QRCodePayloadParser {
                 if (value > 99) return null
                 sb.append(value.toString().padStart(2, '0'))
             }
+
             1 -> {
                 if (!reader.hasAvailable(4)) return null
                 val value = reader.readBits(4)

@@ -44,11 +44,7 @@ internal object BarcodeFormatMapper {
         return appFormats.mapNotNull { APP_TO_AV_FORMAT_MAP[it] }
     }
 
-    fun toAppFormat(avType: AVMetadataObjectType): BarcodeFormat {
-        return AV_TO_APP_FORMAT_MAP[avType] ?: BarcodeFormat.TYPE_UNKNOWN
-    }
+    fun toAppFormat(avType: AVMetadataObjectType): BarcodeFormat = AV_TO_APP_FORMAT_MAP[avType] ?: BarcodeFormat.TYPE_UNKNOWN
 
-    fun isKnownFormat(avType: AVMetadataObjectType): Boolean {
-        return AV_TO_APP_FORMAT_MAP.containsKey(avType)
-    }
+    fun isKnownFormat(avType: AVMetadataObjectType): Boolean = AV_TO_APP_FORMAT_MAP.containsKey(avType)
 }

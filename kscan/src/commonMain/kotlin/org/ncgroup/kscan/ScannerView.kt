@@ -16,10 +16,10 @@ import androidx.compose.ui.Modifier
  * @param result A callback function that is invoked when a barcode is scanned.
  */
 @Composable
-expect fun ScannerView(
-    modifier: Modifier = Modifier.fillMaxSize(),
+public expect fun ScannerView(
     codeTypes: List<BarcodeFormat>,
-    colors: ScannerColors = scannerColors(),
+    modifier: Modifier = Modifier.fillMaxSize(),
+    colors: ScannerColors = ScannerColors(),
     scannerUiOptions: ScannerUiOptions? = ScannerUiOptions(),
     scannerController: ScannerController? = null,
     filter: (Barcode) -> Boolean = { true },

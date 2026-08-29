@@ -34,31 +34,39 @@ import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_global_queue
 import platform.darwin.dispatch_get_main_queue
 
+/** Zoom beyond this is rarely usable for scanning. */
+private const val MAX_ZOOM_RATIO = 5.0f
+
 /**
  * UIViewController that manages camera preview and barcode scanning using AVFoundation.
  *
  * Features duplicate filtering (barcode must be detected twice) and zoom control.
  */
-class CameraViewController(
+internal class CameraViewController(
     private val device: AVCaptureDevice,
     private val codeTypes: List<BarcodeFormat>,
     private val onBarcodeSuccess: (List<Barcode>) -> Unit,
     private val onBarcodeFailed: (Exception) -> Unit,
-    private val onBarcodeCanceled: () -> Unit,
     private val filter: (Barcode) -> Boolean,
     private val onMaxZoomRatioAvailable: (Float) -> Unit,
-) : UIViewController(null, null), AVCaptureMetadataOutputObjectsDelegateProtocol {
+) : UIViewController(null, null),
+    AVCaptureMetadataOutputObjectsDelegateProtocol {
     private lateinit var captureSession: AVCaptureSession
     private lateinit var previewLayer: AVCaptureVideoPreviewLayer
     private lateinit var videoInput: AVCaptureDeviceInput
 
     private val barcodesDetected = mutableMapOf<String, Int>()
 
+    /** Ceiling shared by the reported maximum and by [setZoom]. */
+    private val maxZoomRatio: Float by lazy {
+        device.activeFormat.videoMaxZoomFactor.toFloat().coerceAtMost(MAX_ZOOM_RATIO)
+    }
+
     override fun viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor.blackColor
         setupCamera()
-        onMaxZoomRatioAvailable(device.activeFormat.videoMaxZoomFactor.toFloat().coerceAtMost(5.0f))
+        onMaxZoomRatioAvailable(maxZoomRatio)
     }
 
     @OptIn(ExperimentalForeignApi::class)
@@ -92,15 +100,13 @@ class CameraViewController(
 
         setupMetadataOutput(metadataOutput)
         setupPreviewLayer()
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT.toLong(), 0u)) {
-            captureSession.startRunning()
-        }
+        // Starting is left to viewWillAppear, which also covers re-appearing.
     }
 
     private fun setupMetadataOutput(metadataOutput: AVCaptureMetadataOutput) {
         metadataOutput.setMetadataObjectsDelegate(this, dispatch_get_main_queue())
 
-        val supportedTypes = getMetadataObjectTypes()
+        val supportedTypes = BarcodeFormatMapper.toAvTypes(codeTypes)
         if (supportedTypes.isEmpty()) {
             onBarcodeFailed(Exception("No supported barcode types selected"))
             return
@@ -151,18 +157,12 @@ class CameraViewController(
     }
 
     private fun processBarcodes(metadataObjects: List<*>) {
+        // Only type, value and descriptor are read, so converting these into
+        // preview-layer coordinates would discard the result.
         metadataObjects
             .filterIsInstance<AVMetadataMachineReadableCodeObject>()
-            .mapNotNull { metadataObject ->
-                if (!::previewLayer.isInitialized) return@mapNotNull null
-                previewLayer.transformedMetadataObjectForMetadataObject(metadataObject)
-                    as? AVMetadataMachineReadableCodeObject
-            }
-            .filter { barcodeObject ->
-                isRequestedFormat(barcodeObject.type)
-            }.forEach { barcodeObject ->
-                processDetectedBarcode(barcodeObject)
-            }
+            .filter { barcodeObject -> isRequested(barcodeObject.type) }
+            .forEach { barcodeObject -> processDetectedBarcode(barcodeObject) }
     }
 
     private fun processDetectedBarcode(
@@ -175,7 +175,7 @@ class CameraViewController(
         barcodesDetected[key] = (barcodesDetected[key] ?: 0) + 1
 
         if ((barcodesDetected[key] ?: 0) >= 2) {
-            val appSpecificFormat = type.toFormat()
+            val appSpecificFormat = BarcodeFormatMapper.toAppFormat(type)
 
             val rawBytes = extractRawBytes(barcodeObject, value)
 
@@ -233,8 +233,7 @@ class CameraViewController(
         try {
             locked = device.lockForConfiguration(null)
             if (locked) {
-                val maxZoom = device.activeFormat.videoMaxZoomFactor.toFloat().coerceAtMost(5.0f)
-                device.videoZoomFactor = ratio.toDouble().coerceIn(1.0, maxZoom.toDouble())
+                device.videoZoomFactor = ratio.toDouble().coerceIn(1.0, maxZoomRatio.toDouble())
             }
         } catch (e: Exception) {
             NSLog("Failed to update zoom: %@", e.message ?: "unknown")
@@ -243,17 +242,7 @@ class CameraViewController(
         }
     }
 
-    private fun getMetadataObjectTypes(): List<AVMetadataObjectType> {
-        return BarcodeFormatMapper.toAvTypes(codeTypes)
-    }
-
-    private fun isRequestedFormat(type: AVMetadataObjectType): Boolean {
-        if (codeTypes.contains(BarcodeFormat.FORMAT_ALL_FORMATS)) {
-            return BarcodeFormatMapper.isKnownFormat(type)
-        }
-        val appFormat = BarcodeFormatMapper.toAppFormat(type)
-        return codeTypes.contains(appFormat)
-    }
+    private fun isRequested(type: AVMetadataObjectType): Boolean = isRequestedFormat(BarcodeFormatMapper.toAppFormat(type), codeTypes)
 
     private fun updatePreviewOrientation() {
         if (!::previewLayer.isInitialized) return
@@ -271,10 +260,6 @@ class CameraViewController(
             }
 
         connection.videoOrientation = videoOrientation
-    }
-
-    private fun AVMetadataObjectType.toFormat(): BarcodeFormat {
-        return BarcodeFormatMapper.toAppFormat(this)
     }
 
     fun dispose() {

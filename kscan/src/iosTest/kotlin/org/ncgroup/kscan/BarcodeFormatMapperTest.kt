@@ -35,7 +35,7 @@ class BarcodeFormatMapperTest {
     @Test
     fun `GIVEN multiple formats WHEN toAvTypes THEN returns av types`() {
         val result = BarcodeFormatMapper.toAvTypes(
-            listOf(BarcodeFormat.FORMAT_QR_CODE, BarcodeFormat.FORMAT_EAN_13)
+            listOf(BarcodeFormat.FORMAT_QR_CODE, BarcodeFormat.FORMAT_EAN_13),
         )
 
         assertEquals(listOf(AVMetadataObjectTypeQRCode, AVMetadataObjectTypeEAN13Code), result)

@@ -10,7 +10,7 @@ import java.io.ByteArrayInputStream
 import java.util.EnumMap
 import javax.imageio.ImageIO
 
-actual fun scanImage(
+public actual fun scanImage(
     imageBytes: ByteArray,
     codeTypes: List<BarcodeFormat>,
     filter: (Barcode) -> Boolean,
@@ -81,7 +81,7 @@ actual fun scanImage(
         if (filter(barcode)) {
             result(BarcodeResult.OnSuccess(barcode))
         } else {
-            result(BarcodeResult.OnFailed(Exception("Barcode filtered out")))
+            result(BarcodeResult.OnFailed(Exception("No matching barcode found in image")))
         }
     } catch (e: Exception) {
         result(BarcodeResult.OnFailed(e))

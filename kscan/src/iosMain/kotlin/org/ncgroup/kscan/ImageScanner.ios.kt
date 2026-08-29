@@ -25,7 +25,7 @@ import platform.Vision.VNImageRequestHandler
 import platform.Vision.VNRequest
 
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
-actual fun scanImage(
+public actual fun scanImage(
     imageBytes: ByteArray,
     codeTypes: List<BarcodeFormat>,
     filter: (Barcode) -> Boolean,
@@ -60,43 +60,25 @@ actual fun scanImage(
             return@VNDetectBarcodesRequest
         }
 
-        val hasAllFormats = codeTypes.isEmpty() || codeTypes.contains(BarcodeFormat.FORMAT_ALL_FORMATS)
+        val matchingBarcode = observations
+            .mapNotNull { observation ->
+                val symbology = observation.symbology ?: return@mapNotNull null
+                val appFormat = symbologyToAppFormat(symbology)
 
-        val matchingObservation = observations.firstOrNull { observation ->
-            val symbology = observation.symbology ?: return@firstOrNull false
-            val appFormat = symbologyToAppFormat(symbology)
+                if (!isRequestedFormat(appFormat, codeTypes)) return@mapNotNull null
 
-            val isFormatMatch = if (hasAllFormats) {
-                appFormat != BarcodeFormat.TYPE_UNKNOWN
-            } else {
-                codeTypes.contains(appFormat)
+                val payloadString = observation.payloadStringValue ?: return@mapNotNull null
+
+                Barcode(
+                    data = payloadString,
+                    format = appFormat.toString(),
+                    rawBytes = payloadString.encodeToByteArray(),
+                )
             }
+            .firstOrNull(filter)
 
-            if (!isFormatMatch) return@firstOrNull false
-
-            val payloadString = observation.payloadStringValue ?: return@firstOrNull false
-            val rawBytes = payloadString.encodeToByteArray()
-
-            val barcode = Barcode(
-                data = payloadString,
-                format = appFormat.toString(),
-                rawBytes = rawBytes,
-            )
-
-            filter(barcode)
-        }
-
-        if (matchingObservation != null) {
-            val payloadString = matchingObservation.payloadStringValue!!
-            val appFormat = symbologyToAppFormat(matchingObservation.symbology ?: "")
-            val rawBytes = payloadString.encodeToByteArray()
-
-            val barcode = Barcode(
-                data = payloadString,
-                format = appFormat.toString(),
-                rawBytes = rawBytes,
-            )
-            result(BarcodeResult.OnSuccess(barcode))
+        if (matchingBarcode != null) {
+            result(BarcodeResult.OnSuccess(matchingBarcode))
         } else {
             result(BarcodeResult.OnFailed(Exception("No matching barcode found in image")))
         }
@@ -115,20 +97,18 @@ actual fun scanImage(
     }
 }
 
-private fun symbologyToAppFormat(symbology: String): BarcodeFormat {
-    return when (symbology) {
-        VNBarcodeSymbologyQR -> BarcodeFormat.FORMAT_QR_CODE
-        VNBarcodeSymbologyEAN13 -> BarcodeFormat.FORMAT_EAN_13
-        VNBarcodeSymbologyEAN8 -> BarcodeFormat.FORMAT_EAN_8
-        VNBarcodeSymbologyCode128 -> BarcodeFormat.FORMAT_CODE_128
-        VNBarcodeSymbologyCode39 -> BarcodeFormat.FORMAT_CODE_39
-        VNBarcodeSymbologyCode93 -> BarcodeFormat.FORMAT_CODE_93
-        VNBarcodeSymbologyUPCE -> BarcodeFormat.FORMAT_UPC_E
-        VNBarcodeSymbologyPDF417 -> BarcodeFormat.FORMAT_PDF417
-        VNBarcodeSymbologyAztec -> BarcodeFormat.FORMAT_AZTEC
-        VNBarcodeSymbologyDataMatrix -> BarcodeFormat.FORMAT_DATA_MATRIX
-        else -> BarcodeFormat.TYPE_UNKNOWN
-    }
+private fun symbologyToAppFormat(symbology: String): BarcodeFormat = when (symbology) {
+    VNBarcodeSymbologyQR -> BarcodeFormat.FORMAT_QR_CODE
+    VNBarcodeSymbologyEAN13 -> BarcodeFormat.FORMAT_EAN_13
+    VNBarcodeSymbologyEAN8 -> BarcodeFormat.FORMAT_EAN_8
+    VNBarcodeSymbologyCode128 -> BarcodeFormat.FORMAT_CODE_128
+    VNBarcodeSymbologyCode39 -> BarcodeFormat.FORMAT_CODE_39
+    VNBarcodeSymbologyCode93 -> BarcodeFormat.FORMAT_CODE_93
+    VNBarcodeSymbologyUPCE -> BarcodeFormat.FORMAT_UPC_E
+    VNBarcodeSymbologyPDF417 -> BarcodeFormat.FORMAT_PDF417
+    VNBarcodeSymbologyAztec -> BarcodeFormat.FORMAT_AZTEC
+    VNBarcodeSymbologyDataMatrix -> BarcodeFormat.FORMAT_DATA_MATRIX
+    else -> BarcodeFormat.TYPE_UNKNOWN
 }
 
 private fun toVisionSymbologies(appFormats: List<BarcodeFormat>): List<String> {

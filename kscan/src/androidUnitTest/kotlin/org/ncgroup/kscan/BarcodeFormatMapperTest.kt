@@ -36,7 +36,7 @@ class BarcodeFormatMapperTest {
     @Test
     fun `GIVEN multiple formats WHEN toMlKitFormats THEN returns combined flags`() {
         val result = BarcodeFormatMapper.toMlKitFormats(
-            listOf(BarcodeFormat.FORMAT_QR_CODE, BarcodeFormat.FORMAT_EAN_13)
+            listOf(BarcodeFormat.FORMAT_QR_CODE, BarcodeFormat.FORMAT_EAN_13),
         )
 
         assertEquals(FORMAT_QR_CODE or FORMAT_EAN_13, result)

@@ -1,6 +1,7 @@
 package org.ncgroup.kscan
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
@@ -21,24 +22,24 @@ import androidx.compose.runtime.setValue
  * @property maxZoomRatio The maximum zoom ratio supported by the scanner. Defaults to `1f`.
  *                        This property is read-only and is set internally.
  */
-class ScannerController {
-    var torchEnabled by mutableStateOf(false)
+public class ScannerController {
+    public var torchEnabled: Boolean by mutableStateOf(false)
         internal set
 
-    var zoomRatio by mutableStateOf(1f)
+    public var zoomRatio: Float by mutableFloatStateOf(1f)
         internal set
 
-    var maxZoomRatio by mutableStateOf(1f)
+    public var maxZoomRatio: Float by mutableFloatStateOf(1f)
         internal set
 
     internal var onTorchChange: ((Boolean) -> Unit)? = null
     internal var onZoomChange: ((Float) -> Unit)? = null
 
-    fun setTorch(enabled: Boolean) {
+    public fun setTorch(enabled: Boolean) {
         onTorchChange?.invoke(enabled)
     }
 
-    fun setZoom(ratio: Float) {
+    public fun setZoom(ratio: Float) {
         onZoomChange?.invoke(ratio)
     }
 }

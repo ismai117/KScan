@@ -16,7 +16,7 @@ class RawBytesEncoderTest {
 
     @Test
     fun `GIVEN high byte value WHEN stringToRawBytes THEN no extra bytes inserted`() {
-        val input = "\u0080"  // byte 0x80
+        val input = "\u0080" // byte 0x80
         val result = stringToRawBytes(input)
 
         assertEquals(1, result.size)
@@ -25,7 +25,7 @@ class RawBytesEncoderTest {
 
     @Test
     fun `GIVEN multiple high bytes WHEN stringToRawBytes THEN preserves all bytes`() {
-        val input = "\u0080\u00A5\u00FF"  // bytes 0x80, 0xA5, 0xFF
+        val input = "\u0080\u00A5\u00FF" // bytes 0x80, 0xA5, 0xFF
         val result = stringToRawBytes(input)
 
         assertEquals(3, result.size)
@@ -34,13 +34,13 @@ class RawBytesEncoderTest {
 
     @Test
     fun `GIVEN mixed ascii and high bytes WHEN stringToRawBytes THEN preserves all bytes`() {
-        val input = "A\u0080B\u00FFC"  // A, 0x80, B, 0xFF, C
+        val input = "A\u0080B\u00FFC" // A, 0x80, B, 0xFF, C
         val result = stringToRawBytes(input)
 
         assertEquals(5, result.size)
         assertContentEquals(
             byteArrayOf(0x41, 0x80.toByte(), 0x42, 0xFF.toByte(), 0x43),
-            result
+            result,
         )
     }
 

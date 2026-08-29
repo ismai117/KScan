@@ -10,6 +10,3 @@
 # CameraX core and interop
 -keep class androidx.camera.** { *; }
 -dontwarn androidx.camera.**
-
-# Prevent obfuscation of KScan public API to keep binary compatibility
--keep class org.ncgroup.kscan.** { *; }

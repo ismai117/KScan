@@ -7,13 +7,26 @@ plugins {
 }
 
 kotlin {
+    explicitApi()
+
     androidLibrary {
         namespace = "org.ncgroup.kscan"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
-        minSdk = libs.versions.android.minSdk.get().toInt()
+        compileSdk =
+            libs.versions.android.compileSdk
+                .get()
+                .toInt()
+        minSdk =
+            libs.versions.android.minSdk
+                .get()
+                .toInt()
 
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
+        }
+
+        optimization {
+            consumerKeepRules.files(rootProject.file("consumer-rules.pro"))
+            consumerKeepRules.publish = true
         }
     }
 
@@ -26,7 +39,9 @@ kotlin {
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
-            implementation(libs.compose.material.icons.extended)
+        }
+        wasmJsMain.dependencies {
+            implementation(libs.kotlinx.coroutines)
         }
         jvmMain.dependencies {
             implementation(libs.compose.desktop)

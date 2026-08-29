@@ -53,11 +53,7 @@ internal object BarcodeFormatMapper {
             .let { if (it == 0) FORMAT_ALL_FORMATS else it }
     }
 
-    fun toAppFormat(mlKitFormat: Int): BarcodeFormat {
-        return MLKIT_TO_APP_FORMAT_MAP[mlKitFormat] ?: BarcodeFormat.TYPE_UNKNOWN
-    }
+    fun toAppFormat(mlKitFormat: Int): BarcodeFormat = MLKIT_TO_APP_FORMAT_MAP[mlKitFormat] ?: BarcodeFormat.TYPE_UNKNOWN
 
-    fun isKnownFormat(mlKitFormat: Int): Boolean {
-        return MLKIT_TO_APP_FORMAT_MAP.containsKey(mlKitFormat)
-    }
+    fun isKnownFormat(mlKitFormat: Int): Boolean = MLKIT_TO_APP_FORMAT_MAP.containsKey(mlKitFormat)
 }

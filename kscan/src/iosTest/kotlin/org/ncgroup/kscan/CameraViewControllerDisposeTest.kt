@@ -1,20 +1,19 @@
 package org.ncgroup.kscan
 
-import kotlin.test.Test
 import platform.AVFoundation.AVCaptureDevice
 import platform.AVFoundation.AVMediaTypeVideo
+import kotlin.test.Test
 
 class CameraViewControllerDisposeTest {
-    private fun makeController(device: AVCaptureDevice): CameraViewController =
-        CameraViewController(
-            device = device,
-            codeTypes = emptyList(),
-            onBarcodeSuccess = { /* no-op */ },
-            onBarcodeFailed = { /* no-op */ },
-            onBarcodeCanceled = { /* no-op */ },
-            filter = { true },
-            onMaxZoomRatioAvailable = { /* no-op */ },
-        )
+    private fun makeController(device: AVCaptureDevice): CameraViewController = CameraViewController(
+        device = device,
+        codeTypes = emptyList(),
+        onBarcodeSuccess = { /* no-op */ },
+        onBarcodeFailed = { /* no-op */ },
+        onBarcodeCanceled = { /* no-op */ },
+        filter = { true },
+        onMaxZoomRatioAvailable = { /* no-op */ },
+    )
 
     @Test
     fun dispose_before_viewDidLoad_is_safe() {

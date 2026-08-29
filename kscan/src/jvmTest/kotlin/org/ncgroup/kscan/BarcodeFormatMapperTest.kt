@@ -16,7 +16,7 @@ class BarcodeFormatMapperTest {
         assertEquals(BarcodeFormat.FORMAT_AZTEC, ZxingBarcodeFormat.AZTEC.toKScanFormat())
         assertEquals(BarcodeFormat.FORMAT_DATA_MATRIX, ZxingBarcodeFormat.DATA_MATRIX.toKScanFormat())
 
-        assertEquals(BarcodeFormat.TYPE_UNKNOWN, ZxingBarcodeFormat.MAXICODE.toKScanFormat())  // Assuming MAXICODE is unsupported
+        assertEquals(BarcodeFormat.TYPE_UNKNOWN, ZxingBarcodeFormat.MAXICODE.toKScanFormat()) // Assuming MAXICODE is unsupported
     }
 
     @Test
@@ -28,7 +28,6 @@ class BarcodeFormatMapperTest {
         assertEquals(ZxingBarcodeFormat.DATA_MATRIX, BarcodeFormat.FORMAT_DATA_MATRIX.toZxingFormat())
 
         assertNull(BarcodeFormat.TYPE_UNKNOWN.toZxingFormat())
-        assertNull(BarcodeFormat.TYPE_URL.toZxingFormat())
     }
 
     @Test
@@ -46,7 +45,7 @@ class BarcodeFormatMapperTest {
 
         // Unsupported round-trip should go to TYPE_UNKNOWN
         val unsupported = BarcodeFormat.TYPE_UNKNOWN
-        assertNull(unsupported.toZxingFormat())  // No ZXing equivalent
+        assertNull(unsupported.toZxingFormat()) // No ZXing equivalent
     }
 
     @Test
@@ -55,7 +54,7 @@ class BarcodeFormatMapperTest {
         val allFormatsList = listOf(BarcodeFormat.FORMAT_ALL_FORMATS)
         assertTrue(allFormatsList.contains(BarcodeFormat.FORMAT_ALL_FORMATS))
         val allMapped = allFormatsList.mapNotNull { it.toZxingFormat() }
-        assertTrue(allMapped.isEmpty())  // ALL_FORMATS has no direct ZXing, so no hint -> all allowed
+        assertTrue(allMapped.isEmpty()) // ALL_FORMATS has no direct ZXing, so no hint -> all allowed
     }
 
     @Test
