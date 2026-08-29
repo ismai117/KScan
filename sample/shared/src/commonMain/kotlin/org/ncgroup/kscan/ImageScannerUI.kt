@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
-/** Scanning a barcode out of a still image rather than the camera feed. */
 @Composable
 fun ImageScannerUI(modifier: Modifier = Modifier) {
     var barcode by remember { mutableStateOf("") }
