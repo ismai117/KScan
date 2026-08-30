@@ -56,9 +56,16 @@ internal class BarcodeAnalyzer(
      */
     private var invertedBuffer: ByteArray? = null
 
+    /**
+     * Set once the preview is gone. ML Kit finishes whatever it was already
+     * decoding, so without this a result or a "detector is closed" failure could
+     * reach a caller that has navigated away.
+     */
+    private var closed = false
+
     @OptIn(ExperimentalGetImage::class)
     override fun analyze(imageProxy: ImageProxy) {
-        if (hasSuccessfullyProcessedBarcode) {
+        if (closed || hasSuccessfullyProcessedBarcode) {
             imageProxy.close()
             return
         }
@@ -73,6 +80,11 @@ internal class BarcodeAnalyzer(
 
         scanner.process(image)
             .addOnSuccessListener { barcodes ->
+                if (closed) {
+                    imageProxy.close()
+                    return@addOnSuccessListener
+                }
+
                 val relevantBarcodes = barcodes.filter { isRequested(it) }
                 if (relevantBarcodes.isNotEmpty()) {
                     processFoundBarcodes(relevantBarcodes)
@@ -87,7 +99,7 @@ internal class BarcodeAnalyzer(
                 }
             }
             .addOnFailureListener {
-                onFailed(it)
+                if (!closed) onFailed(it)
                 imageProxy.close()
             }
             .addOnCanceledListener {
@@ -107,6 +119,11 @@ internal class BarcodeAnalyzer(
 
         scanner.process(invertedImage)
             .addOnSuccessListener { barcodes ->
+                if (closed) {
+                    imageProxy.close()
+                    return@addOnSuccessListener
+                }
+
                 val relevantBarcodes = barcodes.filter { isRequested(it) }
                 if (relevantBarcodes.isNotEmpty()) {
                     processFoundBarcodes(relevantBarcodes)
@@ -164,7 +181,7 @@ internal class BarcodeAnalyzer(
     }
 
     private fun processFoundBarcodes(mlKitBarcodes: List<com.google.mlkit.vision.barcode.common.Barcode>) {
-        if (hasSuccessfullyProcessedBarcode) return
+        if (closed || hasSuccessfullyProcessedBarcode) return
 
         for (mlKitBarcode in mlKitBarcodes) {
             val displayValue = mlKitBarcode.displayValue ?: continue
@@ -194,6 +211,7 @@ internal class BarcodeAnalyzer(
 
     /** Releases the ML Kit detector, which holds native resources until closed. */
     fun close() {
+        closed = true
         scanner.close()
     }
 

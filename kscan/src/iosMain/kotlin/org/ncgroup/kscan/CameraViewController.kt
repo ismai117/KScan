@@ -54,6 +54,13 @@ internal class CameraViewController(
 
     private val repeated = RepeatedDetection()
 
+    /**
+     * Set once the preview is gone. The session is stopped on a background queue
+     * while metadata arrives on the main one, so a frame already queued can still
+     * be delivered after disposal.
+     */
+    private var disposed = false
+
     /** Ceiling shared by the reported maximum and by [setZoom]. */
     private val maxZoomRatio: Float by lazy {
         device.activeFormat.videoMaxZoomFactor.toFloat().coerceAtMost(MAX_ZOOM_RATIO)
@@ -154,6 +161,8 @@ internal class CameraViewController(
     }
 
     private fun processBarcodes(metadataObjects: List<*>) {
+        if (disposed) return
+
         // Only type, value and descriptor are read, so converting these into
         // preview-layer coordinates would discard the result.
         metadataObjects
@@ -258,6 +267,8 @@ internal class CameraViewController(
     }
 
     fun dispose() {
+        disposed = true
+
         // Stop capture session on background thread to avoid UI unresponsiveness
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT.toLong(), 0u)) {
             runCatching {
