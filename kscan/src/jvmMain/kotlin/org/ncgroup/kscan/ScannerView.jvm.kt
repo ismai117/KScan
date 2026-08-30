@@ -42,7 +42,11 @@ public actual fun ScannerView(
     var isScanning by remember { mutableStateOf(true) }
 
     DisposableEffect(Unit) {
-        val frameChannel = Channel<BufferedImage>(Channel.CONFLATED)
+        // A frame has two independent readers, so each gets its own channel. Sharing
+        // one would hand every frame to whichever happened to receive it first,
+        // leaving the decoder to work from half of them.
+        val scanChannel = Channel<BufferedImage>(Channel.CONFLATED)
+        val previewChannel = Channel<BufferedImage>(Channel.CONFLATED)
 
         val scannerJob = coroutineScope.launch(Dispatchers.Default) {
             val reader = zxingReader(codeTypes)
@@ -51,7 +55,7 @@ public actual fun ScannerView(
             var rgbPixels: IntArray? = null
             var source: GrayLuminanceSource? = null
 
-            for (image in frameChannel) {
+            for (image in scanChannel) {
                 if (!isActive || !isScanning) break
 
                 try {
@@ -80,7 +84,9 @@ public actual fun ScannerView(
                         }
                     }
                 } catch (_: NotFoundException) {
-                    // no barcode found -> next image
+                    // A frame holding no barcode breaks the run of sightings, so a
+                    // stray misread cannot pair up with a later one and be reported.
+                    repeated.reset()
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
                         updatedResult(BarcodeResult.OnFailed(e))
@@ -107,7 +113,8 @@ public actual fun ScannerView(
                         val frame = localGrabber.grab() ?: continue
                         val image = converter.convert(frame)
 
-                        frameChannel.trySend(image)
+                        scanChannel.trySend(image)
+                        previewChannel.trySend(image)
                     } catch (_: org.bytedeco.javacv.FrameGrabber.Exception) {
                         continue
                     }
@@ -135,7 +142,7 @@ public actual fun ScannerView(
         }
 
         val uiUpdateJob = coroutineScope.launch(Dispatchers.Default) {
-            frameChannel.consumeAsFlow().collectLatest { image ->
+            previewChannel.consumeAsFlow().collectLatest { image ->
                 val composeBitmap = image.toComposeImageBitmap()
 
                 withContext(Dispatchers.Main) {
@@ -150,7 +157,8 @@ public actual fun ScannerView(
             cameraJob.cancel()
             scannerJob.cancel()
             uiUpdateJob.cancel()
-            frameChannel.close()
+            scanChannel.close()
+            previewChannel.close()
         }
     }
 
