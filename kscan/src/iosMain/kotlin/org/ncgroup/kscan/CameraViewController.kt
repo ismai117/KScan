@@ -110,11 +110,17 @@ internal class CameraViewController(
     private fun setupMetadataOutput(metadataOutput: AVCaptureMetadataOutput) {
         metadataOutput.setMetadataObjectsDelegate(this, dispatch_get_main_queue())
 
-        val supportedTypes = BarcodeFormatMapper.toAvTypes(codeTypes)
+        // Assigning a type this device or OS release does not offer raises an
+        // NSInvalidArgumentException, and which types exist is only knowable once
+        // the output belongs to the session. Codabar, for one, arrived in iOS 15.4.
+        val available = metadataOutput.availableMetadataObjectTypes
+        val supportedTypes = BarcodeFormatMapper.toAvTypes(codeTypes).filter { it in available }
+
         if (supportedTypes.isEmpty()) {
             onBarcodeFailed(Exception("No supported barcode types selected"))
             return
         }
+
         metadataOutput.metadataObjectTypes = supportedTypes
     }
 

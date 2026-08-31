@@ -2,6 +2,7 @@ package org.ncgroup.kscan
 
 import platform.AVFoundation.AVMetadataObjectType
 import platform.AVFoundation.AVMetadataObjectTypeAztecCode
+import platform.AVFoundation.AVMetadataObjectTypeCodabarCode
 import platform.AVFoundation.AVMetadataObjectTypeCode128Code
 import platform.AVFoundation.AVMetadataObjectTypeCode39Code
 import platform.AVFoundation.AVMetadataObjectTypeCode93Code
@@ -31,6 +32,7 @@ internal object BarcodeFormatMapper {
             AVMetadataObjectTypeAztecCode to BarcodeFormat.FORMAT_AZTEC,
             AVMetadataObjectTypeDataMatrixCode to BarcodeFormat.FORMAT_DATA_MATRIX,
             AVMetadataObjectTypeInterleaved2of5Code to BarcodeFormat.FORMAT_ITF,
+            AVMetadataObjectTypeCodabarCode to BarcodeFormat.FORMAT_CODABAR,
         ),
     )
 

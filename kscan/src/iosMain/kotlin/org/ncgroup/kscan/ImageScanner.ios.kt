@@ -11,12 +11,14 @@ import platform.Foundation.create
 import platform.UIKit.UIImage
 import platform.Vision.VNBarcodeObservation
 import platform.Vision.VNBarcodeSymbologyAztec
+import platform.Vision.VNBarcodeSymbologyCodabar
 import platform.Vision.VNBarcodeSymbologyCode128
 import platform.Vision.VNBarcodeSymbologyCode39
 import platform.Vision.VNBarcodeSymbologyCode93
 import platform.Vision.VNBarcodeSymbologyDataMatrix
 import platform.Vision.VNBarcodeSymbologyEAN13
 import platform.Vision.VNBarcodeSymbologyEAN8
+import platform.Vision.VNBarcodeSymbologyI2of5
 import platform.Vision.VNBarcodeSymbologyPDF417
 import platform.Vision.VNBarcodeSymbologyQR
 import platform.Vision.VNBarcodeSymbologyUPCE
@@ -84,7 +86,11 @@ public actual fun scanImage(
         }
     }
 
-    val symbologies = visionFormats.platformFormats(codeTypes)
+    // Vision rejects a symbology the OS release does not know, and Codabar only
+    // arrived in iOS 15, so ask the request itself what it can be given.
+    val supported = request.supportedSymbologiesAndReturnError(null).orEmpty()
+    val symbologies = visionFormats.platformFormats(codeTypes).filter { it in supported }
+
     if (symbologies.isNotEmpty()) {
         request.setSymbologies(symbologies)
     }
@@ -112,5 +118,7 @@ private val visionFormats = FormatMap(
         VNBarcodeSymbologyPDF417 to BarcodeFormat.FORMAT_PDF417,
         VNBarcodeSymbologyAztec to BarcodeFormat.FORMAT_AZTEC,
         VNBarcodeSymbologyDataMatrix to BarcodeFormat.FORMAT_DATA_MATRIX,
+        VNBarcodeSymbologyCodabar to BarcodeFormat.FORMAT_CODABAR,
+        VNBarcodeSymbologyI2of5 to BarcodeFormat.FORMAT_ITF,
     ),
 )

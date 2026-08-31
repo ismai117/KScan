@@ -116,21 +116,33 @@ scanImage(
 
 ## Supported Formats
 
-| 1D Barcodes | 2D Barcodes |
-|-------------|-------------|
-| CODE_128 | QR_CODE |
-| CODE_39 | AZTEC |
-| CODE_93 | DATA_MATRIX |
-| CODABAR | PDF417 |
-| EAN_13 | |
-| EAN_8 | |
-| ITF | |
-| UPC_A | |
-| UPC_E | |
+| Format | Android | iOS | Desktop | Web |
+|--------|:-------:|:---:|:-------:|:---:|
+| QR_CODE | ✅ | ✅ | ✅ | ✅ |
+| AZTEC | ✅ | ✅ | ✅ | ✅ |
+| DATA_MATRIX | ✅ | ✅ | ✅ | ✅ |
+| PDF417 | ✅ | ✅ | ✅ | ✅ |
+| CODE_128 | ✅ | ✅ | ✅ | ✅ |
+| CODE_39 | ✅ | ✅ | ✅ | ✅ |
+| CODE_93 | ✅ | ✅ | ✅ | ✅ |
+| CODABAR | ✅ | ✅ | ✅ | ✅ |
+| EAN_13 | ✅ | ✅ | ✅ | ✅ |
+| EAN_8 | ✅ | ✅ | ✅ | ✅ |
+| ITF | ✅ | ✅ | ✅ | ✅ |
+| UPC_A | ✅ | ❌ | ✅ | ✅ |
+| UPC_E | ✅ | ✅ | ✅ | ✅ |
 
-Use `BarcodeFormat.FORMAT_ALL_FORMATS` to scan all supported types.
+Use `BarcodeFormat.FORMAT_ALL_FORMATS` to scan every format the platform supports.
 
-iOS is the exception: it does not decode CODABAR, decodes ITF from the camera but not from `scanImage`, and reports UPC_A as EAN_13 with a leading zero.
+**iOS**
+
+UPC_A has no symbology of its own in AVFoundation or Vision, so it cannot be asked for by name. It is a formal subset of EAN_13, and from the camera AVFoundation reports one as `FORMAT_EAN_13` carrying a leading zero: `036000291452` arrives as `0036000291452`. Ask for `FORMAT_EAN_13` to read one.
+
+CODABAR needs iOS 15.4 for the camera and iOS 15 for `scanImage`.
+
+**Web**
+
+Which of these are available is decided by the browser's `BarcodeDetector`.
 
 ## License
 
