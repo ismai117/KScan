@@ -1,5 +1,6 @@
 package org.ncgroup.kscan.scanner
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,19 +10,24 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Cameraswitch
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,8 +39,11 @@ import androidx.compose.ui.unit.dp
 import org.ncgroup.kscan.Barcode
 import org.ncgroup.kscan.BarcodeFormat
 import org.ncgroup.kscan.BarcodeResult
+import org.ncgroup.kscan.CameraDevice
 import org.ncgroup.kscan.ScannerController
 import org.ncgroup.kscan.ScannerView
+import org.ncgroup.kscan.camera.platformCameras
+import org.ncgroup.kscan.camera.supportsCameraListing
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,6 +56,7 @@ fun ScannerScreen(
 ) {
     val scannerController = remember { ScannerController() }
     var error by remember { mutableStateOf("") }
+    var pickingCamera by remember { mutableStateOf(false) }
 
     DisposableEffect(Unit) {
         onDispose {
@@ -70,6 +80,15 @@ fun ScannerScreen(
                     }
                 },
                 actions = {
+                    if (supportsCameraListing) {
+                        IconButton(onClick = { pickingCamera = true }) {
+                            Icon(
+                                imageVector = Icons.Filled.Cameraswitch,
+                                contentDescription = "Camera",
+                            )
+                        }
+                    }
+
                     IconButton(onClick = onSettings) {
                         Icon(
                             imageVector = Icons.Filled.Settings,
@@ -87,7 +106,16 @@ fun ScannerScreen(
             ) {
                 val scanned = state.scanned
 
-                if (scanned == null) {
+                if (pickingCamera) {
+                    CameraDialog(
+                        selected = state.cameraId,
+                        onPick = { id ->
+                            state.cameraId = id
+                            pickingCamera = false
+                        },
+                        onDismiss = { pickingCamera = false },
+                    )
+                } else if (scanned == null) {
                     ScannerView(
                         codeTypes = listOf(format),
                         modifier = Modifier.matchParentSize(),
@@ -150,6 +178,72 @@ fun ScannerScreen(
                 }
             }
         }
+    }
+}
+
+// The preview is gone while this is up: listing opens every camera in turn, and
+// the one the scanner is holding would not answer.
+@Composable
+private fun CameraDialog(
+    selected: String?,
+    onPick: (String?) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    var cameras by remember { mutableStateOf(emptyList<CameraDevice>()) }
+    var searching by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        cameras = platformCameras()
+        searching = false
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = "Camera") },
+        text = {
+            Column {
+                when {
+                    searching -> Text(text = "Looking\u2026")
+
+                    cameras.isEmpty() -> Text(text = "No camera found.")
+
+                    else -> {
+                        CameraChoice(
+                            label = "Default",
+                            selected = selected == null,
+                            onClick = { onPick(null) },
+                        )
+
+                        cameras.forEach { device ->
+                            CameraChoice(
+                                label = device.label.ifEmpty { "Camera ${device.id}" },
+                                selected = selected == device.id,
+                                onClick = { onPick(device.id) },
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text(text = "Cancel") }
+        },
+    )
+}
+
+@Composable
+private fun CameraChoice(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RadioButton(selected = selected, onClick = onClick)
+
+        Text(text = label, modifier = Modifier.padding(start = 8.dp))
     }
 }
 
