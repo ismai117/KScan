@@ -8,7 +8,7 @@ import org.ncgroup.kscan.KScanWeb
 fun main() {
     KScanWeb.debugLogging = true
 
-    ComposeViewport(document.body!!) {
+    ComposeViewport(document.getElementById("app")!!) {
         App()
     }
 }
