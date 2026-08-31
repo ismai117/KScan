@@ -11,6 +11,8 @@ import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -20,6 +22,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -66,6 +71,9 @@ internal actual fun ScannerViewImpl(
     var cameraControl: CameraControl? by remember { mutableStateOf(null) }
     var analyzer: BarcodeAnalyzer? by remember { mutableStateOf(null) }
 
+    /** The frame the barcode was read from, held once the camera has stopped. */
+    var frozenFrame: ImageBitmap? by remember { mutableStateOf(null) }
+
     val updatedResult by rememberUpdatedState(result)
     val updatedFilter by rememberUpdatedState(filter)
 
@@ -102,83 +110,97 @@ internal actual fun ScannerViewImpl(
 
     val provider = cameraProvider
 
-    provider?.let {
-        AndroidView(
-            modifier = modifier,
-            factory = { ctx ->
-                val previewView = PreviewView(ctx)
+    Box(modifier = modifier) {
+        provider?.let {
+            AndroidView(
+                modifier = Modifier.matchParentSize(),
+                factory = { ctx ->
+                    val previewView = PreviewView(ctx)
 
-                val preview = Preview.Builder()
-                    .build()
+                    val preview = Preview.Builder()
+                        .build()
 
-                val selector = CameraSelector.Builder()
-                    .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-                    .build()
+                    val selector = CameraSelector.Builder()
+                        .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+                        .build()
 
-                preview.surfaceProvider = previewView.surfaceProvider
+                    preview.surfaceProvider = previewView.surfaceProvider
 
-                val imageAnalysis = ImageAnalysis.Builder()
-                    .setResolutionSelector(
-                        ResolutionSelector.Builder()
-                            .setResolutionStrategy(
-                                ResolutionStrategy(
-                                    Size(1280, 720),
-                                    ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER,
+                    val imageAnalysis = ImageAnalysis.Builder()
+                        .setResolutionSelector(
+                            ResolutionSelector.Builder()
+                                .setResolutionStrategy(
+                                    ResolutionStrategy(
+                                        Size(1280, 720),
+                                        ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER,
+                                    ),
+                                )
+                                .build(),
+                        )
+                        .setBackpressureStrategy(
+                            ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST,
+                        )
+                        .build()
+
+                    val barcodeAnalyzer = BarcodeAnalyzer(
+                        codeTypes = codeTypes,
+                        scannerOptions = barcodeScannerOptions(
+                            codeTypes = codeTypes,
+                            autoZoom = autoZoom,
+                            getCamera = { camera },
+                        ),
+                        onSuccess = { scannedBarcodes ->
+                            frozenFrame = previewView.bitmap?.asImageBitmap()
+                            provider.unbindAll()
+
+                            updatedResult(
+                                BarcodeResult.OnSuccess(
+                                    scannedBarcodes.first(),
                                 ),
                             )
-                            .build(),
+                        },
+                        onFailed = {
+                            updatedResult(
+                                BarcodeResult.OnFailed(
+                                    Exception(it),
+                                ),
+                            )
+                        },
+                        filter = { barcode -> updatedFilter(barcode) },
                     )
-                    .setBackpressureStrategy(
-                        ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST,
+
+                    analyzer = barcodeAnalyzer
+
+                    imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(ctx), barcodeAnalyzer)
+
+                    camera = bindCamera(
+                        lifecycleOwner = lifecycleOwner,
+                        cameraProvider = provider,
+                        selector = selector,
+                        preview = preview,
+                        imageAnalysis = imageAnalysis,
+                        result = updatedResult,
+                        cameraControl = { cameraControl = it },
                     )
-                    .build()
 
-                val barcodeAnalyzer = BarcodeAnalyzer(
-                    codeTypes = codeTypes,
-                    scannerOptions = barcodeScannerOptions(
-                        codeTypes = codeTypes,
-                        autoZoom = autoZoom,
-                        getCamera = { camera },
-                    ),
-                    onSuccess = { scannedBarcodes ->
-                        updatedResult(
-                            BarcodeResult.OnSuccess(
-                                scannedBarcodes.first(),
-                            ),
-                        )
+                    previewView
+                },
+                onRelease = {
+                    provider.unbindAll()
+                },
+            )
+        }
 
-                        provider.unbind(imageAnalysis)
-                    },
-                    onFailed = {
-                        updatedResult(
-                            BarcodeResult.OnFailed(
-                                Exception(it),
-                            ),
-                        )
-                    },
-                    filter = { barcode -> updatedFilter(barcode) },
-                )
-
-                analyzer = barcodeAnalyzer
-
-                imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(ctx), barcodeAnalyzer)
-
-                camera = bindCamera(
-                    lifecycleOwner = lifecycleOwner,
-                    cameraProvider = provider,
-                    selector = selector,
-                    preview = preview,
-                    imageAnalysis = imageAnalysis,
-                    result = updatedResult,
-                    cameraControl = { cameraControl = it },
-                )
-
-                previewView
-            },
-            onRelease = {
-                provider.unbindAll()
-            },
-        )
+        // Scaled like PreviewView's FILL_CENTER so the held frame lands where the
+        // live one was.
+        frozenFrame?.let { frame ->
+            Image(
+                bitmap = frame,
+                contentDescription = null,
+                modifier = Modifier.matchParentSize(),
+                contentScale = ContentScale.Crop,
+            )
+        }
     }
 
     DisposableEffect(Unit) {
