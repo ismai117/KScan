@@ -62,16 +62,27 @@ public final class org/ncgroup/kscan/BarcodeResult$OnSuccess : org/ncgroup/kscan
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class org/ncgroup/kscan/CameraDevice {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lorg/ncgroup/kscan/CameraDevice;
+	public static synthetic fun copy$default (Lorg/ncgroup/kscan/CameraDevice;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lorg/ncgroup/kscan/CameraDevice;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getId ()Ljava/lang/String;
+	public final fun getLabel ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/ncgroup/kscan/CameraDevicesKt {
+	public static final fun availableCameras (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
 public final class org/ncgroup/kscan/ImageScanner_jvmKt {
 	public static final fun scanImage ([BLjava/util/List;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
 	public static synthetic fun scanImage$default ([BLjava/util/List;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
-}
-
-public final class org/ncgroup/kscan/KScanDesktop {
-	public static final field $stable I
-	public static final field INSTANCE Lorg/ncgroup/kscan/KScanDesktop;
-	public final fun getCameraIndex ()I
-	public final fun setCameraIndex (I)V
 }
 
 public final class org/ncgroup/kscan/ScannerController {
@@ -85,6 +96,6 @@ public final class org/ncgroup/kscan/ScannerController {
 }
 
 public final class org/ncgroup/kscan/ScannerViewKt {
-	public static final fun ScannerView (Ljava/util/List;Landroidx/compose/ui/Modifier;Lorg/ncgroup/kscan/ScannerController;Lkotlin/jvm/functions/Function1;ZLkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final fun ScannerView (Ljava/util/List;Landroidx/compose/ui/Modifier;Ljava/lang/String;Lorg/ncgroup/kscan/ScannerController;Lkotlin/jvm/functions/Function1;ZLkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
 }
 

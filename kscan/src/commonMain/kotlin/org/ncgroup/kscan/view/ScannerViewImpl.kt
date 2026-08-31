@@ -14,6 +14,7 @@ import org.ncgroup.kscan.ScannerController
 internal expect fun ScannerViewImpl(
     codeTypes: List<BarcodeFormat>,
     modifier: Modifier,
+    cameraId: String?,
     scannerController: ScannerController?,
     filter: (Barcode) -> Boolean,
     autoZoom: Boolean,

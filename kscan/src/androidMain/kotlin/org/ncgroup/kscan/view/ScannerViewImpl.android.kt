@@ -44,6 +44,7 @@ import org.ncgroup.kscan.scanner.barcodeScannerOptions
 internal actual fun ScannerViewImpl(
     codeTypes: List<BarcodeFormat>,
     modifier: Modifier,
+    @Suppress("UNUSED_PARAMETER") cameraId: String?,
     scannerController: ScannerController?,
     filter: (Barcode) -> Boolean,
     autoZoom: Boolean,

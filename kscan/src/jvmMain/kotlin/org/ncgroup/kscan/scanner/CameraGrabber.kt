@@ -3,12 +3,13 @@ package org.ncgroup.kscan.scanner
 import org.bytedeco.javacv.OpenCVFrameGrabber
 
 // How far past the requested index to look before giving up.
-private const val LAST_CAMERA_INDEX = 4
+internal const val LAST_CAMERA_INDEX = 4
 
 // Which index names which camera is the platform's choice and shifts as devices
 // are plugged and unplugged, so the index that worked last run can be busy or
 // missing this one.
-internal fun openCamera(preferred: Int): OpenCVFrameGrabber {
+internal fun openCamera(cameraId: String?): OpenCVFrameGrabber {
+    val preferred = cameraId?.toIntOrNull() ?: 0
     val candidates = listOf(preferred) + (0..LAST_CAMERA_INDEX).filter { it != preferred }
     var failure: Exception? = null
 

@@ -43,6 +43,7 @@ private const val SCAN_INTERVAL_MS = 33L
 internal actual fun ScannerViewImpl(
     codeTypes: List<BarcodeFormat>,
     modifier: Modifier,
+    cameraId: String?,
     scannerController: ScannerController?,
     filter: (Barcode) -> Boolean,
     autoZoom: Boolean,
@@ -76,11 +77,11 @@ internal actual fun ScannerViewImpl(
         }
     }
 
-    LaunchedEffect(codeTypes) {
+    LaunchedEffect(codeTypes, cameraId) {
         try {
             startCamera(
                 video = video,
-                deviceId = KScanWeb.cameraDeviceId.orEmpty(),
+                deviceId = cameraId.orEmpty(),
                 debug = KScanWeb.debugLogging,
             ).await()
 

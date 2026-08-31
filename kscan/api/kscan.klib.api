@@ -77,6 +77,22 @@ final class org.ncgroup.kscan/Barcode { // org.ncgroup.kscan/Barcode|null[0]
     final fun toString(): kotlin/String // org.ncgroup.kscan/Barcode.toString|toString(){}[0]
 }
 
+final class org.ncgroup.kscan/CameraDevice { // org.ncgroup.kscan/CameraDevice|null[0]
+    constructor <init>(kotlin/String, kotlin/String) // org.ncgroup.kscan/CameraDevice.<init>|<init>(kotlin.String;kotlin.String){}[0]
+
+    final val id // org.ncgroup.kscan/CameraDevice.id|{}id[0]
+        final fun <get-id>(): kotlin/String // org.ncgroup.kscan/CameraDevice.id.<get-id>|<get-id>(){}[0]
+    final val label // org.ncgroup.kscan/CameraDevice.label|{}label[0]
+        final fun <get-label>(): kotlin/String // org.ncgroup.kscan/CameraDevice.label.<get-label>|<get-label>(){}[0]
+
+    final fun component1(): kotlin/String // org.ncgroup.kscan/CameraDevice.component1|component1(){}[0]
+    final fun component2(): kotlin/String // org.ncgroup.kscan/CameraDevice.component2|component2(){}[0]
+    final fun copy(kotlin/String = ..., kotlin/String = ...): org.ncgroup.kscan/CameraDevice // org.ncgroup.kscan/CameraDevice.copy|copy(kotlin.String;kotlin.String){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // org.ncgroup.kscan/CameraDevice.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // org.ncgroup.kscan/CameraDevice.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // org.ncgroup.kscan/CameraDevice.toString|toString(){}[0]
+}
+
 final class org.ncgroup.kscan/ScannerController { // org.ncgroup.kscan/ScannerController|null[0]
     constructor <init>() // org.ncgroup.kscan/ScannerController.<init>|<init>(){}[0]
 
@@ -94,40 +110,22 @@ final class org.ncgroup.kscan/ScannerController { // org.ncgroup.kscan/ScannerCo
 final val org.ncgroup.kscan/org_ncgroup_kscan_Barcode$stableprop // org.ncgroup.kscan/org_ncgroup_kscan_Barcode$stableprop|#static{}org_ncgroup_kscan_Barcode$stableprop[0]
 final val org.ncgroup.kscan/org_ncgroup_kscan_BarcodeResult_OnFailed$stableprop // org.ncgroup.kscan/org_ncgroup_kscan_BarcodeResult_OnFailed$stableprop|#static{}org_ncgroup_kscan_BarcodeResult_OnFailed$stableprop[0]
 final val org.ncgroup.kscan/org_ncgroup_kscan_BarcodeResult_OnSuccess$stableprop // org.ncgroup.kscan/org_ncgroup_kscan_BarcodeResult_OnSuccess$stableprop|#static{}org_ncgroup_kscan_BarcodeResult_OnSuccess$stableprop[0]
+final val org.ncgroup.kscan/org_ncgroup_kscan_CameraDevice$stableprop // org.ncgroup.kscan/org_ncgroup_kscan_CameraDevice$stableprop|#static{}org_ncgroup_kscan_CameraDevice$stableprop[0]
 final val org.ncgroup.kscan/org_ncgroup_kscan_ScannerController$stableprop // org.ncgroup.kscan/org_ncgroup_kscan_ScannerController$stableprop|#static{}org_ncgroup_kscan_ScannerController$stableprop[0]
 
-final fun org.ncgroup.kscan/ScannerView(kotlin.collections/List<org.ncgroup.kscan/BarcodeFormat>, androidx.compose.ui/Modifier?, org.ncgroup.kscan/ScannerController?, kotlin/Function1<org.ncgroup.kscan/Barcode, kotlin/Boolean>?, kotlin/Boolean, kotlin/Function1<org.ncgroup.kscan/BarcodeResult, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // org.ncgroup.kscan/ScannerView|ScannerView(kotlin.collections.List<org.ncgroup.kscan.BarcodeFormat>;androidx.compose.ui.Modifier?;org.ncgroup.kscan.ScannerController?;kotlin.Function1<org.ncgroup.kscan.Barcode,kotlin.Boolean>?;kotlin.Boolean;kotlin.Function1<org.ncgroup.kscan.BarcodeResult,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
+final fun org.ncgroup.kscan/ScannerView(kotlin.collections/List<org.ncgroup.kscan/BarcodeFormat>, androidx.compose.ui/Modifier?, kotlin/String?, org.ncgroup.kscan/ScannerController?, kotlin/Function1<org.ncgroup.kscan/Barcode, kotlin/Boolean>?, kotlin/Boolean, kotlin/Function1<org.ncgroup.kscan/BarcodeResult, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // org.ncgroup.kscan/ScannerView|ScannerView(kotlin.collections.List<org.ncgroup.kscan.BarcodeFormat>;androidx.compose.ui.Modifier?;kotlin.String?;org.ncgroup.kscan.ScannerController?;kotlin.Function1<org.ncgroup.kscan.Barcode,kotlin.Boolean>?;kotlin.Boolean;kotlin.Function1<org.ncgroup.kscan.BarcodeResult,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
 final fun org.ncgroup.kscan/org_ncgroup_kscan_Barcode$stableprop_getter(): kotlin/Int // org.ncgroup.kscan/org_ncgroup_kscan_Barcode$stableprop_getter|org_ncgroup_kscan_Barcode$stableprop_getter(){}[0]
 final fun org.ncgroup.kscan/org_ncgroup_kscan_BarcodeResult_OnFailed$stableprop_getter(): kotlin/Int // org.ncgroup.kscan/org_ncgroup_kscan_BarcodeResult_OnFailed$stableprop_getter|org_ncgroup_kscan_BarcodeResult_OnFailed$stableprop_getter(){}[0]
 final fun org.ncgroup.kscan/org_ncgroup_kscan_BarcodeResult_OnSuccess$stableprop_getter(): kotlin/Int // org.ncgroup.kscan/org_ncgroup_kscan_BarcodeResult_OnSuccess$stableprop_getter|org_ncgroup_kscan_BarcodeResult_OnSuccess$stableprop_getter(){}[0]
+final fun org.ncgroup.kscan/org_ncgroup_kscan_CameraDevice$stableprop_getter(): kotlin/Int // org.ncgroup.kscan/org_ncgroup_kscan_CameraDevice$stableprop_getter|org_ncgroup_kscan_CameraDevice$stableprop_getter(){}[0]
 final fun org.ncgroup.kscan/org_ncgroup_kscan_ScannerController$stableprop_getter(): kotlin/Int // org.ncgroup.kscan/org_ncgroup_kscan_ScannerController$stableprop_getter|org_ncgroup_kscan_ScannerController$stableprop_getter(){}[0]
 final fun org.ncgroup.kscan/scanImage(kotlin/ByteArray, kotlin.collections/List<org.ncgroup.kscan/BarcodeFormat> = ..., kotlin/Function1<org.ncgroup.kscan/Barcode, kotlin/Boolean> = ..., kotlin/Function1<org.ncgroup.kscan/BarcodeResult, kotlin/Unit>) // org.ncgroup.kscan/scanImage|scanImage(kotlin.ByteArray;kotlin.collections.List<org.ncgroup.kscan.BarcodeFormat>;kotlin.Function1<org.ncgroup.kscan.Barcode,kotlin.Boolean>;kotlin.Function1<org.ncgroup.kscan.BarcodeResult,kotlin.Unit>){}[0]
-
-// Targets: [wasmJs]
-final class org.ncgroup.kscan/CameraDevice { // org.ncgroup.kscan/CameraDevice|null[0]
-    constructor <init>(kotlin/String, kotlin/String) // org.ncgroup.kscan/CameraDevice.<init>|<init>(kotlin.String;kotlin.String){}[0]
-
-    final val id // org.ncgroup.kscan/CameraDevice.id|{}id[0]
-        final fun <get-id>(): kotlin/String // org.ncgroup.kscan/CameraDevice.id.<get-id>|<get-id>(){}[0]
-    final val label // org.ncgroup.kscan/CameraDevice.label|{}label[0]
-        final fun <get-label>(): kotlin/String // org.ncgroup.kscan/CameraDevice.label.<get-label>|<get-label>(){}[0]
-
-    final fun component1(): kotlin/String // org.ncgroup.kscan/CameraDevice.component1|component1(){}[0]
-    final fun component2(): kotlin/String // org.ncgroup.kscan/CameraDevice.component2|component2(){}[0]
-    final fun copy(kotlin/String = ..., kotlin/String = ...): org.ncgroup.kscan/CameraDevice // org.ncgroup.kscan/CameraDevice.copy|copy(kotlin.String;kotlin.String){}[0]
-    final fun equals(kotlin/Any?): kotlin/Boolean // org.ncgroup.kscan/CameraDevice.equals|equals(kotlin.Any?){}[0]
-    final fun hashCode(): kotlin/Int // org.ncgroup.kscan/CameraDevice.hashCode|hashCode(){}[0]
-    final fun toString(): kotlin/String // org.ncgroup.kscan/CameraDevice.toString|toString(){}[0]
-}
 
 // Targets: [wasmJs]
 final object org.ncgroup.kscan/KScanWeb { // org.ncgroup.kscan/KScanWeb|null[0]
     final var barcodeDetectorPolyfillUrl // org.ncgroup.kscan/KScanWeb.barcodeDetectorPolyfillUrl|{}barcodeDetectorPolyfillUrl[0]
         final fun <get-barcodeDetectorPolyfillUrl>(): kotlin/String? // org.ncgroup.kscan/KScanWeb.barcodeDetectorPolyfillUrl.<get-barcodeDetectorPolyfillUrl>|<get-barcodeDetectorPolyfillUrl>(){}[0]
         final fun <set-barcodeDetectorPolyfillUrl>(kotlin/String?) // org.ncgroup.kscan/KScanWeb.barcodeDetectorPolyfillUrl.<set-barcodeDetectorPolyfillUrl>|<set-barcodeDetectorPolyfillUrl>(kotlin.String?){}[0]
-    final var cameraDeviceId // org.ncgroup.kscan/KScanWeb.cameraDeviceId|{}cameraDeviceId[0]
-        final fun <get-cameraDeviceId>(): kotlin/String? // org.ncgroup.kscan/KScanWeb.cameraDeviceId.<get-cameraDeviceId>|<get-cameraDeviceId>(){}[0]
-        final fun <set-cameraDeviceId>(kotlin/String?) // org.ncgroup.kscan/KScanWeb.cameraDeviceId.<set-cameraDeviceId>|<set-cameraDeviceId>(kotlin.String?){}[0]
     final var debugLogging // org.ncgroup.kscan/KScanWeb.debugLogging|{}debugLogging[0]
         final fun <get-debugLogging>(): kotlin/Boolean // org.ncgroup.kscan/KScanWeb.debugLogging.<get-debugLogging>|<get-debugLogging>(){}[0]
         final fun <set-debugLogging>(kotlin/Boolean) // org.ncgroup.kscan/KScanWeb.debugLogging.<set-debugLogging>|<set-debugLogging>(kotlin.Boolean){}[0]
@@ -137,13 +135,7 @@ final object org.ncgroup.kscan/KScanWeb { // org.ncgroup.kscan/KScanWeb|null[0]
 }
 
 // Targets: [wasmJs]
-final val org.ncgroup.kscan/org_ncgroup_kscan_CameraDevice$stableprop // org.ncgroup.kscan/org_ncgroup_kscan_CameraDevice$stableprop|#static{}org_ncgroup_kscan_CameraDevice$stableprop[0]
-
-// Targets: [wasmJs]
 final val org.ncgroup.kscan/org_ncgroup_kscan_KScanWeb$stableprop // org.ncgroup.kscan/org_ncgroup_kscan_KScanWeb$stableprop|#static{}org_ncgroup_kscan_KScanWeb$stableprop[0]
-
-// Targets: [wasmJs]
-final fun org.ncgroup.kscan/org_ncgroup_kscan_CameraDevice$stableprop_getter(): kotlin/Int // org.ncgroup.kscan/org_ncgroup_kscan_CameraDevice$stableprop_getter|org_ncgroup_kscan_CameraDevice$stableprop_getter(){}[0]
 
 // Targets: [wasmJs]
 final fun org.ncgroup.kscan/org_ncgroup_kscan_KScanWeb$stableprop_getter(): kotlin/Int // org.ncgroup.kscan/org_ncgroup_kscan_KScanWeb$stableprop_getter|org_ncgroup_kscan_KScanWeb$stableprop_getter(){}[0]

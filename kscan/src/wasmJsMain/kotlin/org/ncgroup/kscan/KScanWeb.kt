@@ -29,11 +29,4 @@ public object KScanWeb {
 
     /** Logs the camera resolution and the formats being detected to the console. */
     public var debugLogging: Boolean = false
-
-    /**
-     * Id of the camera [ScannerView] opens, from [availableCameras].
-     *
-     * `null` lets the browser choose, preferring a rear-facing camera.
-     */
-    public var cameraDeviceId: String? = null
 }

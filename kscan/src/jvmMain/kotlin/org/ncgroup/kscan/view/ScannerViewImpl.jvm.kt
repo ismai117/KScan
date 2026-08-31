@@ -26,7 +26,6 @@ import org.bytedeco.javacv.OpenCVFrameGrabber
 import org.ncgroup.kscan.Barcode
 import org.ncgroup.kscan.BarcodeFormat
 import org.ncgroup.kscan.BarcodeResult
-import org.ncgroup.kscan.KScanDesktop
 import org.ncgroup.kscan.ScannerController
 import org.ncgroup.kscan.format.isRequestedFormat
 import org.ncgroup.kscan.scanner.GrayLuminanceSource
@@ -41,6 +40,7 @@ import java.awt.image.BufferedImage
 internal actual fun ScannerViewImpl(
     codeTypes: List<BarcodeFormat>,
     modifier: Modifier,
+    cameraId: String?,
     scannerController: ScannerController?,
     filter: (Barcode) -> Boolean,
     autoZoom: Boolean,
@@ -52,7 +52,7 @@ internal actual fun ScannerViewImpl(
     var cameraFrameBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     var isScanning by remember { mutableStateOf(true) }
 
-    DisposableEffect(codeTypes) {
+    DisposableEffect(codeTypes, cameraId) {
         // A frame has two independent readers, so each gets its own channel. Sharing
         // one would hand every frame to whichever happened to receive it first,
         // leaving the decoder to work from half of them.
@@ -106,7 +106,7 @@ internal actual fun ScannerViewImpl(
             var localGrabber: OpenCVFrameGrabber? = null
 
             try {
-                localGrabber = openCamera(KScanDesktop.cameraIndex)
+                localGrabber = openCamera(cameraId)
 
                 val converter = Java2DFrameConverter()
 

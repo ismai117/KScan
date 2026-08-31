@@ -14,6 +14,8 @@ import org.ncgroup.kscan.view.ScannerViewImpl
  *
  * @param codeTypes The formats to scan for.
  * @param modifier Applied to the preview. Fills the available space by default.
+ * @param cameraId The camera to open, from `availableCameras()`. `null` lets the
+ *   platform choose, preferring a rear-facing camera. Web and desktop only.
  * @param scannerController Drives torch and zoom from your own controls.
  * @param filter Called with each decoded barcode; returning `false` keeps scanning.
  * @param autoZoom Lets the decoder zoom in on a barcode too small to read. Android only.
@@ -23,6 +25,7 @@ import org.ncgroup.kscan.view.ScannerViewImpl
 public fun ScannerView(
     codeTypes: List<BarcodeFormat>,
     modifier: Modifier = Modifier.fillMaxSize(),
+    cameraId: String? = null,
     scannerController: ScannerController? = null,
     filter: (Barcode) -> Boolean = { true },
     autoZoom: Boolean = true,
@@ -31,6 +34,7 @@ public fun ScannerView(
     ScannerViewImpl(
         codeTypes = codeTypes,
         modifier = modifier,
+        cameraId = cameraId,
         scannerController = scannerController,
         filter = filter,
         autoZoom = autoZoom,

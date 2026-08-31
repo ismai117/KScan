@@ -6,12 +6,6 @@ import kotlinx.coroutines.await
 import kotlin.js.Promise
 import kotlin.js.get
 
-/** A camera the browser is willing to open. */
-public data class CameraDevice(
-    val id: String,
-    val label: String,
-)
-
 private external interface JsCameraDevice : JsAny {
     val id: JsString
     val label: JsString
@@ -27,7 +21,7 @@ private fun enumerateCameras(): Promise<JsArray<JsCameraDevice>> = js(
 )
 
 /**
- * Lists the cameras available to the browser, for [KScanWeb.cameraDeviceId].
+ * Lists the cameras the browser will open, for [ScannerView]'s `cameraId`.
  *
  * Labels are blank until the user has granted camera access, so call this again
  * after a scan has started to show a meaningful picker.

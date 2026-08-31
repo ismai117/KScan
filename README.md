@@ -85,6 +85,61 @@ Slider(
 )
 ```
 
+### Choosing a Camera
+
+On web and desktop, `availableCameras()` lists what can be opened and `cameraId` picks
+one. `null`, the default, leaves the choice to the platform. Changing it reopens the
+camera in place, so a picker works without remounting the view.
+
+```kotlin
+var cameras by remember { mutableStateOf(emptyList<CameraDevice>()) }
+var cameraId by remember { mutableStateOf<String?>(null) }
+
+LaunchedEffect(Unit) { cameras = availableCameras() }
+
+ScannerView(
+    codeTypes = listOf(BarcodeFormat.FORMAT_QR_CODE),
+    cameraId = cameraId,
+) { result ->
+    // handle result
+}
+
+cameras.forEach { device ->
+    FilterChip(
+        selected = cameraId == device.id,
+        onClick = { cameraId = device.id },
+        label = { Text(device.label) },
+    )
+}
+```
+
+**Web** - labels are blank until the user has granted camera access, so call
+`availableCameras()` again once a scan has started to show a meaningful picker. On macOS
+a nearby iPhone appears here through Continuity Camera.
+
+**Desktop** - OpenCV cannot be asked what cameras exist, so each index is opened and
+closed to find out and the labels are positions, not names. It is slow and lights the
+camera indicator, so call it once and hold the result. A camera already in use — by the
+scanner or another app — does not appear.
+
+**Android and iOS** ignore `cameraId` and always use the rear camera.
+
+### Web Configuration
+
+Decoding on the web goes through the browser's `BarcodeDetector`, with a polyfill loaded
+from a CDN for browsers without one. Self-host it, or set either to `null` to disable
+the fallback:
+
+```kotlin
+KScanWeb.barcodeDetectorPolyfillUrl = "/assets/barcode-detector.js"
+KScanWeb.zxingWasmUrl = "/assets/zxing_reader.wasm"
+KScanWeb.debugLogging = true // logs the camera resolution and formats to the console
+```
+
+The preview is an HTML element the browser stacks above the Compose canvas, so put
+controls beside it rather than over it, and swap it out rather than drawing a result
+over it.
+
 ### Scanning from Images
 
 Use `scanImage` to scan barcodes from static images (gallery, screenshots, downloaded images) instead of the live camera feed:
