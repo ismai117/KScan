@@ -8,8 +8,7 @@ import org.ncgroup.kscan.App
 import org.ncgroup.kscan.KScanDesktop
 
 fun main() = application {
-    // Index 1 is often a nearby iPhone on macOS, offered through Continuity Camera.
-    KScanDesktop.cameraIndex = System.getProperty("kscan.camera")?.toIntOrNull() ?: 0
+    KScanDesktop.cameraIndex = 1
 
     val windowState = rememberWindowState(
         size = DpSize(width = 400.dp, height = 800.dp),
