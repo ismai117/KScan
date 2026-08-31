@@ -30,6 +30,7 @@ import org.ncgroup.kscan.BarcodeFormat
 import org.ncgroup.kscan.BarcodeResult
 import org.ncgroup.kscan.ScannerController
 import org.ncgroup.kscan.scanner.BarcodeAnalyzer
+import org.ncgroup.kscan.scanner.barcodeScannerOptions
 
 @Composable
 internal actual fun ScannerViewImpl(
@@ -133,8 +134,12 @@ internal actual fun ScannerViewImpl(
                     .build()
 
                 val barcodeAnalyzer = BarcodeAnalyzer(
-                    getCamera = { camera },
                     codeTypes = codeTypes,
+                    scannerOptions = barcodeScannerOptions(
+                        codeTypes = codeTypes,
+                        autoZoom = autoZoom,
+                        getCamera = { camera },
+                    ),
                     onSuccess = { scannedBarcodes ->
                         updatedResult(
                             BarcodeResult.OnSuccess(
@@ -152,7 +157,6 @@ internal actual fun ScannerViewImpl(
                         )
                     },
                     filter = { barcode -> updatedFilter(barcode) },
-                    autoZoom = autoZoom,
                 )
 
                 analyzer = barcodeAnalyzer

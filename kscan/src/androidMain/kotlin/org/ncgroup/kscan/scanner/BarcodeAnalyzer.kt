@@ -1,13 +1,11 @@
 package org.ncgroup.kscan.scanner
 
 import androidx.annotation.OptIn
-import androidx.camera.core.Camera
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
-import com.google.mlkit.vision.barcode.ZoomSuggestionOptions
 import com.google.mlkit.vision.common.InputImage
 import org.ncgroup.kscan.Barcode
 import org.ncgroup.kscan.BarcodeFormat
@@ -17,39 +15,16 @@ import org.ncgroup.kscan.format.isRequestedFormat
 /**
  * Analyzes camera frames for barcodes using ML Kit.
  *
- * Features duplicate filtering (barcode must be detected twice) and auto-zoom suggestions.
+ * A barcode must be decoded twice before it is reported, and a frame holding none
+ * is periodically inverted and read again for light-on-dark codes.
  */
 internal class BarcodeAnalyzer(
-    private val getCamera: () -> Camera?,
     private val codeTypes: List<BarcodeFormat>,
+    scannerOptions: BarcodeScannerOptions,
     private val onSuccess: (List<Barcode>) -> Unit,
     private val onFailed: (Exception) -> Unit,
     private val filter: (Barcode) -> Boolean,
-    private val autoZoom: Boolean,
 ) : ImageAnalysis.Analyzer {
-    private val scannerOptions =
-        BarcodeScannerOptions.Builder()
-            .setBarcodeFormats(BarcodeFormatMapper.toMlKitFormats(codeTypes))
-            .apply {
-                if (autoZoom) {
-                    setZoomSuggestionOptions(
-                        ZoomSuggestionOptions.Builder { zoomRatio ->
-                            val camera = getCamera()
-                            val maxZoomRatio =
-                                (camera?.cameraInfo?.zoomState?.value?.maxZoomRatio ?: 1.0f)
-                                    .coerceAtMost(MAX_ZOOM_RATIO)
-                            if (zoomRatio <= maxZoomRatio) {
-                                camera?.cameraControl?.setZoomRatio(zoomRatio)
-                                true
-                            } else {
-                                false
-                            }
-                        }.setMaxSupportedZoomRatio(MAX_ZOOM_RATIO).build(),
-                    )
-                }
-            }
-            .build()
-
     private val scanner = BarcodeScanning.getClient(scannerOptions)
     private val repeated = RepeatedDetection()
     private var hasSuccessfullyProcessedBarcode = false
