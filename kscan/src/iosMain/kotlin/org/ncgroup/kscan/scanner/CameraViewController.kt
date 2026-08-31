@@ -20,11 +20,7 @@ import platform.AVFoundation.AVCaptureVideoOrientationPortraitUpsideDown
 import platform.AVFoundation.AVCaptureVideoPreviewLayer
 import platform.AVFoundation.AVLayerVideoGravityResizeAspectFill
 import platform.AVFoundation.AVMetadataMachineReadableCodeObject
-import platform.AVFoundation.AVMetadataObjectType
-import platform.AVFoundation.AVMetadataObjectTypeQRCode
-import platform.AVFoundation.descriptor
 import platform.AVFoundation.videoZoomFactor
-import platform.CoreImage.CIQRCodeDescriptor
 import platform.Foundation.NSLog
 import platform.UIKit.UIApplication
 import platform.UIKit.UIColor
@@ -72,17 +68,13 @@ internal class CameraViewController(
     private fun setupCamera() {
         captureSession = AVCaptureSession()
 
-        try {
-            videoInput = AVCaptureDeviceInput.deviceInputWithDevice(device, null) as AVCaptureDeviceInput
+        videoInput = try {
+            AVCaptureDeviceInput.deviceInputWithDevice(device, null) as AVCaptureDeviceInput
         } catch (e: Exception) {
             onBarcodeFailed(e)
             return
         }
 
-        setupCaptureSession()
-    }
-
-    private fun setupCaptureSession() {
         val metadataOutput = AVCaptureMetadataOutput()
 
         if (!captureSession.canAddInput(videoInput)) {
@@ -130,8 +122,8 @@ internal class CameraViewController(
 
     override fun viewWillAppear(animated: Boolean) {
         super.viewWillAppear(animated)
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT.toLong(), 0u)) {
-            if (!captureSession.isRunning()) {
+        offMainQueue {
+            if (::captureSession.isInitialized && !captureSession.isRunning()) {
                 captureSession.startRunning()
             }
         }
@@ -139,10 +131,17 @@ internal class CameraViewController(
 
     override fun viewWillDisappear(animated: Boolean) {
         super.viewWillDisappear(animated)
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT.toLong(), 0u)) {
-            if (captureSession.isRunning()) {
-                captureSession.stopRunning()
-            }
+        stopSession()
+    }
+
+    // Starting and stopping a session blocks, so it is kept off the main queue.
+    private fun offMainQueue(block: () -> Unit) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT.toLong(), 0u), block)
+    }
+
+    private fun stopSession() = offMainQueue {
+        if (::captureSession.isInitialized && captureSession.isRunning()) {
+            captureSession.stopRunning()
         }
     }
 
@@ -168,63 +167,21 @@ internal class CameraViewController(
         // preview-layer coordinates would discard the result.
         metadataObjects
             .filterIsInstance<AVMetadataMachineReadableCodeObject>()
-            .filter { barcodeObject -> isRequested(barcodeObject.type) }
-            .forEach { barcodeObject -> processDetectedBarcode(barcodeObject) }
+            .forEach { detection -> report(detection) }
     }
 
-    private fun processDetectedBarcode(
-        barcodeObject: AVMetadataMachineReadableCodeObject,
-    ) {
-        val value = barcodeObject.stringValue ?: ""
-        val type = barcodeObject.type
-        val key = value.ifEmpty { type.toString() }
+    private fun report(detection: AVMetadataMachineReadableCodeObject) {
+        val barcode = detection.toBarcode()
 
-        if (repeated.accept(key)) {
-            val appSpecificFormat = BarcodeFormatMapper.toAppFormat(type)
+        if (!isRequestedFormat(barcode.format, codeTypes)) return
+        // A barcode the OS gives no value for is still worth counting, so it falls
+        // back to the type to tell one from another.
+        if (!repeated.accept(barcode.data.ifEmpty { detection.type.toString() })) return
+        if (!filter(barcode)) return
 
-            val rawBytes = extractRawBytes(barcodeObject, value)
-
-            // Build string from rawBytes, replacing null bytes to prevent UI truncation
-            val data = buildString {
-                for (byte in rawBytes) {
-                    val char = (byte.toInt() and 0xFF).toChar()
-                    append(if (char == '\u0000') ' ' else char)
-                }
-            }
-
-            val barcode =
-                Barcode(
-                    data = data,
-                    format = appSpecificFormat,
-                    rawBytes = rawBytes,
-                )
-
-            if (!filter(barcode)) return
-
-            onBarcodeSuccess(listOf(barcode))
-            repeated.reset()
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT.toLong(), 0u)) {
-                if (::captureSession.isInitialized && captureSession.isRunning()) {
-                    captureSession.stopRunning()
-                }
-            }
-        }
-    }
-
-    @OptIn(ExperimentalForeignApi::class)
-    @Suppress("CAST_NEVER_SUCCEEDS")
-    private fun extractRawBytes(
-        barcodeObject: AVMetadataMachineReadableCodeObject,
-        fallbackValue: String,
-    ): ByteArray {
-        if (barcodeObject.type == AVMetadataObjectTypeQRCode) {
-            val descriptor = barcodeObject.descriptor as? CIQRCodeDescriptor
-            if (descriptor != null) {
-                val bytes = QRCodePayloadParser.extractRawBytes(descriptor)
-                if (bytes != null) return bytes
-            }
-        }
-        return stringToRawBytes(fallbackValue)
+        onBarcodeSuccess(listOf(barcode))
+        repeated.reset()
+        stopSession()
     }
 
     @OptIn(ExperimentalForeignApi::class)
@@ -241,8 +198,6 @@ internal class CameraViewController(
             if (locked) device.unlockForConfiguration()
         }
     }
-
-    private fun isRequested(type: AVMetadataObjectType): Boolean = isRequestedFormat(BarcodeFormatMapper.toAppFormat(type), codeTypes)
 
     private fun updatePreviewOrientation() {
         if (!::previewLayer.isInitialized) return
@@ -265,26 +220,22 @@ internal class CameraViewController(
     fun dispose() {
         disposed = true
 
-        // Stop capture session on background thread to avoid UI unresponsiveness
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT.toLong(), 0u)) {
+        offMainQueue {
             runCatching {
                 if (::captureSession.isInitialized) {
                     if (captureSession.isRunning()) captureSession.stopRunning()
-                    // Remove inputs/outputs to break potential retain cycles
-                    (captureSession.outputs as? List<AVCaptureOutput>)?.forEach { output ->
-                        runCatching { captureSession.removeOutput(output) }
-                    }
-                    (captureSession.inputs as? List<AVCaptureDeviceInput>)?.forEach { input ->
-                        runCatching { captureSession.removeInput(input) }
-                    }
+
+                    // Removed so the session does not retain them.
+                    captureSession.outputs.filterIsInstance<AVCaptureOutput>()
+                        .forEach { runCatching { captureSession.removeOutput(it) } }
+                    captureSession.inputs.filterIsInstance<AVCaptureDeviceInput>()
+                        .forEach { runCatching { captureSession.removeInput(it) } }
                 }
             }
         }
-        // UI cleanup on main thread
+
         runCatching {
-            if (::previewLayer.isInitialized) {
-                previewLayer.removeFromSuperlayer()
-            }
+            if (::previewLayer.isInitialized) previewLayer.removeFromSuperlayer()
         }
         repeated.reset()
     }
