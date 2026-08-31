@@ -28,6 +28,7 @@ import org.ncgroup.kscan.BarcodeFormat
 import org.ncgroup.kscan.BarcodeResult
 import org.ncgroup.kscan.KScanDesktop
 import org.ncgroup.kscan.ScannerController
+import org.ncgroup.kscan.format.isRequestedFormat
 import org.ncgroup.kscan.scanner.GrayLuminanceSource
 import org.ncgroup.kscan.scanner.RepeatedDetection
 import org.ncgroup.kscan.scanner.openCamera
@@ -51,7 +52,7 @@ internal actual fun ScannerViewImpl(
     var cameraFrameBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     var isScanning by remember { mutableStateOf(true) }
 
-    DisposableEffect(Unit) {
+    DisposableEffect(codeTypes) {
         // A frame has two independent readers, so each gets its own channel. Sharing
         // one would hand every frame to whichever happened to receive it first,
         // leaving the decoder to work from half of them.
@@ -84,7 +85,7 @@ internal actual fun ScannerViewImpl(
                     withContext(Dispatchers.Main) {
                         val barcode = result.toBarcode()
 
-                        if (updatedFilter(barcode)) {
+                        if (isRequestedFormat(barcode.format, codeTypes) && updatedFilter(barcode)) {
                             isScanning = false
                             updatedResult(BarcodeResult.OnSuccess(barcode))
                         }
@@ -112,7 +113,9 @@ internal actual fun ScannerViewImpl(
                 while (isActive && isScanning) {
                     try {
                         val frame = localGrabber.grab() ?: continue
-                        val image = converter.convert(frame)
+                        val image = Java2DFrameConverter.cloneBufferedImage(
+                            converter.convert(frame) ?: continue,
+                        )
 
                         scanChannel.trySend(image)
                         previewChannel.trySend(image)

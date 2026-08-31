@@ -7,6 +7,7 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.core.TorchState
+import androidx.camera.core.ZoomState
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -29,12 +30,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import org.ncgroup.kscan.Barcode
 import org.ncgroup.kscan.BarcodeFormat
 import org.ncgroup.kscan.BarcodeResult
 import org.ncgroup.kscan.ScannerController
 import org.ncgroup.kscan.scanner.BarcodeAnalyzer
+import org.ncgroup.kscan.scanner.MAX_ZOOM_RATIO
 import org.ncgroup.kscan.scanner.barcodeScannerOptions
 
 @Composable
@@ -69,23 +72,29 @@ internal actual fun ScannerViewImpl(
 
     var camera: Camera? by remember { mutableStateOf(null) }
     var cameraControl: CameraControl? by remember { mutableStateOf(null) }
-    var analyzer: BarcodeAnalyzer? by remember { mutableStateOf(null) }
-
     var frozenFrame: ImageBitmap? by remember { mutableStateOf(null) }
 
     val updatedResult by rememberUpdatedState(result)
     val updatedFilter by rememberUpdatedState(filter)
 
-    LaunchedEffect(camera) {
-        camera?.cameraInfo?.torchState?.observe(lifecycleOwner) { state ->
+    DisposableEffect(camera, scannerController) {
+        val cameraInfo = camera?.cameraInfo
+
+        val torchObserver = Observer<Int> { state ->
             scannerController?.torchEnabled = state == TorchState.ON
         }
-    }
 
-    LaunchedEffect(camera) {
-        camera?.cameraInfo?.zoomState?.observe(lifecycleOwner) { state ->
+        val zoomObserver = Observer<ZoomState> { state ->
             scannerController?.zoomRatio = state.zoomRatio
-            scannerController?.maxZoomRatio = state.maxZoomRatio
+            scannerController?.maxZoomRatio = state.maxZoomRatio.coerceAtMost(MAX_ZOOM_RATIO)
+        }
+
+        cameraInfo?.torchState?.observe(lifecycleOwner, torchObserver)
+        cameraInfo?.zoomState?.observe(lifecycleOwner, zoomObserver)
+
+        onDispose {
+            cameraInfo?.torchState?.removeObserver(torchObserver)
+            cameraInfo?.zoomState?.removeObserver(zoomObserver)
         }
     }
 
@@ -109,86 +118,84 @@ internal actual fun ScannerViewImpl(
 
     val provider = cameraProvider
 
-    Box(modifier = modifier) {
-        provider?.let {
-            AndroidView(
-                modifier = Modifier.matchParentSize(),
-                factory = { ctx ->
-                    val previewView = PreviewView(ctx)
+    val previewView = remember { PreviewView(context) }
 
-                    val preview = Preview.Builder()
-                        .build()
+    val preview = remember {
+        Preview.Builder().build().also { it.surfaceProvider = previewView.surfaceProvider }
+    }
 
-                    val selector = CameraSelector.Builder()
-                        .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-                        .build()
-
-                    preview.surfaceProvider = previewView.surfaceProvider
-
-                    val imageAnalysis = ImageAnalysis.Builder()
-                        .setResolutionSelector(
-                            ResolutionSelector.Builder()
-                                .setResolutionStrategy(
-                                    ResolutionStrategy(
-                                        Size(1280, 720),
-                                        ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER,
-                                    ),
-                                )
-                                .build(),
-                        )
-                        .setBackpressureStrategy(
-                            ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST,
-                        )
-                        .build()
-
-                    val barcodeAnalyzer = BarcodeAnalyzer(
-                        codeTypes = codeTypes,
-                        scannerOptions = barcodeScannerOptions(
-                            codeTypes = codeTypes,
-                            autoZoom = autoZoom,
-                            getCamera = { camera },
+    val imageAnalysis = remember {
+        ImageAnalysis.Builder()
+            .setResolutionSelector(
+                ResolutionSelector.Builder()
+                    .setResolutionStrategy(
+                        ResolutionStrategy(
+                            Size(1280, 720),
+                            ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER,
                         ),
-                        onSuccess = { scannedBarcodes ->
-                            frozenFrame = previewView.bitmap?.asImageBitmap()
-                            provider.unbindAll()
-
-                            updatedResult(
-                                BarcodeResult.OnSuccess(
-                                    scannedBarcodes.first(),
-                                ),
-                            )
-                        },
-                        onFailed = {
-                            updatedResult(
-                                BarcodeResult.OnFailed(
-                                    Exception(it),
-                                ),
-                            )
-                        },
-                        filter = { barcode -> updatedFilter(barcode) },
                     )
+                    .build(),
+            )
+            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+            .build()
+    }
 
-                    analyzer = barcodeAnalyzer
-
-                    imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(ctx), barcodeAnalyzer)
-
-                    camera = bindCamera(
-                        lifecycleOwner = lifecycleOwner,
-                        cameraProvider = provider,
-                        selector = selector,
-                        preview = preview,
-                        imageAnalysis = imageAnalysis,
-                        result = updatedResult,
-                        cameraControl = { cameraControl = it },
-                    )
-
-                    previewView
-                },
-                onRelease = {
+    // Both the decoder's formats and auto zoom are fixed when the analyzer is
+    // built, so a caller changing either gets a new one bound to the same preview.
+    DisposableEffect(provider, codeTypes, autoZoom) {
+        val barcodeAnalyzer = provider?.let {
+            BarcodeAnalyzer(
+                codeTypes = codeTypes,
+                scannerOptions = barcodeScannerOptions(
+                    codeTypes = codeTypes,
+                    autoZoom = autoZoom,
+                    getCamera = { camera },
+                ),
+                onSuccess = { scannedBarcodes ->
+                    frozenFrame = previewView.bitmap?.asImageBitmap()
                     provider.unbindAll()
+
+                    updatedResult(BarcodeResult.OnSuccess(scannedBarcodes.first()))
                 },
+                onFailed = { updatedResult(BarcodeResult.OnFailed(Exception(it))) },
+                filter = { barcode -> updatedFilter(barcode) },
             )
         }
+
+        if (provider != null && barcodeAnalyzer != null) {
+            imageAnalysis.setAnalyzer(
+                ContextCompat.getMainExecutor(context),
+                barcodeAnalyzer,
+            )
+
+            camera = bindCamera(
+                lifecycleOwner = lifecycleOwner,
+                cameraProvider = provider,
+                selector = CameraSelector.Builder()
+                    .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+                    .build(),
+                preview = preview,
+                imageAnalysis = imageAnalysis,
+                result = updatedResult,
+                cameraControl = { cameraControl = it },
+            )
+        }
+
+        onDispose {
+            imageAnalysis.clearAnalyzer()
+            barcodeAnalyzer?.close()
+            provider?.unbindAll()
+
+            camera = null
+            cameraControl = null
+        }
+    }
+
+    Box(modifier = modifier) {
+        AndroidView(
+            modifier = Modifier.matchParentSize(),
+            factory = { previewView },
+        )
 
         // Scaled like PreviewView's FILL_CENTER so the held frame lands where the
         // live one was.
@@ -202,13 +209,8 @@ internal actual fun ScannerViewImpl(
         }
     }
 
-    DisposableEffect(Unit) {
+    DisposableEffect(scannerController) {
         onDispose {
-            cameraProvider?.unbindAll()
-            analyzer?.close()
-            analyzer = null
-            camera = null
-            cameraControl = null
             scannerController?.onTorchChange = null
             scannerController?.onZoomChange = null
         }

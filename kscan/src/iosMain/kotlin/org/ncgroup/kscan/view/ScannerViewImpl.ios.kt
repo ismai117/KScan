@@ -120,7 +120,7 @@ internal actual fun ScannerViewImpl(
         }
 
         val onZoomChange: (Float) -> Unit = { ratio ->
-            cameraViewController.setZoom(ratio)
+            scannerController?.zoomRatio = cameraViewController.setZoom(ratio)
         }
 
         scannerController?.onTorchChange = onTorchChange

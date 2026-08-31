@@ -95,7 +95,7 @@ internal class BarcodeAnalyzer(
                 }
             }
             .addOnFailureListener {
-                onFailed(it)
+                if (!closed) onFailed(it)
             }
             .addOnCompleteListener {
                 imageProxy.close()

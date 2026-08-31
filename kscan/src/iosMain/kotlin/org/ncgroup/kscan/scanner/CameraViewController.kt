@@ -148,6 +148,8 @@ internal class CameraViewController(
     @OptIn(ExperimentalForeignApi::class)
     override fun viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        if (!::previewLayer.isInitialized) return
+
         previewLayer.frame = view.layer.bounds
         updatePreviewOrientation()
     }
@@ -185,18 +187,20 @@ internal class CameraViewController(
     }
 
     @OptIn(ExperimentalForeignApi::class)
-    fun setZoom(ratio: Float) {
+    fun setZoom(ratio: Float): Float {
         var locked = false
         try {
             locked = device.lockForConfiguration(null)
             if (locked) {
-                device.videoZoomFactor = ratio.toDouble().coerceIn(1.0, maxZoomRatio.toDouble())
+                device.videoZoomFactor = ratio.coerceIn(1f, maxZoomRatio).toDouble()
             }
         } catch (e: Exception) {
             NSLog("Failed to update zoom: %@", e.message ?: "unknown")
         } finally {
             if (locked) device.unlockForConfiguration()
         }
+
+        return device.videoZoomFactor.toFloat()
     }
 
     private fun updatePreviewOrientation() {

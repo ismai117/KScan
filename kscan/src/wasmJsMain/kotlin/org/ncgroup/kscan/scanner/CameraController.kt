@@ -5,10 +5,9 @@ package org.ncgroup.kscan.scanner
 import org.w3c.dom.HTMLVideoElement
 import kotlin.js.Promise
 
-// Torch and zoom are optional in the MediaStream spec, so they are queried once
-// the stream is live rather than assumed.
+// Zoom is optional in the MediaStream spec, so it is queried once the stream is
+// live rather than assumed.
 internal external interface CameraCapabilities : JsAny {
-    val hasTorch: Boolean
     val maxZoomRatio: Double
 }
 
@@ -45,6 +44,13 @@ internal fun startCamera(
     debug: Boolean,
 ): Promise<JsAny?> = js(
     """(async () => {
+            // Restarting attaches a second stream, and the tracks behind the first
+            // go on holding the camera unless they are stopped here.
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach((track) => track.stop());
+                video.srcObject = null;
+            }
+
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 throw new Error(
                     'Camera access requires a secure context (https or localhost)'
@@ -145,19 +151,22 @@ internal fun cameraCapabilities(video: HTMLVideoElement): CameraCapabilities = j
                 track && track.getCapabilities ? track.getCapabilities() : {};
             const zoom = capabilities.zoom;
             return {
-                hasTorch: capabilities.torch === true,
                 maxZoomRatio: zoom && zoom.min > 0 ? zoom.max / zoom.min : 1.0,
             };
         })()""",
 )
 
-internal fun applyTorch(video: HTMLVideoElement, enabled: Boolean): Promise<JsAny?> = js(
+// Answers whether the track took it: applying torch to a camera that has none
+// rejects, and the caller asked for a torch, not for a failed scan.
+internal fun applyTorch(video: HTMLVideoElement, enabled: Boolean): Promise<JsBoolean> = js(
     """(async () => {
             const stream = video.srcObject;
             const track = stream ? stream.getVideoTracks()[0] : null;
-            if (track) {
-                await track.applyConstraints({ advanced: [{ torch: enabled }] });
-            }
+            if (!track || !track.getCapabilities) return false;
+            if (track.getCapabilities().torch !== true) return false;
+
+            await track.applyConstraints({ advanced: [{ torch: enabled }] });
+            return true;
         })()""",
 )
 

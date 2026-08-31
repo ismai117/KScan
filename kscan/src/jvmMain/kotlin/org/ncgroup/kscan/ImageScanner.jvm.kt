@@ -1,6 +1,7 @@
 package org.ncgroup.kscan
 
 import com.google.zxing.NotFoundException
+import org.ncgroup.kscan.format.isRequestedFormat
 import org.ncgroup.kscan.scanner.GrayLuminanceSource
 import org.ncgroup.kscan.scanner.toBarcode
 import org.ncgroup.kscan.scanner.toBinaryBitmap
@@ -38,7 +39,7 @@ public actual fun scanImage(
 
         val barcode = zxingResult.toBarcode()
 
-        if (filter(barcode)) {
+        if (isRequestedFormat(barcode.format, codeTypes) && filter(barcode)) {
             result(BarcodeResult.OnSuccess(barcode))
         } else {
             result(BarcodeResult.OnFailed(Exception("No matching barcode found in image")))
