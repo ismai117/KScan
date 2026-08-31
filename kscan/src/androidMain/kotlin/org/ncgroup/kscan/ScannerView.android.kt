@@ -61,6 +61,7 @@ public actual fun ScannerView(
     var analyzer: BarcodeAnalyzer? by remember { mutableStateOf(null) }
 
     val updatedResult by rememberUpdatedState(result)
+    val updatedFilter by rememberUpdatedState(filter)
 
     LaunchedEffect(camera) {
         camera?.cameraInfo?.torchState?.observe(lifecycleOwner) { state ->
@@ -145,7 +146,7 @@ public actual fun ScannerView(
                             ),
                         )
                     },
-                    filter = filter,
+                    filter = { barcode -> updatedFilter(barcode) },
                     autoZoom = autoZoom,
                 )
 

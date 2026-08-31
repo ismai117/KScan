@@ -28,6 +28,7 @@ public actual fun ScannerView(
     result: (BarcodeResult) -> Unit,
 ) {
     val updatedResult by rememberUpdatedState(result)
+    val updatedFilter by rememberUpdatedState(filter)
 
     val captureDevice =
         remember {
@@ -53,11 +54,11 @@ public actual fun ScannerView(
     }
 
     val cameraViewController =
-        remember(captureDevice, codeTypes, filter) {
+        remember(captureDevice, codeTypes) {
             CameraViewController(
                 device = captureDevice,
                 codeTypes = codeTypes,
-                filter = filter,
+                filter = { barcode -> updatedFilter(barcode) },
                 onBarcodeSuccess = { scannedBarcodes ->
                     updatedResult(
                         BarcodeResult.OnSuccess(
