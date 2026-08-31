@@ -23,8 +23,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -49,10 +47,6 @@ fun ScannerScreen(
 ) {
     val scannerController = remember { ScannerController() }
     var error by remember { mutableStateOf("") }
-
-    // The scanner stops at the first barcode, so scanning again means giving it a
-    // fresh camera rather than clearing the result beside a preview that has quit.
-    var session by remember { mutableIntStateOf(0) }
 
     DisposableEffect(Unit) {
         onDispose {
@@ -91,7 +85,9 @@ fun ScannerScreen(
                 modifier = Modifier.fillMaxWidth().weight(1f),
                 contentAlignment = Alignment.Center,
             ) {
-                key(session) {
+                val scanned = state.scanned
+
+                if (scanned == null) {
                     ScannerView(
                         codeTypes = listOf(format),
                         modifier = Modifier.matchParentSize(),
@@ -110,15 +106,10 @@ fun ScannerScreen(
                             }
                         }
                     }
-                }
-
-                state.scanned?.let { barcode ->
+                } else {
                     Result(
-                        barcode = barcode,
-                        onScanAgain = {
-                            state.scanned = null
-                            session++
-                        },
+                        barcode = scanned,
+                        onScanAgain = { state.scanned = null },
                     )
                 }
             }
