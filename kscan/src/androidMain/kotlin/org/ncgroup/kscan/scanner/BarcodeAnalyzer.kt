@@ -13,8 +13,6 @@ import org.ncgroup.kscan.format.BarcodeFormatMapper
 import org.ncgroup.kscan.format.isRequestedFormat
 
 /**
- * Analyzes camera frames for barcodes using ML Kit.
- *
  * A barcode must be decoded twice before it is reported, and a frame holding none
  * is periodically inverted and read again for light-on-dark codes.
  */
@@ -30,7 +28,6 @@ internal class BarcodeAnalyzer(
     private val inverter = FrameInverter()
     private var hasSuccessfullyProcessedBarcode = false
 
-    /** Counts frames that held no barcode, to pace the inverted rescan. */
     private var emptyFrames = 0
 
     /**
@@ -67,9 +64,8 @@ internal class BarcodeAnalyzer(
                     processFoundBarcodes(relevantBarcodes)
                     imageProxy.close()
                 } else if (emptyFrames++ % INVERTED_SCAN_INTERVAL == 0) {
-                    // Inverted (light-on-dark) codes need a second pass, which ML Kit
-                    // will not do itself. Inverting costs a full-frame copy, so it is
-                    // paced rather than run on every frame.
+                    // Inverting costs a full-frame copy, so it is paced rather than
+                    // run on every frame.
                     scanInverted(imageProxy)
                 } else {
                     imageProxy.close()
@@ -110,7 +106,6 @@ internal class BarcodeAnalyzer(
                 onFailed(it)
             }
             .addOnCompleteListener {
-                // CRITICAL: Always close the proxy after the final attempt
                 imageProxy.close()
             }
     }
@@ -144,7 +139,6 @@ internal class BarcodeAnalyzer(
         mlKitBarcode: com.google.mlkit.vision.barcode.common.Barcode,
     ): Boolean = isRequestedFormat(BarcodeFormatMapper.toAppFormat(mlKitBarcode.format), codeTypes)
 
-    /** Releases the ML Kit detector, which holds native resources until closed. */
     fun close() {
         closed = true
         scanner.close()
