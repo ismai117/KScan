@@ -4,10 +4,7 @@ package org.ncgroup.kscan.scanner
 
 import kotlinx.coroutines.await
 import org.ncgroup.kscan.Barcode
-import org.ncgroup.kscan.BarcodeFormat
-import org.ncgroup.kscan.KScanWeb
 import org.ncgroup.kscan.format.BarcodeFormatMapper
-import org.ncgroup.kscan.format.isRequestedFormat
 import kotlin.js.Promise
 import kotlin.js.get
 
@@ -132,16 +129,7 @@ internal fun imageBitmapFromBase64(data: String, mimeType: String): Promise<JsAn
 
 internal fun closeImageBitmap(bitmap: JsAny): Unit = js("bitmap.close()")
 
-internal fun List<DetectedBarcode>.firstMatching(
-    codeTypes: List<BarcodeFormat>,
-    filter: (Barcode) -> Boolean,
-): Barcode? = firstNotNullOfOrNull { detected ->
-    val format = BarcodeFormatMapper.toAppFormat(detected.format.toString())
-    if (!isRequestedFormat(format, codeTypes)) return@firstNotNullOfOrNull null
-    detected.toBarcode().takeIf(filter)
-}
-
-internal fun DetectedBarcode.toBarcode(): Barcode {
+private fun DetectedBarcode.toBarcode(): Barcode {
     val data = rawValue.toString()
 
     return Barcode(
@@ -151,8 +139,8 @@ internal fun DetectedBarcode.toBarcode(): Barcode {
     )
 }
 
-internal fun JsArray<DetectedBarcode>.toList(): List<DetectedBarcode> = buildList {
-    for (index in 0 until this@toList.length) {
-        this@toList[index]?.let { add(it) }
+internal fun JsArray<DetectedBarcode>.toBarcodes(): List<Barcode> = buildList {
+    for (index in 0 until this@toBarcodes.length) {
+        this@toBarcodes[index]?.let { add(it.toBarcode()) }
     }
 }

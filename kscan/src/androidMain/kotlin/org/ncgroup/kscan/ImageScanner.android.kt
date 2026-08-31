@@ -5,7 +5,8 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import org.ncgroup.kscan.format.BarcodeFormatMapper
-import org.ncgroup.kscan.format.isRequestedFormat
+import org.ncgroup.kscan.format.firstMatching
+import org.ncgroup.kscan.scanner.toBarcode
 
 public actual fun scanImage(
     imageBytes: ByteArray,
@@ -25,37 +26,20 @@ public actual fun scanImage(
         return
     }
 
-    val inputImage = InputImage.fromBitmap(bitmap, 0)
-
     val options = BarcodeScannerOptions.Builder()
         .setBarcodeFormats(BarcodeFormatMapper.toMlKitFormats(codeTypes))
         .build()
 
     val scanner = BarcodeScanning.getClient(options)
 
-    scanner.process(inputImage)
+    scanner.process(InputImage.fromBitmap(bitmap, 0))
         .addOnSuccessListener { barcodes ->
-            val matchingBarcode = barcodes
-                .mapNotNull { mlKitBarcode ->
-                    val displayValue = mlKitBarcode.displayValue ?: return@mapNotNull null
-                    val appFormat = BarcodeFormatMapper.toAppFormat(mlKitBarcode.format)
+            val matching = barcodes.mapNotNull { it.toBarcode() }.firstMatching(codeTypes, filter)
 
-                    if (!isRequestedFormat(appFormat, codeTypes)) return@mapNotNull null
-
-                    Barcode(
-                        data = displayValue,
-                        format = appFormat,
-                        rawBytes = mlKitBarcode.rawBytes ?: displayValue.encodeToByteArray(),
-                    )
-                }
-                .firstOrNull(filter)
-
-            if (matchingBarcode != null) {
-                result(BarcodeResult.OnSuccess(matchingBarcode))
-            } else if (barcodes.isEmpty()) {
-                result(BarcodeResult.OnFailed(Exception("No barcode found in image")))
-            } else {
-                result(BarcodeResult.OnFailed(Exception("No matching barcode found in image")))
+            when {
+                matching != null -> result(BarcodeResult.OnSuccess(matching))
+                barcodes.isEmpty() -> result(BarcodeResult.OnFailed(Exception("No barcode found in image")))
+                else -> result(BarcodeResult.OnFailed(Exception("No matching barcode found in image")))
             }
         }
         .addOnFailureListener { exception ->

@@ -9,7 +9,6 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import org.ncgroup.kscan.Barcode
 import org.ncgroup.kscan.BarcodeFormat
-import org.ncgroup.kscan.format.BarcodeFormatMapper
 import org.ncgroup.kscan.format.isRequestedFormat
 
 internal class BarcodeAnalyzer(
@@ -52,9 +51,9 @@ internal class BarcodeAnalyzer(
                     return@addOnSuccessListener
                 }
 
-                val relevantBarcodes = barcodes.filter { isRequested(it) }
+                val relevantBarcodes = requested(barcodes)
                 if (relevantBarcodes.isNotEmpty()) {
-                    processFoundBarcodes(relevantBarcodes)
+                    report(relevantBarcodes)
                     imageProxy.close()
                 } else if (emptyFrames++ % INVERTED_SCAN_INTERVAL == 0) {
                     // Inverting costs a full-frame copy, so it is paced rather than
@@ -90,9 +89,9 @@ internal class BarcodeAnalyzer(
                     return@addOnSuccessListener
                 }
 
-                val relevantBarcodes = barcodes.filter { isRequested(it) }
+                val relevantBarcodes = requested(barcodes)
                 if (relevantBarcodes.isNotEmpty()) {
-                    processFoundBarcodes(relevantBarcodes)
+                    report(relevantBarcodes)
                 }
             }
             .addOnFailureListener {
@@ -103,34 +102,27 @@ internal class BarcodeAnalyzer(
             }
     }
 
-    private fun processFoundBarcodes(mlKitBarcodes: List<com.google.mlkit.vision.barcode.common.Barcode>) {
+    private fun requested(
+        mlKitBarcodes: List<com.google.mlkit.vision.barcode.common.Barcode>,
+    ): List<Barcode> = mlKitBarcodes
+        .mapNotNull { it.toBarcode() }
+        .filter { isRequestedFormat(it.format, codeTypes) }
+
+    private fun report(barcodes: List<Barcode>) {
         if (closed || hasSuccessfullyProcessedBarcode) return
 
-        for (mlKitBarcode in mlKitBarcodes) {
-            val displayValue = mlKitBarcode.displayValue ?: continue
+        for (barcode in barcodes) {
+            if (!repeated.accept(barcode.data)) continue
 
-            if (repeated.accept(displayValue)) {
-                val detectedAppBarcode =
-                    Barcode(
-                        data = displayValue,
-                        format = BarcodeFormatMapper.toAppFormat(mlKitBarcode.format),
-                        rawBytes = mlKitBarcode.rawBytes ?: displayValue.encodeToByteArray(),
-                    )
+            // Rejected by the caller: keep looking at the rest of the frame.
+            if (!filter(barcode)) continue
 
-                // Rejected by the caller: keep looking at the rest of the frame.
-                if (!filter(detectedAppBarcode)) continue
-
-                onSuccess(listOf(detectedAppBarcode))
-                repeated.reset()
-                hasSuccessfullyProcessedBarcode = true
-                break
-            }
+            onSuccess(listOf(barcode))
+            repeated.reset()
+            hasSuccessfullyProcessedBarcode = true
+            break
         }
     }
-
-    private fun isRequested(
-        mlKitBarcode: com.google.mlkit.vision.barcode.common.Barcode,
-    ): Boolean = isRequestedFormat(BarcodeFormatMapper.toAppFormat(mlKitBarcode.format), codeTypes)
 
     fun close() {
         closed = true

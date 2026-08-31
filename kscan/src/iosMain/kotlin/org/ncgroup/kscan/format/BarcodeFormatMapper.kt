@@ -34,8 +34,6 @@ internal object BarcodeFormatMapper {
         ),
     )
 
-    val allSupportedTypes: List<AVMetadataObjectType> = formats.all
-
     fun toAvTypes(appFormats: List<BarcodeFormat>): List<AVMetadataObjectType> = formats.platformFormats(appFormats)
 
     fun toAppFormat(avType: AVMetadataObjectType): BarcodeFormat = formats.appFormat(avType)

@@ -5,7 +5,7 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
 import org.ncgroup.kscan.format.FormatMap
-import org.ncgroup.kscan.format.isRequestedFormat
+import org.ncgroup.kscan.format.firstMatching
 import platform.CoreGraphics.CGImageRef
 import platform.Foundation.NSData
 import platform.Foundation.NSError
@@ -67,19 +67,15 @@ public actual fun scanImage(
         val matchingBarcode = observations
             .mapNotNull { observation ->
                 val symbology = observation.symbology ?: return@mapNotNull null
-                val appFormat = visionFormats.appFormat(symbology)
-
-                if (!isRequestedFormat(appFormat, codeTypes)) return@mapNotNull null
-
-                val payloadString = observation.payloadStringValue ?: return@mapNotNull null
+                val payload = observation.payloadStringValue ?: return@mapNotNull null
 
                 Barcode(
-                    data = payloadString,
-                    format = appFormat,
-                    rawBytes = payloadString.encodeToByteArray(),
+                    data = payload,
+                    format = visionFormats.appFormat(symbology),
+                    rawBytes = payload.encodeToByteArray(),
                 )
             }
-            .firstOrNull(filter)
+            .firstMatching(codeTypes, filter)
 
         if (matchingBarcode != null) {
             result(BarcodeResult.OnSuccess(matchingBarcode))

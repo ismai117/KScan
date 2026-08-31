@@ -1,11 +1,9 @@
 package org.ncgroup.kscan
 
-import com.google.zxing.BinaryBitmap
 import com.google.zxing.NotFoundException
-import com.google.zxing.common.HybridBinarizer
 import org.ncgroup.kscan.scanner.GrayLuminanceSource
 import org.ncgroup.kscan.scanner.toBarcode
-import org.ncgroup.kscan.scanner.writeLuminances
+import org.ncgroup.kscan.scanner.toBinaryBitmap
 import org.ncgroup.kscan.scanner.zxingReader
 import java.io.ByteArrayInputStream
 import javax.imageio.ImageIO
@@ -25,15 +23,10 @@ public actual fun scanImage(
             return
         }
 
-        val width = bufferedImage.width
-        val height = bufferedImage.height
-        val pixels = IntArray(width * height)
-        bufferedImage.getRGB(0, 0, width, height, pixels, 0, width)
+        val pixels = IntArray(bufferedImage.width * bufferedImage.height)
+        val source = GrayLuminanceSource(bufferedImage.width, bufferedImage.height)
 
-        val source = GrayLuminanceSource(width, height)
-        writeLuminances(pixels, source.luminances)
-
-        val binaryBitmap = BinaryBitmap(HybridBinarizer(source))
+        val binaryBitmap = bufferedImage.toBinaryBitmap(pixels, source)
         val reader = zxingReader(codeTypes)
 
         val zxingResult = try {

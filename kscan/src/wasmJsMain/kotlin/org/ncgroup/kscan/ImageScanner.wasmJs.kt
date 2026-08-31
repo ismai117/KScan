@@ -7,12 +7,12 @@ import kotlinx.coroutines.await
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.ncgroup.kscan.format.BarcodeFormatMapper
+import org.ncgroup.kscan.format.firstMatching
 import org.ncgroup.kscan.scanner.barcodeDetector
 import org.ncgroup.kscan.scanner.closeImageBitmap
 import org.ncgroup.kscan.scanner.detectFrom
-import org.ncgroup.kscan.scanner.firstMatching
 import org.ncgroup.kscan.scanner.imageBitmapFromBase64
-import org.ncgroup.kscan.scanner.toList
+import org.ncgroup.kscan.scanner.toBarcodes
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
@@ -40,7 +40,7 @@ public actual fun scanImage(
             ).await()
 
             val detectedBarcodes = try {
-                detectFrom(detector, bitmap).await().toList()
+                detectFrom(detector, bitmap).await().toBarcodes()
             } finally {
                 closeImageBitmap(bitmap)
             }

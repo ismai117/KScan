@@ -1,5 +1,6 @@
 package org.ncgroup.kscan.format
 
+import org.ncgroup.kscan.Barcode
 import org.ncgroup.kscan.BarcodeFormat
 
 internal fun wantsEveryFormat(codeTypes: List<BarcodeFormat>): Boolean = codeTypes.isEmpty() || BarcodeFormat.FORMAT_ALL_FORMATS in codeTypes
@@ -12,6 +13,11 @@ internal fun isRequestedFormat(
 } else {
     format in codeTypes
 }
+
+internal fun List<Barcode>.firstMatching(
+    codeTypes: List<BarcodeFormat>,
+    filter: (Barcode) -> Boolean,
+): Barcode? = firstOrNull { isRequestedFormat(it.format, codeTypes) && filter(it) }
 
 // Only the table belongs to a platform; every decoder is asked the same questions.
 internal class FormatMap<T>(private val toApp: Map<T, BarcodeFormat>) {

@@ -13,9 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import com.google.zxing.BinaryBitmap
 import com.google.zxing.NotFoundException
-import com.google.zxing.common.HybridBinarizer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
@@ -34,7 +32,7 @@ import org.ncgroup.kscan.scanner.GrayLuminanceSource
 import org.ncgroup.kscan.scanner.RepeatedDetection
 import org.ncgroup.kscan.scanner.openCamera
 import org.ncgroup.kscan.scanner.toBarcode
-import org.ncgroup.kscan.scanner.writeLuminances
+import org.ncgroup.kscan.scanner.toBinaryBitmap
 import org.ncgroup.kscan.scanner.zxingReader
 import java.awt.image.BufferedImage
 
@@ -79,11 +77,7 @@ internal actual fun ScannerViewImpl(
                         source = GrayLuminanceSource(width, height)
                     }
 
-                    image.getRGB(0, 0, width, height, rgbPixels, 0, width)
-                    writeLuminances(rgbPixels, source!!.luminances)
-
-                    val binaryBitmap = BinaryBitmap(HybridBinarizer(source))
-                    val result = reader.decodeWithState(binaryBitmap)
+                    val result = reader.decodeWithState(image.toBinaryBitmap(rgbPixels, source!!))
 
                     if (!repeated.accept(result.text)) continue
 

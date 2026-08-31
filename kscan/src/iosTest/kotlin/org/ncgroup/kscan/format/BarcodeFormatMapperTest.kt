@@ -7,21 +7,24 @@ import platform.AVFoundation.AVMetadataObjectTypeInterleaved2of5Code
 import platform.AVFoundation.AVMetadataObjectTypeQRCode
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class BarcodeFormatMapperTest {
 
     @Test
-    fun `GIVEN empty list WHEN toAvTypes THEN returns all supported types`() {
-        val result = BarcodeFormatMapper.toAvTypes(emptyList())
-
-        assertEquals(BarcodeFormatMapper.allSupportedTypes, result)
+    fun `GIVEN empty list WHEN toAvTypes THEN returns the same as all formats`() {
+        assertEquals(
+            BarcodeFormatMapper.toAvTypes(listOf(BarcodeFormat.FORMAT_ALL_FORMATS)),
+            BarcodeFormatMapper.toAvTypes(emptyList()),
+        )
     }
 
     @Test
-    fun `GIVEN all formats WHEN toAvTypes THEN returns all supported types`() {
+    fun `GIVEN all formats WHEN toAvTypes THEN returns every mapped type`() {
         val result = BarcodeFormatMapper.toAvTypes(listOf(BarcodeFormat.FORMAT_ALL_FORMATS))
 
-        assertEquals(BarcodeFormatMapper.allSupportedTypes, result)
+        assertTrue(AVMetadataObjectTypeQRCode in result)
+        assertTrue(AVMetadataObjectTypeInterleaved2of5Code in result)
     }
 
     @Test
