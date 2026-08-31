@@ -32,6 +32,7 @@ import org.ncgroup.kscan.KScanDesktop
 import org.ncgroup.kscan.ScannerController
 import org.ncgroup.kscan.scanner.GrayLuminanceSource
 import org.ncgroup.kscan.scanner.RepeatedDetection
+import org.ncgroup.kscan.scanner.openCamera
 import org.ncgroup.kscan.scanner.toBarcode
 import org.ncgroup.kscan.scanner.writeLuminances
 import org.ncgroup.kscan.scanner.zxingReader
@@ -110,12 +111,7 @@ internal actual fun ScannerViewImpl(
             var localGrabber: OpenCVFrameGrabber? = null
 
             try {
-                localGrabber = OpenCVFrameGrabber(KScanDesktop.cameraIndex).apply {
-                    imageWidth = 1920
-                    imageHeight = 1080
-                    setVideoOption("focus_auto", "1")
-                    start()
-                }
+                localGrabber = openCamera(KScanDesktop.cameraIndex)
 
                 val converter = Java2DFrameConverter()
 
@@ -135,8 +131,8 @@ internal actual fun ScannerViewImpl(
                     updatedResult(
                         BarcodeResult.OnFailed(
                             Exception(
-                                "Could not open camera ${KScanDesktop.cameraIndex}. " +
-                                    "Another index may be available.",
+                                "No camera could be opened. Check that one is " +
+                                    "connected and that nothing else is using it.",
                                 e,
                             ),
                         ),

@@ -17,10 +17,11 @@ public object KScanDesktop {
     /**
      * Index of the camera [ScannerView] opens, counting from zero.
      *
-     * Which index maps to which camera is decided by the platform and is not
-     * guaranteed to be stable between runs, so treat it as a user choice rather
-     * than something to hard-code. An index that cannot be opened is reported as
-     * [BarcodeResult.OnFailed], which lets a caller fall back to another.
+     * Which index names which camera is decided by the platform and shifts as
+     * devices are plugged and unplugged, so this is a preference rather than a
+     * guarantee: when the index cannot be opened, the first other one that will
+     * is used instead. [BarcodeResult.OnFailed] is reported only when no camera
+     * opens at all.
      */
     public var cameraIndex: Int = 0
 }
