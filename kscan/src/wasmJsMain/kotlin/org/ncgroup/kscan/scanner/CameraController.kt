@@ -2,32 +2,19 @@
 
 package org.ncgroup.kscan.scanner
 
-import org.ncgroup.kscan.ScannerController
 import org.w3c.dom.HTMLVideoElement
 import kotlin.js.Promise
 
-/**
- * Torch and zoom support reported by the active video track.
- *
- * Both are optional in the MediaStream spec and in practice are only implemented
- * by Chromium on Android, so they are queried once the stream is live rather than
- * assumed.
- */
+// Torch and zoom are optional in the MediaStream spec, so they are queried once
+// the stream is live rather than assumed.
 internal external interface CameraCapabilities : JsAny {
     val hasTorch: Boolean
     val maxZoomRatio: Double
 }
 
-/**
- * Creates the `<video>` element that renders the camera preview.
- *
- * It starts hidden. Compose sizes the element's container a frame after the
- * element is inserted, and until it does, the `100%` below resolves against a
- * parent of no particular size, leaving the video at the 300x150 every video
- * element defaults to. Revealing it on the first decoded frame skips that: by
- * then the camera has been granted, opened and delivered an image, which is
- * many frames after the container was measured.
- */
+// Starts hidden because Compose sizes the container a frame after the element is
+// inserted, until when the 100% below resolves against nothing and leaves the
+// video at its 300x150 default. The first frame arrives long after that.
 internal fun createVideoElement(): HTMLVideoElement = js(
     """(() => {
             const video = document.createElement('video');
@@ -50,13 +37,8 @@ internal fun createVideoElement(): HTMLVideoElement = js(
         })()""",
 )
 
-/**
- * Requests the rear camera and streams it into [video].
- *
- * Tries the preferred constraints first, then falls back to a bare video
- * request. Some devices and browsers reject a constraint set outright rather
- * than negotiating down, even when every entry is `ideal`.
- */
+// Falls back to a bare video request because some devices and browsers reject a
+// constraint set outright rather than negotiating down, even when all of it is ideal.
 internal fun startCamera(
     video: HTMLVideoElement,
     deviceId: String,
@@ -135,10 +117,7 @@ internal fun startCamera(
         })()""",
 )
 
-/**
- * Stops every track behind [video] but leaves the stream attached, so the
- * element goes on painting the last frame it drew.
- */
+// Leaves the stream attached, so the element goes on painting its last frame.
 internal fun freezeCamera(video: HTMLVideoElement): Unit = js(
     """(() => {
             const stream = video.srcObject;
@@ -148,7 +127,6 @@ internal fun freezeCamera(video: HTMLVideoElement): Unit = js(
         })()""",
 )
 
-/** Stops every track behind [video] and detaches the stream. */
 internal fun stopCamera(video: HTMLVideoElement): Unit = js(
     """(() => {
             const stream = video.srcObject;
@@ -183,10 +161,8 @@ internal fun applyTorch(video: HTMLVideoElement, enabled: Boolean): Promise<JsAn
         })()""",
 )
 
-/**
- * Applies [ratio] as a multiple of the track's minimum zoom, matching the
- * `1f..maxZoomRatio` range [ScannerController] exposes.
- */
+// ratio is a multiple of the track's minimum zoom, matching the 1f..maxZoomRatio
+// range ScannerController exposes.
 internal fun applyZoom(video: HTMLVideoElement, ratio: Double): Promise<JsAny?> = js(
     """(async () => {
             const stream = video.srcObject;
@@ -199,5 +175,4 @@ internal fun applyZoom(video: HTMLVideoElement, ratio: Double): Promise<JsAny?> 
         })()""",
 )
 
-/** True once the stream has produced a frame with real dimensions. */
 internal fun isVideoReady(video: HTMLVideoElement): Boolean = js("video.readyState >= 2 && video.videoWidth > 0")

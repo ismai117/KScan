@@ -38,11 +38,6 @@ import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_global_queue
 import platform.darwin.dispatch_get_main_queue
 
-/**
- * UIViewController that manages camera preview and barcode scanning using AVFoundation.
- *
- * Features duplicate filtering (barcode must be detected twice) and zoom control.
- */
 internal class CameraViewController(
     private val device: AVCaptureDevice,
     private val codeTypes: List<BarcodeFormat>,
@@ -58,14 +53,10 @@ internal class CameraViewController(
 
     private val repeated = RepeatedDetection()
 
-    /**
-     * Set once the preview is gone. The session is stopped on a background queue
-     * while metadata arrives on the main one, so a frame already queued can still
-     * be delivered after disposal.
-     */
+    // The session stops on a background queue while metadata arrives on the main
+    // one, so a frame already queued can still be delivered after disposal.
     private var disposed = false
 
-    /** Ceiling shared by the reported maximum and by [setZoom]. */
     private val maxZoomRatio: Float by lazy {
         device.activeFormat.videoMaxZoomFactor.toFloat().coerceAtMost(MAX_ZOOM_RATIO)
     }
@@ -220,11 +211,6 @@ internal class CameraViewController(
         }
     }
 
-    /**
-     * Extracts raw bytes from a barcode object.
-     * For QR codes, uses CIQRCodeDescriptor to preserve null bytes.
-     * For other formats, falls back to string conversion.
-     */
     @OptIn(ExperimentalForeignApi::class)
     @Suppress("CAST_NEVER_SUCCEEDS")
     private fun extractRawBytes(

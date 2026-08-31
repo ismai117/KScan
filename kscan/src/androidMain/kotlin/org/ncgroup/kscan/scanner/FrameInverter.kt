@@ -6,18 +6,10 @@ import androidx.camera.core.ImageProxy
 import com.google.mlkit.vision.common.InputImage
 import java.nio.ByteBuffer
 
-/**
- * Reads a frame as its photographic negative, so that a light-on-dark barcode
- * arrives at the decoder the way round it expects. ML Kit will not make that
- * second pass itself.
- */
+// ML Kit will not try a light-on-dark barcode itself, so it is handed the negative.
 internal class FrameInverter {
-    /**
-     * Reused across frames. Inverting allocates roughly 1.5 bytes per pixel, which
-     * at 1080p is about 3 MB, and only one frame is ever inverted at a time:
-     * ImageAnalysis does not deliver the next frame until the current proxy is
-     * closed, which happens after the inverted scan completes.
-     */
+    // Safe to reuse: ImageAnalysis withholds the next frame until the current
+    // proxy is closed, which is after the inverted scan completes.
     private var buffer: ByteArray? = null
 
     @OptIn(ExperimentalGetImage::class)
@@ -51,13 +43,6 @@ internal class FrameInverter {
     }
 }
 
-/**
- * Writes the negative of [source]'s luminance plane into [destination] as NV21.
- *
- * The camera pads each row out to [rowStride] bytes, so a row is read from its own
- * offset rather than the whole plane being read as one run. [destination]'s chroma
- * half is filled with the neutral value, which leaves a grayscale image.
- */
 internal fun invertLuminance(
     source: ByteBuffer,
     destination: ByteArray,
@@ -69,7 +54,8 @@ internal fun invertLuminance(
 
     val rowBytes = ByteArray(width)
 
-    // Bulk-read one row at a time, then invert into output (fewer ByteBuffer.get() calls)
+    // The camera pads each row out to rowStride, so rows are read one at a time
+    // from their own offset rather than the plane being read as a single run.
     for (row in 0 until height) {
         source.position(row * rowStride)
         source.get(rowBytes, 0, width)
@@ -84,5 +70,4 @@ internal fun invertLuminance(
     destination.fill(NEUTRAL_CHROMA, width * height, destination.size)
 }
 
-/** Half the 0..255 range: no colour either way. */
 private const val NEUTRAL_CHROMA = 128.toByte()

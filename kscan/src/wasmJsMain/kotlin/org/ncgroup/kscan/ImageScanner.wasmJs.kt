@@ -65,10 +65,6 @@ public actual fun scanImage(
     }
 }
 
-/**
- * Returns the MIME type for [imageBytes] based on its magic number, or an empty
- * string when the format is not recognised, leaving the browser to identify it.
- */
 private fun sniffImageMimeType(imageBytes: ByteArray): String {
     fun matches(vararg signature: Int): Boolean {
         if (imageBytes.size < signature.size) return false

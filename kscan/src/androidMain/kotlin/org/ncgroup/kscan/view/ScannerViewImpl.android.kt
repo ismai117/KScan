@@ -71,7 +71,6 @@ internal actual fun ScannerViewImpl(
     var cameraControl: CameraControl? by remember { mutableStateOf(null) }
     var analyzer: BarcodeAnalyzer? by remember { mutableStateOf(null) }
 
-    /** The frame the barcode was read from, held once the camera has stopped. */
     var frozenFrame: ImageBitmap? by remember { mutableStateOf(null) }
 
     val updatedResult by rememberUpdatedState(result)

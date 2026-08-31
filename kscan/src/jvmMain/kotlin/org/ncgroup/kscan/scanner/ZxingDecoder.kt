@@ -11,12 +11,8 @@ import org.ncgroup.kscan.format.toKScanFormat
 import org.ncgroup.kscan.format.toZxingFormat
 import java.util.EnumMap
 
-/**
- * A greyscale image ZXing can read.
- *
- * The buffer is exposed so a caller decoding a stream of frames can refill it
- * rather than allocate one per frame.
- */
+// luminances is exposed so a caller decoding a stream of frames can refill it
+// rather than allocate one per frame.
 internal class GrayLuminanceSource(
     val luminances: ByteArray,
     width: Int,
@@ -34,7 +30,6 @@ internal class GrayLuminanceSource(
     override fun getMatrix(): ByteArray = luminances
 }
 
-/** A reader that looks for [codeTypes], or for anything when none are named. */
 internal fun zxingReader(codeTypes: List<BarcodeFormat>): MultiFormatReader {
     val hints: MutableMap<DecodeHintType, Any> = EnumMap(DecodeHintType::class.java)
 
@@ -53,7 +48,6 @@ internal fun zxingReader(codeTypes: List<BarcodeFormat>): MultiFormatReader {
     return MultiFormatReader().apply { setHints(hints) }
 }
 
-/** Writes the luminance of each pixel of [pixels] into [luminances]. */
 internal fun writeLuminances(pixels: IntArray, luminances: ByteArray) {
     for (i in pixels.indices) {
         val pixel = pixels[i]
@@ -65,12 +59,8 @@ internal fun writeLuminances(pixels: IntArray, luminances: ByteArray) {
     }
 }
 
-/**
- * The decoded result as a [Barcode].
- *
- * Byte segments are preferred over the text, since a barcode's payload is not
- * always representable as a string.
- */
+// Byte segments are preferred over the text, since a barcode's payload is not
+// always representable as a string.
 internal fun Result.toBarcode(): Barcode {
     @Suppress("UNCHECKED_CAST")
     val segments = resultMetadata

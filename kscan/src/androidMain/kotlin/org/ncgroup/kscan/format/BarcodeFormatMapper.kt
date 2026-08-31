@@ -16,9 +16,6 @@ import com.google.mlkit.vision.barcode.common.Barcode.FORMAT_UPC_A
 import com.google.mlkit.vision.barcode.common.Barcode.FORMAT_UPC_E
 import org.ncgroup.kscan.BarcodeFormat
 
-/**
- * Maps between app [BarcodeFormat] and ML Kit barcode format integers.
- */
 internal object BarcodeFormatMapper {
 
     private val formats = FormatMap(
@@ -39,11 +36,8 @@ internal object BarcodeFormatMapper {
         ),
     )
 
-    /**
-     * ML Kit takes the requested formats as one flag word, and has its own flag for
-     * "everything" rather than the union of the flags this maps.
-     */
     fun toMlKitFormats(appFormats: List<BarcodeFormat>): Int {
+        // ML Kit's "everything" flag is not the union of the individual flags.
         if (wantsEveryFormat(appFormats)) return FORMAT_ALL_FORMATS
 
         return appFormats

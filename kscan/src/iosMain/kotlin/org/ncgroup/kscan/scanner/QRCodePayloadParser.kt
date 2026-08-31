@@ -7,20 +7,9 @@ import platform.CoreImage.CIQRCodeDescriptor
 import platform.Foundation.NSData
 import platform.posix.memcpy
 
-/**
- * Parses raw bytes from CIQRCodeDescriptor.errorCorrectedPayload.
- *
- * Iterates over all QR data segments (byte, alphanumeric, numeric) and concatenates
- * their decoded content. Byte segments are appended as raw bytes (preserving null
- * bytes); alphanumeric and numeric segments are decoded per the QR spec and appended
- * as their ISO-8859-1 bytes.
- *
- * Returns a non-null result only when at least one byte segment was present — the
- * sole reason this parser exists is to preserve null bytes that
- * AVMetadataMachineReadableCodeObject.stringValue would silently truncate. For
- * purely alphanumeric/numeric QRs (or Kanji/unknown modes), returns null so the
- * caller falls back to stringValue.
- */
+// Exists only to preserve the null bytes that
+// AVMetadataMachineReadableCodeObject.stringValue truncates. Returns null when the
+// symbol holds no byte segment, leaving the caller to fall back to stringValue.
 internal object QRCodePayloadParser {
 
     private const val MODE_TERMINATOR = 0
@@ -39,13 +28,9 @@ internal object QRCodePayloadParser {
         return decodeDataStream(codewords)
     }
 
-    /**
-     * Character-count indicator widths per QR version group (ISO/IEC 18004 Table 3).
-     *
-     * Within a single QR symbol all segments share the same version, so all three
-     * widths must come from the same row. We try each row in turn; the first one
-     * that decodes cleanly and contains at least one byte segment wins.
-     */
+    // Character-count indicator widths per QR version group (ISO/IEC 18004 Table 3).
+    // Every segment in a symbol shares its version, so a row is tried as a whole and
+    // the first that decodes cleanly with a byte segment wins.
     private data class VersionWidths(
         val byteCount: Int,
         val alphaCount: Int,

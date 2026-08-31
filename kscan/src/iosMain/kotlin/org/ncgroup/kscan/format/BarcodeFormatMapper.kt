@@ -15,9 +15,6 @@ import platform.AVFoundation.AVMetadataObjectTypePDF417Code
 import platform.AVFoundation.AVMetadataObjectTypeQRCode
 import platform.AVFoundation.AVMetadataObjectTypeUPCECode
 
-/**
- * Maps between app [BarcodeFormat] and AVFoundation metadata object types.
- */
 internal object BarcodeFormatMapper {
 
     private val formats = FormatMap(

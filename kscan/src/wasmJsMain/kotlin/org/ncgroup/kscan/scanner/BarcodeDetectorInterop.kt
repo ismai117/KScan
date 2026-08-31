@@ -8,40 +8,28 @@ import org.ncgroup.kscan.BarcodeFormat
 import org.ncgroup.kscan.KScanWeb
 import org.ncgroup.kscan.format.BarcodeFormatMapper
 import org.ncgroup.kscan.format.isRequestedFormat
-import org.ncgroup.kscan.scanImage
 import kotlin.js.Promise
 import kotlin.js.get
 
-/**
- * A single detection returned by the BarcodeDetector Web API.
- */
 internal external interface DetectedBarcode : JsAny {
     val rawValue: JsString
     val format: JsString
 }
 
-/** True when the browser ships its own BarcodeDetector. */
 private fun hasNativeBarcodeDetector(): Boolean = js("typeof globalThis.BarcodeDetector !== 'undefined'")
 
-/** Dynamically imports [url]. Left for the browser to resolve, not the bundler. */
 private fun importModule(url: String): Promise<JsAny> = js("import(/* webpackIgnore: true */ url)")
 
-/** True when [module] can be told where to find its wasm binary. */
 private fun canOverrideWasmLocation(module: JsAny): Boolean = js("typeof module.setZXingModuleOverrides === 'function'")
 
-/**
- * Points the polyfill at [wasmUrl].
- *
- * It otherwise looks for its wasm next to its own module URL, which is not where
- * the CDN serves it.
- */
+// The polyfill otherwise looks for its wasm next to its own module URL, which is
+// not where the CDN serves it.
 private fun overrideWasmLocation(module: JsAny, wasmUrl: String): Unit = js(
     """module.setZXingModuleOverrides({
             locateFile: (path, prefix) => path.endsWith('.wasm') ? wasmUrl : prefix + path,
         })""",
 )
 
-/** The formats this browser's detector can actually decode. */
 private fun supportedFormats(): Promise<JsArray<JsString>> = js(
     """(globalThis.BarcodeDetector.getSupportedFormats
             ? globalThis.BarcodeDetector.getSupportedFormats()
@@ -52,12 +40,6 @@ private fun newBarcodeDetector(formats: JsArray<JsString>): JsAny = js("new glob
 
 private fun logInfo(message: String): Unit = js("console.info(message)")
 
-/**
- * Creates a `BarcodeDetector` limited to [formats].
- *
- * Loads the polyfill from [polyfillUrl] first if the browser has no native
- * implementation. An empty [polyfillUrl] disables that fallback.
- */
 internal suspend fun barcodeDetector(
     formats: List<String>,
     polyfillUrl: String,
@@ -110,16 +92,10 @@ private fun List<String>.toJsArray(): JsArray<JsString> {
     return array
 }
 
-/** Runs [detector] over [source], an `ImageBitmap`. */
 internal fun detectFrom(detector: JsAny, source: JsAny): Promise<JsArray<DetectedBarcode>> = js("detector.detect(source)")
 
-/**
- * Grabs the current frame of [video] and runs [detector] over it.
- *
- * Detectors accept an `HTMLVideoElement` in principle, but implementations vary
- * in how well they handle a live element. Snapshotting the frame first means the
- * camera decodes through exactly the same `ImageBitmap` path as [scanImage].
- */
+// Detectors accept an HTMLVideoElement in principle, but implementations vary in
+// how well they handle a live one, so the frame is snapshotted first.
 internal fun detectFromVideoFrame(
     detector: JsAny,
     video: org.w3c.dom.HTMLVideoElement,
@@ -139,12 +115,7 @@ internal fun detectFromVideoFrame(
         })()""",
 )
 
-/**
- * Decodes base64 [data] into an `ImageBitmap`.
- *
- * [mimeType] may be empty, in which case the browser identifies the format from
- * the bytes themselves.
- */
+// An empty mimeType leaves the browser to identify the format from the bytes.
 internal fun imageBitmapFromBase64(data: String, mimeType: String): Promise<JsAny> = js(
     """(async () => {
             const binary = atob(data);
@@ -159,13 +130,8 @@ internal fun imageBitmapFromBase64(data: String, mimeType: String): Promise<JsAn
         })()""",
 )
 
-/** Releases the memory backing [bitmap]. */
 internal fun closeImageBitmap(bitmap: JsAny): Unit = js("bitmap.close()")
 
-/**
- * Returns the first detection matching [codeTypes] that [filter] accepts, or
- * `null` when nothing qualifies.
- */
 internal fun List<DetectedBarcode>.firstMatching(
     codeTypes: List<BarcodeFormat>,
     filter: (Barcode) -> Boolean,

@@ -1,11 +1,6 @@
 package org.ncgroup.kscan
 
-/**
- * Represents the result of a barcode scanning operation.
- * It is one of two states:
- * - [OnSuccess]: a barcode was scanned.
- * - [OnFailed]: scanning failed.
- */
+/** The outcome of a scan. */
 public sealed interface BarcodeResult {
     public data class OnSuccess(val barcode: Barcode) : BarcodeResult
 

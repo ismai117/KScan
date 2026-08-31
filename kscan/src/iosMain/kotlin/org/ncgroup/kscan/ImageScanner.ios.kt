@@ -104,10 +104,8 @@ public actual fun scanImage(
     }
 }
 
-/**
- * Still images decode through Vision, which names its formats differently from the
- * AVFoundation metadata types the live camera reports.
- */
+// Vision names its formats differently from the AVFoundation metadata types the
+// live camera reports.
 private val visionFormats = FormatMap(
     mapOf(
         VNBarcodeSymbologyQR to BarcodeFormat.FORMAT_QR_CODE,

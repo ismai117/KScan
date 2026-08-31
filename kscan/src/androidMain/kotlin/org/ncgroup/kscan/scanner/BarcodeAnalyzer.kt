@@ -12,10 +12,6 @@ import org.ncgroup.kscan.BarcodeFormat
 import org.ncgroup.kscan.format.BarcodeFormatMapper
 import org.ncgroup.kscan.format.isRequestedFormat
 
-/**
- * A barcode must be decoded twice before it is reported, and a frame holding none
- * is periodically inverted and read again for light-on-dark codes.
- */
 internal class BarcodeAnalyzer(
     private val codeTypes: List<BarcodeFormat>,
     scannerOptions: BarcodeScannerOptions,
@@ -30,11 +26,8 @@ internal class BarcodeAnalyzer(
 
     private var emptyFrames = 0
 
-    /**
-     * Set once the preview is gone. ML Kit finishes whatever it was already
-     * decoding, so without this a result or a "detector is closed" failure could
-     * reach a caller that has navigated away.
-     */
+    // ML Kit finishes whatever it was already decoding, so without this a result
+    // or a "detector is closed" failure could reach a caller that has left.
     private var closed = false
 
     @OptIn(ExperimentalGetImage::class)
@@ -145,7 +138,7 @@ internal class BarcodeAnalyzer(
     }
 
     private companion object {
-        /** Invert and rescan one frame in this many that held no barcode. */
+        // Invert and rescan one frame in this many that held no barcode.
         const val INVERTED_SCAN_INTERVAL = 4
     }
 }

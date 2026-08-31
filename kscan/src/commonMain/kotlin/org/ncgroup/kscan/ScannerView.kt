@@ -8,17 +8,16 @@ import org.ncgroup.kscan.view.ScannerViewImpl
 /**
  * Draws the camera preview and reports the barcodes decoded from it.
  *
- * The preview is all this draws: a torch button, a zoom control, a close
- * affordance and any overlay are the caller's to build. Pass a
- * [ScannerController] to drive torch and zoom from those controls.
+ * The preview is all this draws; controls and overlays are the caller's to build.
+ * On web the preview is an HTML element the browser stacks above the Compose
+ * canvas, so put them beside it rather than over it.
  *
- * @param codeTypes The barcode formats to scan for, or [BarcodeFormat.FORMAT_ALL_FORMATS] for every supported format.
- * @param modifier The modifier applied to the preview. Fills the available space by default.
- * @param scannerController An optional controller for torch and zoom.
+ * @param codeTypes The formats to scan for.
+ * @param modifier Applied to the preview. Fills the available space by default.
+ * @param scannerController Drives torch and zoom from your own controls.
  * @param filter Called with each decoded barcode; returning `false` keeps scanning.
- * @param autoZoom Lets the decoder zoom the camera in on a barcode too small to
- *   read. Only Android has a decoder that asks for this; elsewhere it is ignored.
- * @param result A callback function that is invoked when a barcode is scanned.
+ * @param autoZoom Lets the decoder zoom in on a barcode too small to read. Android only.
+ * @param result Called with the outcome. Scanning stops at the first match.
  */
 @Composable
 public fun ScannerView(

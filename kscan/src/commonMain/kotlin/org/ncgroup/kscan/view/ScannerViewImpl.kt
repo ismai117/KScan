@@ -7,12 +7,8 @@ import org.ncgroup.kscan.BarcodeFormat
 import org.ncgroup.kscan.BarcodeResult
 import org.ncgroup.kscan.ScannerController
 
-/**
- * The camera preview each platform draws for `ScannerView`.
- *
- * Every parameter is passed explicitly: the defaults, the documentation and the
- * published signature belong to `ScannerView`, which is the only caller.
- */
+// Every parameter is passed explicitly: the defaults and the published signature
+// belong to ScannerView, which is the only caller.
 @Suppress("ktlint:compose:modifier-without-default-check")
 @Composable
 internal expect fun ScannerViewImpl(

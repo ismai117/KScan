@@ -6,13 +6,8 @@ import com.google.mlkit.vision.barcode.ZoomSuggestionOptions
 import org.ncgroup.kscan.BarcodeFormat
 import org.ncgroup.kscan.format.BarcodeFormatMapper
 
-/**
- * What the decoder is asked to look for, and whether it may drive the camera's
- * zoom to reach a barcode too small to read.
- *
- * The camera is read through [getCamera] on each suggestion rather than captured,
- * because binding it happens after the options are built.
- */
+// getCamera is read on each suggestion rather than captured: the camera is bound
+// after the options are built.
 internal fun barcodeScannerOptions(
     codeTypes: List<BarcodeFormat>,
     autoZoom: Boolean,

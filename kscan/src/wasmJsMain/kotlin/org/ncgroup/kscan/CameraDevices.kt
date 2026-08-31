@@ -27,16 +27,10 @@ private fun enumerateCameras(): Promise<JsArray<JsCameraDevice>> = js(
 )
 
 /**
- * Lists the cameras available to the browser.
+ * Lists the cameras available to the browser, for [KScanWeb.cameraDeviceId].
  *
- * Pass a device's [CameraDevice.id] to [KScanWeb.cameraDeviceId] to scan with it.
- *
- * Labels are only filled in once the user has granted camera access, so calling
- * this before the first scan returns entries with an empty [CameraDevice.label].
- * Call it again after a scan has started to show a meaningful picker.
- *
- * On macOS a nearby iPhone appears here through Continuity Camera, named as the
- * phone.
+ * Labels are blank until the user has granted camera access, so call this again
+ * after a scan has started to show a meaningful picker.
  */
 public suspend fun availableCameras(): List<CameraDevice> {
     val devices = enumerateCameras().await()

@@ -1,11 +1,12 @@
 package org.ncgroup.kscan
 
 /**
- * Represents a scanned barcode.
+ * A decoded barcode.
  *
- * @property data The decoded String data from the barcode.
- * @property format The format the barcode was decoded as.
- * @property rawBytes The raw byte data from the barcode.
+ * @property data The decoded text.
+ * @property format The format it was decoded as.
+ * @property rawBytes The barcode's own bytes, or [data] encoded where the
+ *   decoder does not expose them.
  */
 public data class Barcode(
     val data: String,
