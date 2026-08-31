@@ -135,6 +135,19 @@ internal fun startCamera(
         })()""",
 )
 
+/**
+ * Stops every track behind [video] but leaves the stream attached, so the
+ * element goes on painting the last frame it drew.
+ */
+internal fun freezeCamera(video: HTMLVideoElement): Unit = js(
+    """(() => {
+            const stream = video.srcObject;
+            if (stream) {
+                stream.getTracks().forEach((track) => track.stop());
+            }
+        })()""",
+)
+
 /** Stops every track behind [video] and detaches the stream. */
 internal fun stopCamera(video: HTMLVideoElement): Unit = js(
     """(() => {

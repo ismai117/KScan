@@ -30,6 +30,7 @@ import org.ncgroup.kscan.scanner.cameraCapabilities
 import org.ncgroup.kscan.scanner.createVideoElement
 import org.ncgroup.kscan.scanner.detectFromVideoFrame
 import org.ncgroup.kscan.scanner.firstMatching
+import org.ncgroup.kscan.scanner.freezeCamera
 import org.ncgroup.kscan.scanner.isVideoReady
 import org.ncgroup.kscan.scanner.startCamera
 import org.ncgroup.kscan.scanner.stopCamera
@@ -109,6 +110,7 @@ internal actual fun ScannerViewImpl(
 
                     if (matchingBarcode != null && repeated.accept(matchingBarcode.data)) {
                         isScanning = false
+                        freezeCamera(video)
                         updatedResult(BarcodeResult.OnSuccess(matchingBarcode))
                         break
                     }
