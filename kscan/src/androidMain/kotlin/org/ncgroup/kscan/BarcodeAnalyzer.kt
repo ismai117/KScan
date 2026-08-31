@@ -21,24 +21,29 @@ internal class BarcodeAnalyzer(
     private val onSuccess: (List<Barcode>) -> Unit,
     private val onFailed: (Exception) -> Unit,
     private val filter: (Barcode) -> Boolean,
+    private val autoZoom: Boolean,
 ) : ImageAnalysis.Analyzer {
     private val scannerOptions =
         BarcodeScannerOptions.Builder()
             .setBarcodeFormats(BarcodeFormatMapper.toMlKitFormats(codeTypes))
-            .setZoomSuggestionOptions(
-                ZoomSuggestionOptions.Builder { zoomRatio ->
-                    val camera = getCamera()
-                    val maxZoomRatio =
-                        (camera?.cameraInfo?.zoomState?.value?.maxZoomRatio ?: 1.0f)
-                            .coerceAtMost(MAX_ZOOM_RATIO)
-                    if (zoomRatio <= maxZoomRatio) {
-                        camera?.cameraControl?.setZoomRatio(zoomRatio)
-                        true
-                    } else {
-                        false
-                    }
-                }.setMaxSupportedZoomRatio(MAX_ZOOM_RATIO).build(),
-            )
+            .apply {
+                if (autoZoom) {
+                    setZoomSuggestionOptions(
+                        ZoomSuggestionOptions.Builder { zoomRatio ->
+                            val camera = getCamera()
+                            val maxZoomRatio =
+                                (camera?.cameraInfo?.zoomState?.value?.maxZoomRatio ?: 1.0f)
+                                    .coerceAtMost(MAX_ZOOM_RATIO)
+                            if (zoomRatio <= maxZoomRatio) {
+                                camera?.cameraControl?.setZoomRatio(zoomRatio)
+                                true
+                            } else {
+                                false
+                            }
+                        }.setMaxSupportedZoomRatio(MAX_ZOOM_RATIO).build(),
+                    )
+                }
+            }
             .build()
 
     private val scanner = BarcodeScanning.getClient(scannerOptions)

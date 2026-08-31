@@ -15,6 +15,8 @@ import androidx.compose.ui.Modifier
  * @param modifier The modifier applied to the preview. Fills the available space by default.
  * @param scannerController An optional controller for torch and zoom.
  * @param filter Called with each decoded barcode; returning `false` keeps scanning.
+ * @param autoZoom Lets the decoder zoom the camera in on a barcode too small to
+ *   read. Only Android has a decoder that asks for this; elsewhere it is ignored.
  * @param result A callback function that is invoked when a barcode is scanned.
  */
 @Composable
@@ -23,5 +25,6 @@ public expect fun ScannerView(
     modifier: Modifier = Modifier.fillMaxSize(),
     scannerController: ScannerController? = null,
     filter: (Barcode) -> Boolean = { true },
+    autoZoom: Boolean = true,
     result: (BarcodeResult) -> Unit,
 )

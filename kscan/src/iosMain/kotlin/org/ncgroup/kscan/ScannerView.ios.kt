@@ -24,6 +24,7 @@ public actual fun ScannerView(
     modifier: Modifier,
     scannerController: ScannerController?,
     filter: (Barcode) -> Boolean,
+    autoZoom: Boolean,
     result: (BarcodeResult) -> Unit,
 ) {
     val updatedResult by rememberUpdatedState(result)
