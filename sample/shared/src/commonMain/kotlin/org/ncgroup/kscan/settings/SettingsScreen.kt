@@ -98,9 +98,11 @@ fun SettingsScreen(
 private fun CameraPicker(state: ScannerState) {
     // Listing opens each camera in turn on desktop, so it is asked for once.
     var cameras by remember { mutableStateOf(emptyList<CameraDevice>()) }
+    var searching by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
         cameras = platformCameras()
+        searching = false
     }
 
     if (!supportsCameraListing) return
@@ -113,6 +115,16 @@ private fun CameraPicker(state: ScannerState) {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+
+        if (searching) {
+            Text(
+                text = "Looking\u2026",
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(top = 8.dp),
+            )
+
+            return@Column
+        }
 
         if (cameras.isEmpty()) {
             Text(
