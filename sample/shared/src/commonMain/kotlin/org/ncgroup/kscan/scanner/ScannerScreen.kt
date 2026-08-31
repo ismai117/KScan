@@ -91,6 +91,7 @@ fun ScannerScreen(
                     ScannerView(
                         codeTypes = listOf(format),
                         modifier = Modifier.matchParentSize(),
+                        cameraId = state.cameraId,
                         scannerController = scannerController,
                         filter = { barcode -> state.accepts(barcode) },
                         autoZoom = state.autoZoom,

@@ -10,6 +10,8 @@ class ScannerState {
     var filterEnabled by mutableStateOf(false)
     var filterPrefix by mutableStateOf("")
 
+    var cameraId by mutableStateOf<String?>(null)
+
     var scanned by mutableStateOf<Barcode?>(null)
 
     fun accepts(barcode: Barcode): Boolean = !filterEnabled || barcode.data.startsWith(filterPrefix)
