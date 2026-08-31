@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.ncgroup.kscan.CameraDevice
 import org.ncgroup.kscan.camera.platformCameras
+import org.ncgroup.kscan.camera.supportsCameraListing
 import org.ncgroup.kscan.scanner.ScannerState
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -102,7 +103,7 @@ private fun CameraPicker(state: ScannerState) {
         cameras = platformCameras()
     }
 
-    if (cameras.isEmpty()) return
+    if (!supportsCameraListing) return
 
     Column(modifier = Modifier.padding(top = 8.dp)) {
         Text(text = "Camera", style = MaterialTheme.typography.bodyLarge)
@@ -112,6 +113,17 @@ private fun CameraPicker(state: ScannerState) {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+
+        if (cameras.isEmpty()) {
+            Text(
+                text = "None found. A camera the scanner still holds is not listed.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 8.dp),
+            )
+
+            return@Column
+        }
 
         Row(
             modifier = Modifier.padding(top = 8.dp),
