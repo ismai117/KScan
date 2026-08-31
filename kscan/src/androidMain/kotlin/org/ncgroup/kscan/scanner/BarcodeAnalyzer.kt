@@ -27,18 +27,11 @@ internal class BarcodeAnalyzer(
 ) : ImageAnalysis.Analyzer {
     private val scanner = BarcodeScanning.getClient(scannerOptions)
     private val repeated = RepeatedDetection()
+    private val inverter = FrameInverter()
     private var hasSuccessfullyProcessedBarcode = false
 
     /** Counts frames that held no barcode, to pace the inverted rescan. */
     private var emptyFrames = 0
-
-    /**
-     * Reused across frames. Inverting allocates roughly 1.5 bytes per pixel, which
-     * at 1080p is about 3 MB, and the analyzer only ever inverts one frame at a
-     * time: ImageAnalysis does not deliver the next frame until the current proxy
-     * is closed, which happens after the inverted scan completes.
-     */
-    private var invertedBuffer: ByteArray? = null
 
     /**
      * Set once the preview is gone. ML Kit finishes whatever it was already
@@ -95,7 +88,7 @@ internal class BarcodeAnalyzer(
     // per frame, and the caller cannot act on it.
     private fun scanInverted(imageProxy: ImageProxy) {
         val invertedImage = try {
-            createInvertedInputImage(imageProxy)
+            inverter.invert(imageProxy)
         } catch (e: Exception) {
             imageProxy.close()
             return
@@ -120,48 +113,6 @@ internal class BarcodeAnalyzer(
                 // CRITICAL: Always close the proxy after the final attempt
                 imageProxy.close()
             }
-    }
-
-    @OptIn(ExperimentalGetImage::class)
-    private fun createInvertedInputImage(imageProxy: ImageProxy): InputImage {
-        val mediaImage = imageProxy.image ?: throw IllegalArgumentException("Image is null")
-        require(mediaImage.planes.isNotEmpty()) { "Image has no planes" }
-
-        val width = mediaImage.width
-        val height = mediaImage.height
-        val yPixelCount = width * height
-        val nv21Size = yPixelCount * 3 / 2
-        val nv21Bytes = invertedBuffer?.takeIf { it.size == nv21Size }
-            ?: ByteArray(nv21Size).also { invertedBuffer = it }
-
-        val yPlane = mediaImage.planes[0]
-        val rowStride = yPlane.rowStride
-        require(rowStride >= width) { "Invalid Y rowStride: $rowStride, width: $width" }
-
-        val yBuffer = yPlane.buffer.duplicate()
-        val rowBytes = ByteArray(width)
-
-        // Bulk-read one row at a time, then invert into output (fewer ByteBuffer.get() calls)
-        for (row in 0 until height) {
-            yBuffer.position(row * rowStride)
-            yBuffer.get(rowBytes, 0, width)
-
-            val outBase = row * width
-            for (col in 0 until width) {
-                nv21Bytes[outBase + col] = (rowBytes[col].toInt() xor 0xFF).toByte()
-            }
-        }
-
-        // Neutral chroma for grayscale in NV21 (VU interleaved)
-        java.util.Arrays.fill(nv21Bytes, yPixelCount, nv21Bytes.size, 128.toByte())
-
-        return InputImage.fromByteArray(
-            nv21Bytes,
-            width,
-            height,
-            imageProxy.imageInfo.rotationDegrees,
-            InputImage.IMAGE_FORMAT_NV21,
-        )
     }
 
     private fun processFoundBarcodes(mlKitBarcodes: List<com.google.mlkit.vision.barcode.common.Barcode>) {
