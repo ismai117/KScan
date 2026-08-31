@@ -1,4 +1,4 @@
-package org.ncgroup.kscan
+package org.ncgroup.kscan.image
 
 import androidx.compose.runtime.Composable
 

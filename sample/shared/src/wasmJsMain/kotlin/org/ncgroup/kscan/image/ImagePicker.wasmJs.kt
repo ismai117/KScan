@@ -1,6 +1,6 @@
 @file:OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
 
-package org.ncgroup.kscan
+package org.ncgroup.kscan.image
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
