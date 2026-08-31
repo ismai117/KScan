@@ -1,4 +1,4 @@
-package org.ncgroup.kscan
+package org.ncgroup.kscan.view
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -16,6 +16,11 @@ import kotlinx.coroutines.await
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import org.ncgroup.kscan.Barcode
+import org.ncgroup.kscan.BarcodeFormat
+import org.ncgroup.kscan.BarcodeResult
+import org.ncgroup.kscan.KScanWeb
+import org.ncgroup.kscan.ScannerController
 import org.ncgroup.kscan.format.BarcodeFormatMapper
 import org.ncgroup.kscan.scanner.RepeatedDetection
 import org.ncgroup.kscan.scanner.applyTorch
@@ -31,32 +36,11 @@ import org.ncgroup.kscan.scanner.stopCamera
 import org.ncgroup.kscan.scanner.toList
 import kotlin.time.Duration.Companion.milliseconds
 
-/**
- * How long to wait between detection passes over the live preview.
- *
- * The camera is asked for 30fps, so sampling faster than a frame arrives is
- * wasted. A pass costs about 10ms with a native detector and about 33ms with the
- * polyfill, so this stays well inside the frame budget.
- */
 private const val SCAN_INTERVAL_MS = 33L
 
-/**
- * Web draws the camera preview only, and the preview is an HTML element composed
- * into the scene rather than something Compose paints. The browser stacks that
- * element above the canvas Compose draws into, so content drawn over the preview
- * is not reliably visible, and the element consumes input events over its own
- * area. Keep your controls beside the preview rather than on top of it.
- *
- * Everything else behaves as it does on the other platforms:
- *
- * - [scannerController] drives torch and zoom, since those act on the camera
- *   track rather than on the DOM, and reports [ScannerController.maxZoomRatio]
- *   so a caller can bound its own zoom control.
- * - [filter] and [result] are unchanged.
- */
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalWasmJsInterop::class)
 @Composable
-public actual fun ScannerView(
+internal actual fun ScannerViewImpl(
     codeTypes: List<BarcodeFormat>,
     modifier: Modifier,
     scannerController: ScannerController?,
@@ -83,7 +67,6 @@ public actual fun ScannerView(
                     )
                 }
             }
-            Unit
         }
     }
 
@@ -91,7 +74,6 @@ public actual fun ScannerView(
         { ratio: Float ->
             scannerController.zoomRatio = ratio
             coroutineScope.launch { applyZoom(video, ratio.toDouble()).await() }
-            Unit
         }
     }
 

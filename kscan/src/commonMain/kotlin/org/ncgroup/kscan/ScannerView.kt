@@ -3,6 +3,7 @@ package org.ncgroup.kscan
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import org.ncgroup.kscan.view.ScannerViewImpl
 
 /**
  * Draws the camera preview and reports the barcodes decoded from it.
@@ -20,11 +21,20 @@ import androidx.compose.ui.Modifier
  * @param result A callback function that is invoked when a barcode is scanned.
  */
 @Composable
-public expect fun ScannerView(
+public fun ScannerView(
     codeTypes: List<BarcodeFormat>,
     modifier: Modifier = Modifier.fillMaxSize(),
     scannerController: ScannerController? = null,
     filter: (Barcode) -> Boolean = { true },
     autoZoom: Boolean = true,
     result: (BarcodeResult) -> Unit,
-)
+) {
+    ScannerViewImpl(
+        codeTypes = codeTypes,
+        modifier = modifier,
+        scannerController = scannerController,
+        filter = filter,
+        autoZoom = autoZoom,
+        result = result,
+    )
+}

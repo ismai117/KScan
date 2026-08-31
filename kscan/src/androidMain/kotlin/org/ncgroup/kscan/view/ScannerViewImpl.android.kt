@@ -1,4 +1,4 @@
-package org.ncgroup.kscan
+package org.ncgroup.kscan.view
 
 import android.util.Size
 import androidx.camera.core.Camera
@@ -25,10 +25,14 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import org.ncgroup.kscan.Barcode
+import org.ncgroup.kscan.BarcodeFormat
+import org.ncgroup.kscan.BarcodeResult
+import org.ncgroup.kscan.ScannerController
 import org.ncgroup.kscan.scanner.BarcodeAnalyzer
 
 @Composable
-public actual fun ScannerView(
+internal actual fun ScannerViewImpl(
     codeTypes: List<BarcodeFormat>,
     modifier: Modifier,
     scannerController: ScannerController?,

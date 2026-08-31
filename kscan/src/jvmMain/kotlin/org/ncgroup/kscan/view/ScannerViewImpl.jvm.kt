@@ -1,4 +1,4 @@
-package org.ncgroup.kscan
+package org.ncgroup.kscan.view
 
 import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
@@ -25,6 +25,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.bytedeco.javacv.Java2DFrameConverter
 import org.bytedeco.javacv.OpenCVFrameGrabber
+import org.ncgroup.kscan.Barcode
+import org.ncgroup.kscan.BarcodeFormat
+import org.ncgroup.kscan.BarcodeResult
+import org.ncgroup.kscan.KScanDesktop
+import org.ncgroup.kscan.ScannerController
 import org.ncgroup.kscan.scanner.GrayLuminanceSource
 import org.ncgroup.kscan.scanner.RepeatedDetection
 import org.ncgroup.kscan.scanner.toBarcode
@@ -33,7 +38,7 @@ import org.ncgroup.kscan.scanner.zxingReader
 import java.awt.image.BufferedImage
 
 @Composable
-public actual fun ScannerView(
+internal actual fun ScannerViewImpl(
     codeTypes: List<BarcodeFormat>,
     modifier: Modifier,
     scannerController: ScannerController?,

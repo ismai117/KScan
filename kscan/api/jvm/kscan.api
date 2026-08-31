@@ -84,7 +84,7 @@ public final class org/ncgroup/kscan/ScannerController {
 	public final fun setZoom (F)V
 }
 
-public final class org/ncgroup/kscan/ScannerView_jvmKt {
+public final class org/ncgroup/kscan/ScannerViewKt {
 	public static final fun ScannerView (Ljava/util/List;Landroidx/compose/ui/Modifier;Lorg/ncgroup/kscan/ScannerController;Lkotlin/jvm/functions/Function1;ZLkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
 }
 
