@@ -25,14 +25,7 @@ implementation("io.github.ismai117:KScan:$version")
 
 **Windows / macOS / Linux** - Uses JavaCV for camera and ZXing for barcode scanning.
 
-**Web** - Uses the browser's [BarcodeDetector API](https://developer.mozilla.org/docs/Web/API/BarcodeDetector). Chromium-based browsers implement it natively; elsewhere KScan loads a polyfill from a CDN the first time you scan. Self-host it, or set either to `null` to disable the fallback:
-
-```kotlin
-KScanWeb.barcodeDetectorPolyfillUrl = "/assets/barcode-detector.js"
-KScanWeb.zxingWasmUrl = "/assets/zxing_reader.wasm"
-```
-
-`availableCameras()` lists the cameras the browser will open; pass an id to `KScanWeb.cameraDeviceId` to pick one. The preview is an HTML element the browser stacks above the Compose canvas, so put controls beside it rather than over it.
+**Web** - Uses the browser's [BarcodeDetector API](https://developer.mozilla.org/docs/Web/API/BarcodeDetector), falling back to a polyfill loaded from a CDN.
 
 ## Permissions
 **Android, iOS, macOS** - Before displaying the `ScannerView`, your application must request and be granted camera permissions by the operating system. On iOS & macOS, add this to your `Info.plist`:
