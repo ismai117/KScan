@@ -1,4 +1,6 @@
-package org.ncgroup.kscan
+package org.ncgroup.kscan.format
+
+import org.ncgroup.kscan.BarcodeFormat
 
 /**
  * True when [codeTypes] singles out no format and so accepts every one the

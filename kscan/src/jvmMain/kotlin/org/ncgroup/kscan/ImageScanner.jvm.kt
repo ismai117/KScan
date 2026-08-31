@@ -3,6 +3,10 @@ package org.ncgroup.kscan
 import com.google.zxing.BinaryBitmap
 import com.google.zxing.NotFoundException
 import com.google.zxing.common.HybridBinarizer
+import org.ncgroup.kscan.scanner.GrayLuminanceSource
+import org.ncgroup.kscan.scanner.toBarcode
+import org.ncgroup.kscan.scanner.writeLuminances
+import org.ncgroup.kscan.scanner.zxingReader
 import java.io.ByteArrayInputStream
 import javax.imageio.ImageIO
 

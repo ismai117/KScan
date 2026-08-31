@@ -25,6 +25,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import org.ncgroup.kscan.scanner.BarcodeAnalyzer
 
 @Composable
 public actual fun ScannerView(

@@ -16,6 +16,19 @@ import kotlinx.coroutines.await
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import org.ncgroup.kscan.format.BarcodeFormatMapper
+import org.ncgroup.kscan.scanner.RepeatedDetection
+import org.ncgroup.kscan.scanner.applyTorch
+import org.ncgroup.kscan.scanner.applyZoom
+import org.ncgroup.kscan.scanner.barcodeDetector
+import org.ncgroup.kscan.scanner.cameraCapabilities
+import org.ncgroup.kscan.scanner.createVideoElement
+import org.ncgroup.kscan.scanner.detectFromVideoFrame
+import org.ncgroup.kscan.scanner.firstMatching
+import org.ncgroup.kscan.scanner.isVideoReady
+import org.ncgroup.kscan.scanner.startCamera
+import org.ncgroup.kscan.scanner.stopCamera
+import org.ncgroup.kscan.scanner.toList
 import kotlin.time.Duration.Companion.milliseconds
 
 /**

@@ -1,4 +1,4 @@
-package org.ncgroup.kscan
+package org.ncgroup.kscan.scanner
 
 import androidx.annotation.OptIn
 import androidx.camera.core.Camera
@@ -9,6 +9,10 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.ZoomSuggestionOptions
 import com.google.mlkit.vision.common.InputImage
+import org.ncgroup.kscan.Barcode
+import org.ncgroup.kscan.BarcodeFormat
+import org.ncgroup.kscan.format.BarcodeFormatMapper
+import org.ncgroup.kscan.format.isRequestedFormat
 
 /**
  * Analyzes camera frames for barcodes using ML Kit.

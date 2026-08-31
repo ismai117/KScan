@@ -1,4 +1,4 @@
-package org.ncgroup.kscan
+package org.ncgroup.kscan.scanner
 
 import kotlin.test.Test
 import kotlin.test.assertFalse

@@ -1,6 +1,10 @@
-package org.ncgroup.kscan
+package org.ncgroup.kscan.scanner
 
 import kotlinx.cinterop.ExperimentalForeignApi
+import org.ncgroup.kscan.Barcode
+import org.ncgroup.kscan.BarcodeFormat
+import org.ncgroup.kscan.format.BarcodeFormatMapper
+import org.ncgroup.kscan.format.isRequestedFormat
 import platform.AVFoundation.AVCaptureConnection
 import platform.AVFoundation.AVCaptureDevice
 import platform.AVFoundation.AVCaptureDeviceInput

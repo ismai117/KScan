@@ -1,5 +1,6 @@
-package org.ncgroup.kscan
+package org.ncgroup.kscan.format
 
+import org.ncgroup.kscan.BarcodeFormat
 import platform.AVFoundation.AVMetadataObjectTypeCode128Code
 import platform.AVFoundation.AVMetadataObjectTypeEAN13Code
 import platform.AVFoundation.AVMetadataObjectTypeInterleaved2of5Code

@@ -1,4 +1,6 @@
-package org.ncgroup.kscan
+package org.ncgroup.kscan.format
+
+import org.ncgroup.kscan.BarcodeFormat
 
 /**
  * Maps between app [BarcodeFormat] and BarcodeDetector Web API format strings.

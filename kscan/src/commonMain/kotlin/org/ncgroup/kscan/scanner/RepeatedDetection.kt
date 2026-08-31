@@ -1,4 +1,4 @@
-package org.ncgroup.kscan
+package org.ncgroup.kscan.scanner
 
 /**
  * Requires the same barcode to be decoded more than once before it is reported.
@@ -22,6 +22,3 @@ internal class RepeatedDetection(private val required: Int = 2) {
         counts.clear()
     }
 }
-
-/** Zoom beyond this is rarely usable for scanning. */
-internal const val MAX_ZOOM_RATIO = 5.0f

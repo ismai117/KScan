@@ -1,4 +1,4 @@
-package org.ncgroup.kscan
+package org.ncgroup.kscan.scanner
 
 import platform.AVFoundation.AVCaptureDevice
 import platform.AVFoundation.AVMediaTypeVideo

@@ -1,10 +1,11 @@
-package org.ncgroup.kscan
+package org.ncgroup.kscan.format
 
 import com.google.mlkit.vision.barcode.common.Barcode.FORMAT_ALL_FORMATS
 import com.google.mlkit.vision.barcode.common.Barcode.FORMAT_CODE_128
 import com.google.mlkit.vision.barcode.common.Barcode.FORMAT_EAN_13
 import com.google.mlkit.vision.barcode.common.Barcode.FORMAT_QR_CODE
 import com.google.mlkit.vision.barcode.common.Barcode.FORMAT_UNKNOWN
+import org.ncgroup.kscan.BarcodeFormat
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

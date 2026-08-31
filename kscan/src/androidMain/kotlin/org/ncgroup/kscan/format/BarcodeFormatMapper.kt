@@ -1,4 +1,4 @@
-package org.ncgroup.kscan
+package org.ncgroup.kscan.format
 
 import com.google.mlkit.vision.barcode.common.Barcode.FORMAT_ALL_FORMATS
 import com.google.mlkit.vision.barcode.common.Barcode.FORMAT_AZTEC
@@ -14,6 +14,7 @@ import com.google.mlkit.vision.barcode.common.Barcode.FORMAT_PDF417
 import com.google.mlkit.vision.barcode.common.Barcode.FORMAT_QR_CODE
 import com.google.mlkit.vision.barcode.common.Barcode.FORMAT_UPC_A
 import com.google.mlkit.vision.barcode.common.Barcode.FORMAT_UPC_E
+import org.ncgroup.kscan.BarcodeFormat
 
 /**
  * Maps between app [BarcodeFormat] and ML Kit barcode format integers.

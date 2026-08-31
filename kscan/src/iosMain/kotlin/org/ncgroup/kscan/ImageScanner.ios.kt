@@ -4,6 +4,8 @@ import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
+import org.ncgroup.kscan.format.FormatMap
+import org.ncgroup.kscan.format.isRequestedFormat
 import platform.CoreGraphics.CGImageRef
 import platform.Foundation.NSData
 import platform.Foundation.NSError

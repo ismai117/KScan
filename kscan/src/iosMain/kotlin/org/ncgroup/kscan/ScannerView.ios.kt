@@ -8,6 +8,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.UIKitViewController
 import kotlinx.cinterop.ExperimentalForeignApi
+import org.ncgroup.kscan.scanner.CameraViewController
 import platform.AVFoundation.AVCaptureDevice
 import platform.AVFoundation.AVCaptureDevicePositionBack
 import platform.AVFoundation.AVCaptureDeviceTypeBuiltInWideAngleCamera

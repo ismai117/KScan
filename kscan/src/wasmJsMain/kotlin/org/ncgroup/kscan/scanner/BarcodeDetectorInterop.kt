@@ -1,8 +1,14 @@
 @file:OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
 
-package org.ncgroup.kscan
+package org.ncgroup.kscan.scanner
 
 import kotlinx.coroutines.await
+import org.ncgroup.kscan.Barcode
+import org.ncgroup.kscan.BarcodeFormat
+import org.ncgroup.kscan.KScanWeb
+import org.ncgroup.kscan.format.BarcodeFormatMapper
+import org.ncgroup.kscan.format.isRequestedFormat
+import org.ncgroup.kscan.scanImage
 import kotlin.js.Promise
 import kotlin.js.get
 

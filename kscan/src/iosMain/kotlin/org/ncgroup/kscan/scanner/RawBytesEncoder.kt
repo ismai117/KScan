@@ -1,4 +1,4 @@
-package org.ncgroup.kscan
+package org.ncgroup.kscan.scanner
 
 /**
  * Converts a barcode string value to raw bytes without UTF-8 encoding.

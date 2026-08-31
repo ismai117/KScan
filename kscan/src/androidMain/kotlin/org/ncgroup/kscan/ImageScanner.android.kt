@@ -4,6 +4,8 @@ import android.graphics.BitmapFactory
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
+import org.ncgroup.kscan.format.BarcodeFormatMapper
+import org.ncgroup.kscan.format.isRequestedFormat
 
 public actual fun scanImage(
     imageBytes: ByteArray,

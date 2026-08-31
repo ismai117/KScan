@@ -25,6 +25,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.bytedeco.javacv.Java2DFrameConverter
 import org.bytedeco.javacv.OpenCVFrameGrabber
+import org.ncgroup.kscan.scanner.GrayLuminanceSource
+import org.ncgroup.kscan.scanner.RepeatedDetection
+import org.ncgroup.kscan.scanner.toBarcode
+import org.ncgroup.kscan.scanner.writeLuminances
+import org.ncgroup.kscan.scanner.zxingReader
 import java.awt.image.BufferedImage
 
 @Composable

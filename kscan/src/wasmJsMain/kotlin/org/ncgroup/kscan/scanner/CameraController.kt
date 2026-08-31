@@ -1,7 +1,8 @@
 @file:OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
 
-package org.ncgroup.kscan
+package org.ncgroup.kscan.scanner
 
+import org.ncgroup.kscan.ScannerController
 import org.w3c.dom.HTMLVideoElement
 import kotlin.js.Promise
 

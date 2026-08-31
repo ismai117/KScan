@@ -1,4 +1,6 @@
-package org.ncgroup.kscan
+package org.ncgroup.kscan.format
+
+import org.ncgroup.kscan.BarcodeFormat
 
 internal fun BarcodeFormat.toZxingFormat(): com.google.zxing.BarcodeFormat? = when (this) {
     BarcodeFormat.FORMAT_CODE_128 -> com.google.zxing.BarcodeFormat.CODE_128

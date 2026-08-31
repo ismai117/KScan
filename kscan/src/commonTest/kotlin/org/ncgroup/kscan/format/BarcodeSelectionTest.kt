@@ -1,5 +1,6 @@
-package org.ncgroup.kscan
+package org.ncgroup.kscan.format
 
+import org.ncgroup.kscan.BarcodeFormat
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue

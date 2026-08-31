@@ -6,6 +6,13 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.await
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import org.ncgroup.kscan.format.BarcodeFormatMapper
+import org.ncgroup.kscan.scanner.barcodeDetector
+import org.ncgroup.kscan.scanner.closeImageBitmap
+import org.ncgroup.kscan.scanner.detectFrom
+import org.ncgroup.kscan.scanner.firstMatching
+import org.ncgroup.kscan.scanner.imageBitmapFromBase64
+import org.ncgroup.kscan.scanner.toList
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 

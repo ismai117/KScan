@@ -1,10 +1,14 @@
-package org.ncgroup.kscan
+package org.ncgroup.kscan.scanner
 
 import com.google.zxing.DecodeHintType
 import com.google.zxing.LuminanceSource
 import com.google.zxing.MultiFormatReader
 import com.google.zxing.Result
 import com.google.zxing.ResultMetadataType
+import org.ncgroup.kscan.Barcode
+import org.ncgroup.kscan.BarcodeFormat
+import org.ncgroup.kscan.format.toKScanFormat
+import org.ncgroup.kscan.format.toZxingFormat
 import java.util.EnumMap
 
 /**
