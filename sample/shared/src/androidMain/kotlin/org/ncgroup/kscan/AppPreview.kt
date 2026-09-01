@@ -5,4 +5,4 @@ import androidx.compose.ui.tooling.preview.Preview
 
 @Preview
 @Composable
-fun AppPreview() = DefaultUI()
+private fun AppPreview() = App()

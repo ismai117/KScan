@@ -1,0 +1,101 @@
+public final class org/ncgroup/kscan/Barcode {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/String;Lorg/ncgroup/kscan/BarcodeFormat;[B)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lorg/ncgroup/kscan/BarcodeFormat;
+	public final fun component3 ()[B
+	public final fun copy (Ljava/lang/String;Lorg/ncgroup/kscan/BarcodeFormat;[B)Lorg/ncgroup/kscan/Barcode;
+	public static synthetic fun copy$default (Lorg/ncgroup/kscan/Barcode;Ljava/lang/String;Lorg/ncgroup/kscan/BarcodeFormat;[BILjava/lang/Object;)Lorg/ncgroup/kscan/Barcode;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getData ()Ljava/lang/String;
+	public final fun getFormat ()Lorg/ncgroup/kscan/BarcodeFormat;
+	public final fun getRawBytes ()[B
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/ncgroup/kscan/BarcodeFormat : java/lang/Enum {
+	public static final field FORMAT_ALL_FORMATS Lorg/ncgroup/kscan/BarcodeFormat;
+	public static final field FORMAT_AZTEC Lorg/ncgroup/kscan/BarcodeFormat;
+	public static final field FORMAT_CODABAR Lorg/ncgroup/kscan/BarcodeFormat;
+	public static final field FORMAT_CODE_128 Lorg/ncgroup/kscan/BarcodeFormat;
+	public static final field FORMAT_CODE_39 Lorg/ncgroup/kscan/BarcodeFormat;
+	public static final field FORMAT_CODE_93 Lorg/ncgroup/kscan/BarcodeFormat;
+	public static final field FORMAT_DATA_MATRIX Lorg/ncgroup/kscan/BarcodeFormat;
+	public static final field FORMAT_EAN_13 Lorg/ncgroup/kscan/BarcodeFormat;
+	public static final field FORMAT_EAN_8 Lorg/ncgroup/kscan/BarcodeFormat;
+	public static final field FORMAT_ITF Lorg/ncgroup/kscan/BarcodeFormat;
+	public static final field FORMAT_PDF417 Lorg/ncgroup/kscan/BarcodeFormat;
+	public static final field FORMAT_QR_CODE Lorg/ncgroup/kscan/BarcodeFormat;
+	public static final field FORMAT_UPC_A Lorg/ncgroup/kscan/BarcodeFormat;
+	public static final field FORMAT_UPC_E Lorg/ncgroup/kscan/BarcodeFormat;
+	public static final field TYPE_UNKNOWN Lorg/ncgroup/kscan/BarcodeFormat;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lorg/ncgroup/kscan/BarcodeFormat;
+	public static fun values ()[Lorg/ncgroup/kscan/BarcodeFormat;
+}
+
+public abstract interface class org/ncgroup/kscan/BarcodeResult {
+}
+
+public final class org/ncgroup/kscan/BarcodeResult$OnFailed : org/ncgroup/kscan/BarcodeResult {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/Exception;)V
+	public final fun component1 ()Ljava/lang/Exception;
+	public final fun copy (Ljava/lang/Exception;)Lorg/ncgroup/kscan/BarcodeResult$OnFailed;
+	public static synthetic fun copy$default (Lorg/ncgroup/kscan/BarcodeResult$OnFailed;Ljava/lang/Exception;ILjava/lang/Object;)Lorg/ncgroup/kscan/BarcodeResult$OnFailed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getException ()Ljava/lang/Exception;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/ncgroup/kscan/BarcodeResult$OnSuccess : org/ncgroup/kscan/BarcodeResult {
+	public static final field $stable I
+	public fun <init> (Lorg/ncgroup/kscan/Barcode;)V
+	public final fun component1 ()Lorg/ncgroup/kscan/Barcode;
+	public final fun copy (Lorg/ncgroup/kscan/Barcode;)Lorg/ncgroup/kscan/BarcodeResult$OnSuccess;
+	public static synthetic fun copy$default (Lorg/ncgroup/kscan/BarcodeResult$OnSuccess;Lorg/ncgroup/kscan/Barcode;ILjava/lang/Object;)Lorg/ncgroup/kscan/BarcodeResult$OnSuccess;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBarcode ()Lorg/ncgroup/kscan/Barcode;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/ncgroup/kscan/CameraDevice {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lorg/ncgroup/kscan/CameraDevice;
+	public static synthetic fun copy$default (Lorg/ncgroup/kscan/CameraDevice;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lorg/ncgroup/kscan/CameraDevice;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getId ()Ljava/lang/String;
+	public final fun getLabel ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/ncgroup/kscan/CameraDevicesKt {
+	public static final fun availableCameras (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class org/ncgroup/kscan/ImageScanner_jvmKt {
+	public static final fun scanImage ([BLjava/util/List;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun scanImage$default ([BLjava/util/List;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+}
+
+public final class org/ncgroup/kscan/ScannerController {
+	public static final field $stable I
+	public fun <init> ()V
+	public final fun getMaxZoomRatio ()F
+	public final fun getTorchEnabled ()Z
+	public final fun getZoomRatio ()F
+	public final fun setTorch (Z)V
+	public final fun setZoom (F)V
+}
+
+public final class org/ncgroup/kscan/ScannerViewKt {
+	public static final fun ScannerView (Ljava/util/List;Landroidx/compose/ui/Modifier;Ljava/lang/String;Lorg/ncgroup/kscan/ScannerController;Lkotlin/jvm/functions/Function1;ZLkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+}
+

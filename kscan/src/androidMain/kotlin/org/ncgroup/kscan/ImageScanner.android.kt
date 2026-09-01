@@ -4,8 +4,11 @@ import android.graphics.BitmapFactory
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
+import org.ncgroup.kscan.format.BarcodeFormatMapper
+import org.ncgroup.kscan.format.firstMatching
+import org.ncgroup.kscan.scanner.toBarcode
 
-actual fun scanImage(
+public actual fun scanImage(
     imageBytes: ByteArray,
     codeTypes: List<BarcodeFormat>,
     filter: (Barcode) -> Boolean,
@@ -14,7 +17,7 @@ actual fun scanImage(
     val bitmap = try {
         BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
     } catch (e: Exception) {
-        result(BarcodeResult.OnFailed(Exception("Failed to decode image: ${e.message}")))
+        result(BarcodeResult.OnFailed(Exception("Failed to decode image bytes", e)))
         return
     }
 
@@ -23,57 +26,26 @@ actual fun scanImage(
         return
     }
 
-    val inputImage = InputImage.fromBitmap(bitmap, 0)
-
     val options = BarcodeScannerOptions.Builder()
         .setBarcodeFormats(BarcodeFormatMapper.toMlKitFormats(codeTypes))
         .build()
 
     val scanner = BarcodeScanning.getClient(options)
 
-    scanner.process(inputImage)
+    scanner.process(InputImage.fromBitmap(bitmap, 0))
         .addOnSuccessListener { barcodes ->
-            val hasAllFormats = codeTypes.isEmpty() || codeTypes.contains(BarcodeFormat.FORMAT_ALL_FORMATS)
+            val matching = barcodes.mapNotNull { it.toBarcode() }.firstMatching(codeTypes, filter)
 
-            val matchingBarcode = barcodes.firstOrNull { mlKitBarcode ->
-                val isFormatMatch = if (hasAllFormats) {
-                    BarcodeFormatMapper.isKnownFormat(mlKitBarcode.format)
-                } else {
-                    val appFormat = BarcodeFormatMapper.toAppFormat(mlKitBarcode.format)
-                    codeTypes.contains(appFormat)
-                }
-
-                if (!isFormatMatch) return@firstOrNull false
-
-                val displayValue = mlKitBarcode.displayValue ?: return@firstOrNull false
-                val rawBytes = mlKitBarcode.rawBytes ?: displayValue.encodeToByteArray()
-                val appFormat = BarcodeFormatMapper.toAppFormat(mlKitBarcode.format)
-
-                val barcode = Barcode(
-                    data = displayValue,
-                    format = appFormat.toString(),
-                    rawBytes = rawBytes,
-                )
-
-                filter(barcode)
-            }
-
-            if (matchingBarcode != null) {
-                val displayValue = matchingBarcode.displayValue!!
-                val rawBytes = matchingBarcode.rawBytes ?: displayValue.encodeToByteArray()
-                val appFormat = BarcodeFormatMapper.toAppFormat(matchingBarcode.format)
-
-                val barcode = Barcode(
-                    data = displayValue,
-                    format = appFormat.toString(),
-                    rawBytes = rawBytes,
-                )
-                result(BarcodeResult.OnSuccess(barcode))
-            } else {
-                result(BarcodeResult.OnFailed(Exception("No barcode found in image")))
+            when {
+                matching != null -> result(BarcodeResult.OnSuccess(matching))
+                barcodes.isEmpty() -> result(BarcodeResult.OnFailed(Exception("No barcode found in image")))
+                else -> result(BarcodeResult.OnFailed(Exception("No matching barcode found in image")))
             }
         }
         .addOnFailureListener { exception ->
             result(BarcodeResult.OnFailed(exception))
+        }
+        .addOnCompleteListener {
+            scanner.close()
         }
 }

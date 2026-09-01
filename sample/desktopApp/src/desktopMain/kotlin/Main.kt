@@ -9,7 +9,7 @@ import org.ncgroup.kscan.App
 fun main() = application {
     val windowState = rememberWindowState(
         size = DpSize(width = 400.dp, height = 800.dp),
-        position = WindowPosition.Aligned(androidx.compose.ui.Alignment.Center)
+        position = WindowPosition.Aligned(androidx.compose.ui.Alignment.Center),
     )
 
     Window(

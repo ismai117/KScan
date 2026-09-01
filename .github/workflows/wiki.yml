@@ -1,14 +1,20 @@
 name: Publish Wiki
+
 on:
   push:
     branches:
       - main
     paths-ignore:
-      - sample
+      - 'sample/**'
+      - 'docs/**'
+  workflow_dispatch:
 
 concurrency:
   group: publish-wiki
   cancel-in-progress: true
+
+env:
+  GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4096M -Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true"
 
 jobs:
   publish-wiki:
@@ -18,26 +24,18 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-        with:
-          submodules: 'recursive'
 
-      - name: Setup Java
-        uses: actions/setup-java@e9fbacdec3bb3b6036605a3e6f7995d66773a8c6 # v3.14.2
-        with:
-          distribution: temurin
-          java-version: 17
+      - name: Gradle setup
+        uses: ./.github/actions/gradle-setup
 
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@a8f75513eafdebd8141bd1cd4e30fcd194af8dfa # v2.12.0
-
-      - name: Generate Wiki
-        run: ./gradlew dokkaHtmlMultiModule
+      - name: Generate API documentation
+        run: ./gradlew dokkaGenerate
 
       - name: Upload Wiki
         uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
         with:
-          folder: ./build/dokka/htmlMultiModule
+          folder: ./build/dokka/html
           branch: gh-pages
           force: true

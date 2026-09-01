@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 
 plugins {
     id("kscan.kmp.library")
@@ -7,14 +8,32 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    explicitApi()
+
+    @OptIn(ExperimentalAbiValidation::class)
+    abiValidation {}
+
+    android {
         namespace = "org.ncgroup.kscan"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
-        minSdk = libs.versions.android.minSdk.get().toInt()
+        compileSdk =
+            libs.versions.android.compileSdk
+                .get()
+                .toInt()
+        minSdk =
+            libs.versions.android.minSdk
+                .get()
+                .toInt()
 
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
         }
+
+        optimization {
+            consumerKeepRules.files(rootProject.file("consumer-rules.pro"))
+            consumerKeepRules.publish = true
+        }
+
+        withHostTest {}
     }
 
     sourceSets {
@@ -25,18 +44,17 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
-            implementation(libs.compose.material3)
-            implementation(libs.compose.material.icons.extended)
+        }
+        wasmJsMain.dependencies {
+            implementation(libs.kotlinx.coroutines)
         }
         jvmMain.dependencies {
             implementation(libs.compose.desktop)
             implementation(libs.javacv)
             implementation(libs.opencv.platform)
             implementation(libs.zxing.core)
-            implementation(libs.zxing.javase)
         }
         commonTest.dependencies {
-            implementation(libs.compose.ui.test)
             implementation(kotlin("test"))
         }
     }
@@ -45,7 +63,7 @@ kotlin {
 mavenPublishing {
     publishToMavenCentral()
     signAllPublications()
-    coordinates("io.github.ismai117", "KScan", "0.9.1")
+    coordinates("io.github.ismai117", "KScan", "0.10.0")
 
     pom {
         name.set(project.name)

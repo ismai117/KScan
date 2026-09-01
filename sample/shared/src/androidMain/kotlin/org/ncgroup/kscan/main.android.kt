@@ -16,7 +16,7 @@ import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
 import org.ncgroup.kscan.permissions.PermissionsViewModel
 
 @Composable
-fun MainView() {
+fun MainView(modifier: Modifier = Modifier) {
     val factory = rememberPermissionsControllerFactory()
     val controller = remember(factory) { factory.createPermissionsController() }
     BindEffect(controller)
@@ -27,7 +27,7 @@ fun MainView() {
         }
 
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
     ) {
         when (viewModel.state) {
             PermissionState.DeniedAlways -> {
@@ -42,9 +42,11 @@ fun MainView() {
                     }
                 }
             }
+
             PermissionState.Granted -> {
                 App()
             }
+
             else -> {
                 Button(
                     onClick = {

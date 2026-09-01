@@ -3,25 +3,41 @@ package org.ncgroup.kscan
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import org.ncgroup.kscan.view.ScannerViewImpl
 
 /**
- * A composable function that displays a scanner view for scanning barcodes.
+ * Draws the camera preview and reports the barcodes decoded from it.
  *
- * @param modifier The modifier to be applied to the scanner view.
- * @param codeTypes The list of barcode formats to be scanned.
- * @param colors The colors to be used for the scanner view.
- * @param scannerUiOptions The UI options to be used for the scanner UI. Will hide the UI if set to `null`.
- * @param scannerController An optional controller for controlling the scanner.
- * @param filter An optional lambda which can be used to filter out results before receiving a [BarcodeResult]
- * @param result A callback function that is invoked when a barcode is scanned.
+ * The preview is all this draws; controls and overlays are the caller's to build.
+ * On web the preview is an HTML element the browser stacks above the Compose
+ * canvas, so put them beside it rather than over it.
+ *
+ * @param codeTypes The formats to scan for.
+ * @param modifier Applied to the preview. Fills the available space by default.
+ * @param cameraId The camera to open, from `availableCameras()`. `null` lets the
+ *   platform choose, preferring a rear-facing camera. Web and desktop only.
+ * @param scannerController Drives torch and zoom from your own controls.
+ * @param filter Called with each decoded barcode; returning `false` keeps scanning.
+ * @param autoZoom Lets the decoder zoom in on a barcode too small to read. Android only.
+ * @param result Called with the outcome. Scanning stops at the first match.
  */
 @Composable
-expect fun ScannerView(
-    modifier: Modifier = Modifier.fillMaxSize(),
+public fun ScannerView(
     codeTypes: List<BarcodeFormat>,
-    colors: ScannerColors = scannerColors(),
-    scannerUiOptions: ScannerUiOptions? = ScannerUiOptions(),
+    modifier: Modifier = Modifier.fillMaxSize(),
+    cameraId: String? = null,
     scannerController: ScannerController? = null,
     filter: (Barcode) -> Boolean = { true },
+    autoZoom: Boolean = true,
     result: (BarcodeResult) -> Unit,
-)
+) {
+    ScannerViewImpl(
+        codeTypes = codeTypes,
+        modifier = modifier,
+        cameraId = cameraId,
+        scannerController = scannerController,
+        filter = filter,
+        autoZoom = autoZoom,
+        result = result,
+    )
+}

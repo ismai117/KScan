@@ -9,6 +9,7 @@ build/
 .cxx
 sample/iosApp/iosApp.xcodeproj/*
 !sample/iosApp/iosApp.xcodeproj/project.pbxproj
+!sample/iosApp/iosApp.xcodeproj/xcshareddata
 .kotlin
 
 # Local documentation
