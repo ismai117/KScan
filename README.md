@@ -17,27 +17,24 @@ Add the dependency to your `commonMain` source set:
 implementation("io.github.ismai117:KScan:$version")
 ```
 
-## Platform Setup
+## How It Works
 
 **Android** - Uses Google ML Kit for barcode scanning.
 
-**iOS** - Uses AVFoundation for camera and barcode scanning. 
+**iOS** - Uses AVFoundation for camera and barcode scanning.
 
 **Windows / macOS / Linux** - Uses JavaCV for camera and ZXing for barcode scanning.
 
 **Web** - Uses the browser's [BarcodeDetector API](https://developer.mozilla.org/docs/Web/API/BarcodeDetector), falling back to a polyfill loaded from a CDN.
 
 ## Permissions
-**Android, iOS, macOS** - Before displaying the `ScannerView`, your application must request and be granted camera permissions by the operating system. On iOS & macOS, add this to your `Info.plist`:
 
-```xml
-<key>NSCameraUsageDescription</key>
-<string>Camera access is required for barcode scanning</string>
-```
+Declare and request camera permission before showing `ScannerView`. Android needs
+`CAMERA` in the manifest, iOS and macOS need `NSCameraUsageDescription` in `Info.plist`.
 
 ## Usage
 
-`ScannerView` draws the camera preview and reports what it decodes. It draws nothing else: the torch button, the zoom control, the close affordance and any overlay are yours to build around it, and `modifier` sizes and places the preview.
+`ScannerView` draws the camera preview and reports what it decodes. Nothing else. Buttons and overlays are yours to build around it, and `modifier` sizes and places the preview.
 
 ### Basic
 
@@ -58,9 +55,9 @@ ScannerView(
 
 ### Custom Controls
 
-Use `ScannerController` for torch and zoom. It is live only while the
-`ScannerView` it was passed to is composed. Desktop cameras expose neither, so
-`maxZoomRatio` stays at `1f` there.
+Use `ScannerController` for torch and zoom. It only works while the `ScannerView`
+it was passed to is composed. Desktop cameras have neither, so `maxZoomRatio` stays
+at `1f` there.
 
 ```kotlin
 val scannerController = remember { ScannerController() }
@@ -88,8 +85,8 @@ Slider(
 ### Choosing a Camera
 
 On web and desktop, `availableCameras()` lists what can be opened and `cameraId` picks
-one. `null`, the default, leaves the choice to the platform. Changing it reopens the
-camera in place, so a picker works without remounting the view.
+one. The default, `null`, lets the platform choose. Changing it reopens the camera in
+place, so a picker works without remounting the view.
 
 ```kotlin
 var cameras by remember { mutableStateOf(emptyList<CameraDevice>()) }
@@ -113,16 +110,14 @@ cameras.forEach { device ->
 }
 ```
 
-**Web** - labels are blank until the user has granted camera access, so call
-`availableCameras()` again once a scan has started to show a meaningful picker. On macOS
-a nearby iPhone appears here through Continuity Camera.
+**Web** - Labels are blank until the user grants camera access. Call
+`availableCameras()` again once a scan has started to fill them in. On macOS a nearby
+iPhone shows up here through Continuity Camera.
 
-**Desktop** - OpenCV cannot be asked what cameras exist, so each index is opened and
-closed to find out and the labels are positions, not names. It is slow and lights the
-camera indicator, so call it once and hold the result. A camera already in use — by the
-scanner or another app — does not appear.
-
-**Android and iOS** ignore `cameraId` and always use the rear camera.
+**Desktop** - OpenCV cannot be asked what cameras exist, so every index is opened at
+once to find out, and the labels are positions rather than names. It takes a few seconds
+and lights the indicator of every camera it finds, so call it once and hold the result.
+A camera that is already in use, by the scanner or by another app, does not appear.
 
 ### Web Configuration
 
@@ -142,13 +137,12 @@ over it.
 
 ### Scanning from Images
 
-Use `scanImage` to scan barcodes from static images (gallery, screenshots, downloaded images) instead of the live camera feed:
+Use `scanImage` to scan barcodes from static images instead of the live camera feed:
 
 ```kotlin
 scanImage(
     imageBytes = imageBytes, // ByteArray of the image (PNG, JPEG)
     codeTypes = listOf(BarcodeFormat.FORMAT_ALL_FORMATS),
-    filter = { barcode -> true }, // Optional: filter detected barcodes
 ) { result ->
     when (result) {
         is BarcodeResult.OnSuccess -> {
@@ -190,22 +184,13 @@ CODABAR needs iOS 15.4 for the camera and iOS 15 for `scanImage`.
 
 **Web**
 
-Which of these are available is decided by the browser's `BarcodeDetector`.
+KScan asks for all of these. Which are actually decoded depends on the browser's
+`BarcodeDetector`, or on the polyfill where the browser has none.
 
 ## License
 
-```
-Copyright 2024 ismai117
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-```
+Apache 2.0. See [LICENSE.txt](LICENSE.txt).
 
 ## Contributing
-
-Contributions are welcome! Feel free to open issues or submit pull requests.
 
 Run `./gradlew spotlessApply` before pushing. If you change the public API on purpose, run `./gradlew :kscan:updateLegacyAbi` and commit the updated dump in `kscan/api`, or CI will fail.
