@@ -84,7 +84,7 @@ jobs:
           xcodebuild build \
           -project sample/iosApp/iosApp.xcodeproj \
           -configuration Debug \
-          -target iosApp \
+          -scheme iosApp \
           -sdk iphonesimulator \
           -arch arm64 \
           -derivedDataPath ./build
