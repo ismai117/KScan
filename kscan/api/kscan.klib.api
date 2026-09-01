@@ -1,5 +1,5 @@
 // Klib ABI Dump
-// Targets: [iosArm64, iosSimulatorArm64, wasmJs]
+// Targets: [iosArm64, iosSimulatorArm64, js, wasmJs]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -121,7 +121,7 @@ final fun org.ncgroup.kscan/org_ncgroup_kscan_CameraDevice$stableprop_getter(): 
 final fun org.ncgroup.kscan/org_ncgroup_kscan_ScannerController$stableprop_getter(): kotlin/Int // org.ncgroup.kscan/org_ncgroup_kscan_ScannerController$stableprop_getter|org_ncgroup_kscan_ScannerController$stableprop_getter(){}[0]
 final fun org.ncgroup.kscan/scanImage(kotlin/ByteArray, kotlin.collections/List<org.ncgroup.kscan/BarcodeFormat> = ..., kotlin/Function1<org.ncgroup.kscan/Barcode, kotlin/Boolean> = ..., kotlin/Function1<org.ncgroup.kscan/BarcodeResult, kotlin/Unit>) // org.ncgroup.kscan/scanImage|scanImage(kotlin.ByteArray;kotlin.collections.List<org.ncgroup.kscan.BarcodeFormat>;kotlin.Function1<org.ncgroup.kscan.Barcode,kotlin.Boolean>;kotlin.Function1<org.ncgroup.kscan.BarcodeResult,kotlin.Unit>){}[0]
 
-// Targets: [wasmJs]
+// Targets: [js, wasmJs]
 final object org.ncgroup.kscan/KScanWeb { // org.ncgroup.kscan/KScanWeb|null[0]
     final var barcodeDetectorPolyfillUrl // org.ncgroup.kscan/KScanWeb.barcodeDetectorPolyfillUrl|{}barcodeDetectorPolyfillUrl[0]
         final fun <get-barcodeDetectorPolyfillUrl>(): kotlin/String? // org.ncgroup.kscan/KScanWeb.barcodeDetectorPolyfillUrl.<get-barcodeDetectorPolyfillUrl>|<get-barcodeDetectorPolyfillUrl>(){}[0]
@@ -134,11 +134,11 @@ final object org.ncgroup.kscan/KScanWeb { // org.ncgroup.kscan/KScanWeb|null[0]
         final fun <set-zxingWasmUrl>(kotlin/String?) // org.ncgroup.kscan/KScanWeb.zxingWasmUrl.<set-zxingWasmUrl>|<set-zxingWasmUrl>(kotlin.String?){}[0]
 }
 
-// Targets: [wasmJs]
+// Targets: [js, wasmJs]
 final val org.ncgroup.kscan/org_ncgroup_kscan_KScanWeb$stableprop // org.ncgroup.kscan/org_ncgroup_kscan_KScanWeb$stableprop|#static{}org_ncgroup_kscan_KScanWeb$stableprop[0]
 
-// Targets: [wasmJs]
+// Targets: [js, wasmJs]
 final fun org.ncgroup.kscan/org_ncgroup_kscan_KScanWeb$stableprop_getter(): kotlin/Int // org.ncgroup.kscan/org_ncgroup_kscan_KScanWeb$stableprop_getter|org_ncgroup_kscan_KScanWeb$stableprop_getter(){}[0]
 
-// Targets: [wasmJs]
+// Targets: [js, wasmJs]
 final suspend fun org.ncgroup.kscan/availableCameras(): kotlin.collections/List<org.ncgroup.kscan/CameraDevice> // org.ncgroup.kscan/availableCameras|availableCameras(){}[0]

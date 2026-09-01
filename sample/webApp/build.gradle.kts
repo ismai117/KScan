@@ -7,6 +7,16 @@ plugins {
 }
 
 kotlin {
+    js {
+        outputModuleName.set("kscanSample")
+        browser {
+            commonWebpackConfig {
+                outputFileName = "kscanSample.js"
+            }
+        }
+        binaries.executable()
+    }
+
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         outputModuleName.set("kscanSample")
@@ -19,13 +29,11 @@ kotlin {
     }
 
     sourceSets {
-        val wasmJsMain by getting {
-            dependencies {
-                implementation(libs.compose.runtime)
-                implementation(libs.compose.foundation)
-                implementation(libs.compose.material3)
-                implementation(project(":sample:shared"))
-            }
+        commonMain.dependencies {
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.foundation)
+            implementation(libs.compose.material3)
+            implementation(project(":sample:shared"))
         }
     }
 }

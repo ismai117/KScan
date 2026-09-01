@@ -18,6 +18,10 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
             extensions.configure<KotlinMultiplatformExtension> {
                 jvm()
 
+                js {
+                    browser()
+                }
+
                 wasmJs {
                     browser()
                 }

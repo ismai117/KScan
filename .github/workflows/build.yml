@@ -155,8 +155,8 @@ jobs:
           name: desktop-linux-deb
           path: sample/desktopApp/build/compose/binaries/main/deb/*.deb
 
-  build-wasm:
-    name: Build Wasm
+  build-web:
+    name: Build Web
     runs-on: ubuntu-latest
     needs: test
     steps:
@@ -166,11 +166,17 @@ jobs:
       - name: Gradle setup
         uses: ./.github/actions/gradle-setup
 
-      - name: Build Wasm distribution
-        run: ./gradlew :sample:webApp:wasmJsBrowserDistribution
+      - name: Build web distributions
+        run: ./gradlew :sample:webApp:wasmJsBrowserDistribution :sample:webApp:jsBrowserDistribution
 
       - name: Upload Wasm app
         uses: actions/upload-artifact@v4
         with:
           name: wasm-app
           path: sample/webApp/build/dist/wasmJs/productionExecutable/
+
+      - name: Upload JS app
+        uses: actions/upload-artifact@v4
+        with:
+          name: js-app
+          path: sample/webApp/build/dist/js/productionExecutable/

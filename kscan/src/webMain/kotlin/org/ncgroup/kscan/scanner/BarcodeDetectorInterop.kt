@@ -98,23 +98,18 @@ internal fun detectFromVideoFrame(
     video: org.w3c.dom.HTMLVideoElement,
     debug: Boolean,
 ): Promise<JsArray<DetectedBarcode>> = js(
-    """(async () => {
-            const bitmap = await createImageBitmap(video);
+    """createImageBitmap(video).then((bitmap) => {
             if (debug && !video.__kscanLoggedFrame) {
                 video.__kscanLoggedFrame = true;
                 console.info('[KScan] frame ' + bitmap.width + 'x' + bitmap.height);
             }
-            try {
-                return await detector.detect(bitmap);
-            } finally {
-                bitmap.close();
-            }
-        })()""",
+            return detector.detect(bitmap).finally(() => bitmap.close());
+        })""",
 )
 
 // An empty mimeType leaves the browser to identify the format from the bytes.
 internal fun imageBitmapFromBase64(data: String, mimeType: String): Promise<JsAny> = js(
-    """(async () => {
+    """(() => {
             const binary = atob(data);
             const bytes = new Uint8Array(binary.length);
             for (let i = 0; i < binary.length; i++) {
@@ -123,7 +118,7 @@ internal fun imageBitmapFromBase64(data: String, mimeType: String): Promise<JsAn
             const blob = mimeType
                 ? new Blob([bytes], { type: mimeType })
                 : new Blob([bytes]);
-            return await createImageBitmap(blob);
+            return createImageBitmap(blob);
         })()""",
 )
 
