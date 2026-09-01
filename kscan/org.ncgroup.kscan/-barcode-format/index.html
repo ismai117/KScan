@@ -1,0 +1,434 @@
+<!doctype html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>BarcodeFormat</title>
+<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async></script>
+<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer></script></head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+<a class="library-name--link" href="../../../index.html" tabindex="1">
+                    KScan
+            </a>        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle" type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector common-like" data-active="" aria-pressed="true" data-filter=":kscan/commonMain">common</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox" data-role="dropdown-toggle" aria-controls="platform-tags-listbox" aria-haspopup="listbox" aria-expanded="false" aria-label="Toggle source sets"></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option common-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":kscan/commonMain" data-filter=":kscan/commonMain">
+                                <span class="checkbox--icon"></span>
+                                common
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button" type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config="{&quot;defaultSize&quot;: 280, &quot;minSize&quot;: 200, &quot;maxSize&quot;: 400}">
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list" data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    KScan
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" data-page-type="classlike" id="content" pageids="kscan::org.ncgroup.kscan/BarcodeFormat///PointingToDeclaration//1316688161">
+  <div class="breadcrumbs"><a href="../../index.html">kscan</a><span class="delimiter">/</span><a href="../index.html">org.ncgroup.kscan</a><span class="delimiter">/</span><span class="current">BarcodeFormat</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Barcode</span><wbr><span><span>Format</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kscan/commonMain"><div class="symbol monospace"><span class="token keyword">enum </span><a href="index.html">BarcodeFormat</a> : <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-enum/index.html">Enum</a><span class="token operator">&lt;</span><a href="index.html">BarcodeFormat</a><span class="token operator">&gt; </span></div><p class="paragraph">The formats <a href="../-scanner-view.html">ScannerView</a> and <a href="../scan-image.html">scanImage</a> can be asked to scan for.</p><p class="paragraph"><a href="-f-o-r-m-a-t_-a-l-l_-f-o-r-m-a-t-s/index.html">FORMAT_ALL_FORMATS</a> selects every format the platform supports. <a href="-t-y-p-e_-u-n-k-n-o-w-n/index.html">TYPE_UNKNOWN</a> is reported for a format the platform decoder does not map.</p></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button><button class="section-tab" data-togglable="ENTRY">Entries</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="ENTRY">
+        <h2 class="tableheader">Entries</h2>
+        <div class="table"><a data-name="-618116075%2FClasslikes%2F1316688161" anchor-label="FORMAT_CODE_128" id="-618116075%2FClasslikes%2F1316688161" data-filterable-set=":kscan/commonMain"></a>
+          <div class="table-row table-row_content" data-togglable="ENTRY" data-filterable-current=":kscan/commonMain" data-filterable-set=":kscan/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-f-o-r-m-a-t_-c-o-d-e_128/index.html">FORMAT_CODE_128</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-618116075%2FClasslikes%2F1316688161"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kscan/commonMain"><div class="symbol monospace"><div class="block"><a href="-f-o-r-m-a-t_-c-o-d-e_128/index.html">FORMAT_CODE_128</a></div></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1543369136%2FClasslikes%2F1316688161" anchor-label="FORMAT_CODE_39" id="1543369136%2FClasslikes%2F1316688161" data-filterable-set=":kscan/commonMain"></a>
+          <div class="table-row table-row_content" data-togglable="ENTRY" data-filterable-current=":kscan/commonMain" data-filterable-set=":kscan/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-f-o-r-m-a-t_-c-o-d-e_39/index.html">FORMAT_CODE_39</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1543369136%2FClasslikes%2F1316688161"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kscan/commonMain"><div class="symbol monospace"><div class="block"><a href="-f-o-r-m-a-t_-c-o-d-e_39/index.html">FORMAT_CODE_39</a></div></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1092570980%2FClasslikes%2F1316688161" anchor-label="FORMAT_CODE_93" id="1092570980%2FClasslikes%2F1316688161" data-filterable-set=":kscan/commonMain"></a>
+          <div class="table-row table-row_content" data-togglable="ENTRY" data-filterable-current=":kscan/commonMain" data-filterable-set=":kscan/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-f-o-r-m-a-t_-c-o-d-e_93/index.html">FORMAT_CODE_93</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1092570980%2FClasslikes%2F1316688161"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kscan/commonMain"><div class="symbol monospace"><div class="block"><a href="-f-o-r-m-a-t_-c-o-d-e_93/index.html">FORMAT_CODE_93</a></div></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2027370078%2FClasslikes%2F1316688161" anchor-label="FORMAT_CODABAR" id="-2027370078%2FClasslikes%2F1316688161" data-filterable-set=":kscan/commonMain"></a>
+          <div class="table-row table-row_content" data-togglable="ENTRY" data-filterable-current=":kscan/commonMain" data-filterable-set=":kscan/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-f-o-r-m-a-t_-c-o-d-a-b-a-r/index.html">FORMAT_CODABAR</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2027370078%2FClasslikes%2F1316688161"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kscan/commonMain"><div class="symbol monospace"><div class="block"><a href="-f-o-r-m-a-t_-c-o-d-a-b-a-r/index.html">FORMAT_CODABAR</a></div></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1384205055%2FClasslikes%2F1316688161" anchor-label="FORMAT_EAN_13" id="1384205055%2FClasslikes%2F1316688161" data-filterable-set=":kscan/commonMain"></a>
+          <div class="table-row table-row_content" data-togglable="ENTRY" data-filterable-current=":kscan/commonMain" data-filterable-set=":kscan/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-f-o-r-m-a-t_-e-a-n_13/index.html">FORMAT_EAN_13</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1384205055%2FClasslikes%2F1316688161"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kscan/commonMain"><div class="symbol monospace"><div class="block"><a href="-f-o-r-m-a-t_-e-a-n_13/index.html">FORMAT_EAN_13</a></div></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1236718621%2FClasslikes%2F1316688161" anchor-label="FORMAT_EAN_8" id="-1236718621%2FClasslikes%2F1316688161" data-filterable-set=":kscan/commonMain"></a>
+          <div class="table-row table-row_content" data-togglable="ENTRY" data-filterable-current=":kscan/commonMain" data-filterable-set=":kscan/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-f-o-r-m-a-t_-e-a-n_8/index.html">FORMAT_EAN_8</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1236718621%2FClasslikes%2F1316688161"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kscan/commonMain"><div class="symbol monospace"><div class="block"><a href="-f-o-r-m-a-t_-e-a-n_8/index.html">FORMAT_EAN_8</a></div></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1561457395%2FClasslikes%2F1316688161" anchor-label="FORMAT_ITF" id="1561457395%2FClasslikes%2F1316688161" data-filterable-set=":kscan/commonMain"></a>
+          <div class="table-row table-row_content" data-togglable="ENTRY" data-filterable-current=":kscan/commonMain" data-filterable-set=":kscan/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-f-o-r-m-a-t_-i-t-f/index.html">FORMAT_ITF</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1561457395%2FClasslikes%2F1316688161"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kscan/commonMain"><div class="symbol monospace"><div class="block"><a href="-f-o-r-m-a-t_-i-t-f/index.html">FORMAT_ITF</a></div></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1567954942%2FClasslikes%2F1316688161" anchor-label="FORMAT_UPC_A" id="-1567954942%2FClasslikes%2F1316688161" data-filterable-set=":kscan/commonMain"></a>
+          <div class="table-row table-row_content" data-togglable="ENTRY" data-filterable-current=":kscan/commonMain" data-filterable-set=":kscan/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-f-o-r-m-a-t_-u-p-c_-a/index.html">FORMAT_UPC_A</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1567954942%2FClasslikes%2F1316688161"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kscan/commonMain"><div class="symbol monospace"><div class="block"><a href="-f-o-r-m-a-t_-u-p-c_-a/index.html">FORMAT_UPC_A</a></div></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1858001158%2FClasslikes%2F1316688161" anchor-label="FORMAT_UPC_E" id="1858001158%2FClasslikes%2F1316688161" data-filterable-set=":kscan/commonMain"></a>
+          <div class="table-row table-row_content" data-togglable="ENTRY" data-filterable-current=":kscan/commonMain" data-filterable-set=":kscan/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-f-o-r-m-a-t_-u-p-c_-e/index.html">FORMAT_UPC_E</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1858001158%2FClasslikes%2F1316688161"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kscan/commonMain"><div class="symbol monospace"><div class="block"><a href="-f-o-r-m-a-t_-u-p-c_-e/index.html">FORMAT_UPC_E</a></div></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="791714243%2FClasslikes%2F1316688161" anchor-label="FORMAT_QR_CODE" id="791714243%2FClasslikes%2F1316688161" data-filterable-set=":kscan/commonMain"></a>
+          <div class="table-row table-row_content" data-togglable="ENTRY" data-filterable-current=":kscan/commonMain" data-filterable-set=":kscan/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-f-o-r-m-a-t_-q-r_-c-o-d-e/index.html">FORMAT_QR_CODE</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="791714243%2FClasslikes%2F1316688161"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kscan/commonMain"><div class="symbol monospace"><div class="block"><a href="-f-o-r-m-a-t_-q-r_-c-o-d-e/index.html">FORMAT_QR_CODE</a></div></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1788999224%2FClasslikes%2F1316688161" anchor-label="FORMAT_PDF417" id="1788999224%2FClasslikes%2F1316688161" data-filterable-set=":kscan/commonMain"></a>
+          <div class="table-row table-row_content" data-togglable="ENTRY" data-filterable-current=":kscan/commonMain" data-filterable-set=":kscan/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-f-o-r-m-a-t_-p-d-f417/index.html">FORMAT_PDF417</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1788999224%2FClasslikes%2F1316688161"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kscan/commonMain"><div class="symbol monospace"><div class="block"><a href="-f-o-r-m-a-t_-p-d-f417/index.html">FORMAT_PDF417</a></div></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="2070688273%2FClasslikes%2F1316688161" anchor-label="FORMAT_AZTEC" id="2070688273%2FClasslikes%2F1316688161" data-filterable-set=":kscan/commonMain"></a>
+          <div class="table-row table-row_content" data-togglable="ENTRY" data-filterable-current=":kscan/commonMain" data-filterable-set=":kscan/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-f-o-r-m-a-t_-a-z-t-e-c/index.html">FORMAT_AZTEC</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2070688273%2FClasslikes%2F1316688161"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kscan/commonMain"><div class="symbol monospace"><div class="block"><a href="-f-o-r-m-a-t_-a-z-t-e-c/index.html">FORMAT_AZTEC</a></div></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-663194834%2FClasslikes%2F1316688161" anchor-label="FORMAT_DATA_MATRIX" id="-663194834%2FClasslikes%2F1316688161" data-filterable-set=":kscan/commonMain"></a>
+          <div class="table-row table-row_content" data-togglable="ENTRY" data-filterable-current=":kscan/commonMain" data-filterable-set=":kscan/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-f-o-r-m-a-t_-d-a-t-a_-m-a-t-r-i-x/index.html">FORMAT_DATA_MATRIX</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-663194834%2FClasslikes%2F1316688161"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kscan/commonMain"><div class="symbol monospace"><div class="block"><a href="-f-o-r-m-a-t_-d-a-t-a_-m-a-t-r-i-x/index.html">FORMAT_DATA_MATRIX</a></div></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1434972746%2FClasslikes%2F1316688161" anchor-label="FORMAT_ALL_FORMATS" id="-1434972746%2FClasslikes%2F1316688161" data-filterable-set=":kscan/commonMain"></a>
+          <div class="table-row table-row_content" data-togglable="ENTRY" data-filterable-current=":kscan/commonMain" data-filterable-set=":kscan/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-f-o-r-m-a-t_-a-l-l_-f-o-r-m-a-t-s/index.html">FORMAT_ALL_FORMATS</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1434972746%2FClasslikes%2F1316688161"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kscan/commonMain"><div class="symbol monospace"><div class="block"><a href="-f-o-r-m-a-t_-a-l-l_-f-o-r-m-a-t-s/index.html">FORMAT_ALL_FORMATS</a></div></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="843342949%2FClasslikes%2F1316688161" anchor-label="TYPE_UNKNOWN" id="843342949%2FClasslikes%2F1316688161" data-filterable-set=":kscan/commonMain"></a>
+          <div class="table-row table-row_content" data-togglable="ENTRY" data-filterable-current=":kscan/commonMain" data-filterable-set=":kscan/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-t-y-p-e_-u-n-k-n-o-w-n/index.html">TYPE_UNKNOWN</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="843342949%2FClasslikes%2F1316688161"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kscan/commonMain"><div class="symbol monospace"><div class="block"><a href="-t-y-p-e_-u-n-k-n-o-w-n/index.html">TYPE_UNKNOWN</a></div></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="PROPERTY">
+        <h2 class="tableheader">Properties</h2>
+        <div class="table"><a data-name="-621975654%2FProperties%2F1316688161" anchor-label="entries" id="-621975654%2FProperties%2F1316688161" data-filterable-set=":kscan/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":kscan/commonMain" data-filterable-set=":kscan/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="entries.html"><span><span>entries</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-621975654%2FProperties%2F1316688161"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kscan/commonMain"><div class="symbol monospace"><span class="token keyword">val </span><a href="entries.html">entries</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.enums/-enum-entries/index.html">EnumEntries</a><span class="token operator">&lt;</span><a href="index.html">BarcodeFormat</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Returns a representation of an immutable list of all enum entries, in the order they're declared.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-372974862%2FProperties%2F1316688161" anchor-label="name" id="-372974862%2FProperties%2F1316688161" data-filterable-set=":kscan/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":kscan/commonMain" data-filterable-set=":kscan/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-t-y-p-e_-u-n-k-n-o-w-n/index.html#-372974862%2FProperties%2F1316688161"><span><span>name</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-372974862%2FProperties%2F1316688161"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kscan/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">val </span><a href="-t-y-p-e_-u-n-k-n-o-w-n/index.html#-372974862%2FProperties%2F1316688161">name</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-739389684%2FProperties%2F1316688161" anchor-label="ordinal" id="-739389684%2FProperties%2F1316688161" data-filterable-set=":kscan/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":kscan/commonMain" data-filterable-set=":kscan/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-t-y-p-e_-u-n-k-n-o-w-n/index.html#-739389684%2FProperties%2F1316688161"><span><span>ordinal</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-739389684%2FProperties%2F1316688161"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kscan/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">val </span><a href="-t-y-p-e_-u-n-k-n-o-w-n/index.html#-739389684%2FProperties%2F1316688161">ordinal</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="tableheader">Functions</h2>
+        <div class="table"><a data-name="663298114%2FFunctions%2F1316688161" anchor-label="valueOf" id="663298114%2FFunctions%2F1316688161" data-filterable-set=":kscan/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":kscan/commonMain" data-filterable-set=":kscan/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="value-of.html"><span>value</span><wbr><span><span>Of</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="663298114%2FFunctions%2F1316688161"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kscan/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="value-of.html"><span class="token function">valueOf</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">BarcodeFormat</a></div><div class="brief "><p class="paragraph">Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="181119182%2FFunctions%2F1316688161" anchor-label="values" id="181119182%2FFunctions%2F1316688161" data-filterable-set=":kscan/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":kscan/commonMain" data-filterable-set=":kscan/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="values.html"><span><span>values</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="181119182%2FFunctions%2F1316688161"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kscan/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="values.html"><span class="token function">values</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><a href="index.html">BarcodeFormat</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Returns an array containing the constants of this enum type, in the order they're declared.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>© 2026 Copyright</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
