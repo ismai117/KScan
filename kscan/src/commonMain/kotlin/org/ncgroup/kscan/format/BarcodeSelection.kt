@@ -19,7 +19,6 @@ internal fun List<Barcode>.firstMatching(
     filter: (Barcode) -> Boolean,
 ): Barcode? = firstOrNull { isRequestedFormat(it.format, codeTypes) && filter(it) }
 
-// Only the table belongs to a platform; every decoder is asked the same questions.
 internal class FormatMap<T>(private val toApp: Map<T, BarcodeFormat>) {
     private val fromApp: Map<BarcodeFormat, T> =
         toApp.entries.associateBy({ it.value }) { it.key }

@@ -91,7 +91,6 @@ internal class CameraViewController(
 
         setupMetadataOutput(metadataOutput)
         setupPreviewLayer()
-        // Starting is left to viewWillAppear, which also covers re-appearing.
     }
 
     private fun setupMetadataOutput(metadataOutput: AVCaptureMetadataOutput) {

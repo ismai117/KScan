@@ -37,7 +37,6 @@ internal object BarcodeFormatMapper {
     )
 
     fun toMlKitFormats(appFormats: List<BarcodeFormat>): Int {
-        // ML Kit's "everything" flag is not the union of the individual flags.
         if (wantsEveryFormat(appFormats)) return FORMAT_ALL_FORMATS
 
         return appFormats
