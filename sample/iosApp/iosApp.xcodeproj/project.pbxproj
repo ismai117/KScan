@@ -307,7 +307,6 @@
 				DEVELOPMENT_TEAM = 76SPPUL5YF;
 				ENABLE_PREVIEWS = YES;
 				"EXCLUDED_ARCHS[sdk=*]" = armv7;
-				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "arm64 !386";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)",
@@ -342,7 +341,6 @@
 				DEVELOPMENT_TEAM = 76SPPUL5YF;
 				ENABLE_PREVIEWS = YES;
 				"EXCLUDED_ARCHS[sdk=*]" = armv7;
-				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "arm64 !386";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)",
