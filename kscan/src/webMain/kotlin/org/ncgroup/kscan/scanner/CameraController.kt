@@ -43,7 +43,7 @@ internal fun startCamera(
     deviceId: String,
     debug: Boolean,
 ): Promise<JsAny?> = js(
-    """(async () => {
+    """(() => {
             // Restarting attaches a second stream, and the tracks behind the first
             // go on holding the camera unless they are stopped here.
             if (video.srcObject) {
@@ -52,9 +52,9 @@ internal fun startCamera(
             }
 
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                throw new Error(
+                return Promise.reject(new Error(
                     'Camera access requires a secure context (https or localhost)'
-                );
+                ));
             }
 
             // Without a resolution the browser hands back 640x480, which is too
@@ -72,54 +72,51 @@ internal fun startCamera(
             }
             const preferred = { video: constraints, audio: false };
 
-            let stream;
-            try {
-                stream = await navigator.mediaDevices.getUserMedia(preferred);
-            } catch (first) {
-                if (debug) {
-                    console.info(
-                        '[KScan] preferred constraints rejected (' + first.name +
-                        '), retrying with defaults'
-                    );
-                }
-                try {
-                    stream = await navigator.mediaDevices.getUserMedia({
-                        video: true,
-                        audio: false,
-                    });
-                } catch (second) {
-                    let cameras = 'unknown';
-                    try {
-                        const devices = await navigator.mediaDevices.enumerateDevices();
-                        cameras = devices.filter((d) => d.kind === 'videoinput').length;
-                    } catch (ignored) {
-                        // enumerateDevices can itself be blocked.
-                    }
+            const reportFailure = (second) => navigator.mediaDevices
+                .enumerateDevices()
+                .then(
+                    (devices) => devices.filter((d) => d.kind === 'videoinput').length,
+                    // enumerateDevices can itself be blocked.
+                    () => 'unknown'
+                )
+                .then((cameras) => {
                     throw new Error(
                         'Could not start the camera (' + second.name + '). ' +
                         'Video inputs visible to this browser: ' + cameras + '. ' +
                         'Check that no other tab or app is using the camera and ' +
                         'that camera access is allowed for this site.'
                     );
-                }
-            }
+                });
 
-            video.srcObject = stream;
-            await video.play();
-
-            const track = stream.getVideoTracks()[0];
-            // Ignored where unsupported; matters on phones with autofocus.
-            try {
-                await track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
-            } catch (ignored) {
-                // Focus control is optional.
-            }
-
-            const settings = track.getSettings ? track.getSettings() : {};
-            if (debug) console.info(
-                '[KScan] camera ' + settings.width + 'x' + settings.height +
-                ' @' + settings.frameRate + 'fps'
-            );
+            return navigator.mediaDevices
+                .getUserMedia(preferred)
+                .catch((first) => {
+                    if (debug) {
+                        console.info(
+                            '[KScan] preferred constraints rejected (' + first.name +
+                            '), retrying with defaults'
+                        );
+                    }
+                    return navigator.mediaDevices
+                        .getUserMedia({ video: true, audio: false })
+                        .catch(reportFailure);
+                })
+                .then((stream) => {
+                    video.srcObject = stream;
+                    return video.play().then(() => stream.getVideoTracks()[0]);
+                })
+                .then((track) => track
+                    // Ignored where unsupported; matters on phones with autofocus.
+                    .applyConstraints({ advanced: [{ focusMode: 'continuous' }] })
+                    // Focus control is optional.
+                    .catch(() => {})
+                    .then(() => {
+                        const settings = track.getSettings ? track.getSettings() : {};
+                        if (debug) console.info(
+                            '[KScan] camera ' + settings.width + 'x' + settings.height +
+                            ' @' + settings.frameRate + 'fps'
+                        );
+                    }));
         })()""",
 )
 
@@ -159,28 +156,29 @@ internal fun cameraCapabilities(video: HTMLVideoElement): CameraCapabilities = j
 // Answers whether the track took it: applying torch to a camera that has none
 // rejects, and the caller asked for a torch, not for a failed scan.
 internal fun applyTorch(video: HTMLVideoElement, enabled: Boolean): Promise<JsBoolean> = js(
-    """(async () => {
+    """(() => {
             const stream = video.srcObject;
             const track = stream ? stream.getVideoTracks()[0] : null;
-            if (!track || !track.getCapabilities) return false;
-            if (track.getCapabilities().torch !== true) return false;
+            if (!track || !track.getCapabilities) return Promise.resolve(false);
+            if (track.getCapabilities().torch !== true) return Promise.resolve(false);
 
-            await track.applyConstraints({ advanced: [{ torch: enabled }] });
-            return true;
+            return track
+                .applyConstraints({ advanced: [{ torch: enabled }] })
+                .then(() => true);
         })()""",
 )
 
 // ratio is a multiple of the track's minimum zoom, matching the 1f..maxZoomRatio
 // range ScannerController exposes.
 internal fun applyZoom(video: HTMLVideoElement, ratio: Double): Promise<JsAny?> = js(
-    """(async () => {
+    """(() => {
             const stream = video.srcObject;
             const track = stream ? stream.getVideoTracks()[0] : null;
-            if (!track || !track.getCapabilities) return;
+            if (!track || !track.getCapabilities) return Promise.resolve();
             const zoom = track.getCapabilities().zoom;
-            if (!zoom) return;
+            if (!zoom) return Promise.resolve();
             const target = Math.min(Math.max(zoom.min * ratio, zoom.min), zoom.max);
-            await track.applyConstraints({ advanced: [{ zoom: target }] });
+            return track.applyConstraints({ advanced: [{ zoom: target }] });
         })()""",
 )
 

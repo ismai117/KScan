@@ -12,12 +12,11 @@ private external interface JsCameraDevice : JsAny {
 }
 
 private fun enumerateCameras(): Promise<JsArray<JsCameraDevice>> = js(
-    """(async () => {
-            const devices = await navigator.mediaDevices.enumerateDevices();
-            return devices
-                .filter((device) => device.kind === 'videoinput')
-                .map((device) => ({ id: device.deviceId, label: device.label }));
-        })()""",
+    """navigator.mediaDevices.enumerateDevices().then((devices) => devices
+            .filter((device) => device.kind === 'videoinput')
+            .map(function (device) {
+                return { id: device.deviceId, label: device.label };
+            }))""",
 )
 
 /**
