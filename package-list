@@ -1,5 +1,5 @@
 $dokka.format:html-v1
 $dokka.linkExtension:html
-$dokka.location:org.ncgroup.kscan//availableCameras/#/PointingToDeclaration/kscan/org.ncgroup.kscan/[wasm-js]available-cameras.html
+$dokka.location:org.ncgroup.kscan//availableCameras/#/PointingToDeclaration/kscan/org.ncgroup.kscan/[web]available-cameras.html
 module:kscan
 org.ncgroup.kscan
