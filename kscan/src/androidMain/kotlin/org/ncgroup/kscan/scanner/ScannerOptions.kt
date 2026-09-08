@@ -7,10 +7,10 @@ import zxingcpp.BarcodeReader
 /**
  * The decoder settings the library scans with.
  *
- * The three retries are what close most of the gap to a machine-learning
- * detector on awkward frames, and the local-average binarizer is what carries
- * unevenly lit ones; the benchmark in `:benchmark` measures each of these
- * choices against the alternatives.
+ * `tryHarder` and the three retries are what close most of the gap to a
+ * machine-learning detector on awkward frames, and the local-average binarizer
+ * is what carries unevenly lit ones. The benchmark in `:benchmark` measures each
+ * of these against its alternative, including a run with the retries off.
  */
 internal fun barcodeReaderOptions(codeTypes: List<BarcodeFormat>): BarcodeReader.Options = BarcodeReader.Options(
     formats = BarcodeFormatMapper.toZxingCppFormats(codeTypes),

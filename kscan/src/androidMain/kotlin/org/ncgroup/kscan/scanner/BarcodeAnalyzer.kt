@@ -48,7 +48,9 @@ internal class BarcodeAnalyzer(
             try {
                 imageProxy.use { decode(it) }
             } catch (e: Exception) {
-                if (!closed) callbackExecutor.execute { onFailed(e) }
+                // Checked on the callback thread rather than here: this runnable
+                // is queued, and the caller can leave before it runs.
+                callbackExecutor.execute { if (!closed) onFailed(e) }
                 return
             }
 
@@ -74,7 +76,13 @@ internal class BarcodeAnalyzer(
                 return emptyList()
             }
 
-        return requested(reader.read(negative, Rect(), imageProxy.imageInfo.rotationDegrees))
+        // A failure on the inverted pass is dropped for the same reason the
+        // inversion itself is: the frame already held no barcode either way.
+        return try {
+            requested(reader.read(negative, Rect(), imageProxy.imageInfo.rotationDegrees))
+        } catch (_: Exception) {
+            emptyList()
+        }
     }
 
     private fun requested(results: List<BarcodeReader.Result>): List<Barcode> = results

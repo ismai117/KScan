@@ -58,5 +58,7 @@ changes raise the minor version.
 
 ### Fixed
 
-- The Android detector is closed when scanning stops. Both the camera and the
-  still-image path leaked ML Kit's, the latter once per `scanImage` call.
+- The still-image path no longer leaks a decoder on every `scanImage` call. That was
+  ML Kit's, which Android no longer uses; the reader replacing it holds no native
+  handle to close.
+
