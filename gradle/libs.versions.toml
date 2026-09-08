@@ -18,6 +18,11 @@ ktlint = "1.8.0"
 composeRules = "0.6.4"
 maven-publish = "0.37.0"
 mlkitBarcodeScanning-android = "17.3.0"
+zxingcpp = "3.1.1"
+androidx-test-junit = "1.3.0"
+androidx-test-runner = "1.7.0"
+androidx-test-services = "1.6.0"
+junit = "4.13.2"
 moko = "0.20.1"
 zxing = "3.5.4"
 material3 = "1.10.0-alpha05"
@@ -33,6 +38,7 @@ androidx-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", nam
 androidx-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 
 android-mlkitBarcodeScanning = { module = "com.google.mlkit:barcode-scanning", version.ref = "mlkitBarcodeScanning-android" }
+android-zxingcpp = { module = "io.github.zxing-cpp:android", version.ref = "zxingcpp" }
 
 androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "androidx-camera" }
 androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "androidx-camera" }
@@ -59,12 +65,18 @@ composeRules-ktlint = { module = "io.nlopez.compose.rules:ktlint", version.ref =
 zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
 javacv = { module = "org.bytedeco:javacv", version.ref = "javacv" }
 opencv-platform = { module = "org.bytedeco:opencv-platform", version.ref = "opencv" }
+junit = { module = "junit:junit", version.ref = "junit" }
+androidx-test-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-test-junit" }
+androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidx-test-runner" }
+androidx-test-services = { module = "androidx.test.services:test-services", version.ref = "androidx-test-services" }
+androidx-test-storage = { module = "androidx.test.services:storage", version.ref = "androidx-test-services" }
 
 [bundles]
 camera = ["androidx-camera-core", "androidx-camera-lifecycle", "androidx-camera-camera2", "androidx-camera-view", "androidx-camera-extensions"]
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
+androidLibrary = { id = "com.android.library", version.ref = "agp" }
 androidKmpLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 
 compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose" }

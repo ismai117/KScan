@@ -23,6 +23,7 @@ dependencyResolutionManagement {
 rootProject.name = "KScan"
 
 include(":kscan")
+include(":benchmark")
 include(":sample:shared")
 include(":sample:androidApp")
 include(":sample:desktopApp")
