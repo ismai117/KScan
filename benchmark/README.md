@@ -37,6 +37,27 @@ The report lands in
 `build/outputs/connected_android_test_additional_output/`, as `decoders.md` and
 `decoders.csv`.
 
+## One frame or one second
+
+`DecoderComparisonTest` scores a single frame, which overstates what a user
+notices: a scanner sees about thirty frames a second and stops at the first one
+it reads, so a condition read three times in ten is not a condition that fails.
+`MultiFrameTest` replays every scene as a second of hand-held video and records
+the frame each decoder first read it on, which separates a condition that is
+merely noisy from one that is genuinely unreadable.
+
+The jitter is deliberately small, and `Jitter` documents why: it models someone
+holding a phone still, not someone re-aiming it. Widened far enough, a barcode
+staged at 30 degrees would drift through 15 and be read, and the jitter would be
+answering the question instead of the decoder. Vignetting stays fixed to the
+sensor because it belongs to the lens; a shadow travels with the label it falls
+on; a specular highlight travels at twice that, because it tracks the bisector of
+the light and the camera.
+
+What it still does not model is focus. The camera holds one focus for the whole
+second, so a defocused scene never resolves, where a real one would hunt and
+find it.
+
 ## Looking at the frames
 
 The corpus is only worth what its frames are, so they can be written out and

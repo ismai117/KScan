@@ -5,6 +5,11 @@ package org.ncgroup.kscan.benchmark.corpus
  *
  * [sizeFraction] is the share of the frame the symbol spans, which stands in for
  * distance; [degrade] is everything the optics and the light do to it.
+ *
+ * A degradation is handed the frame's [Jitter] because not everything it models
+ * is nailed to the sensor. Vignetting is, being a property of the lens; a shadow
+ * travels with the label it falls on, and a specular highlight travels faster
+ * than either.
  */
 class Condition(
     val name: String,
@@ -12,7 +17,7 @@ class Condition(
     val sizeFraction: Double = DEFAULT_SIZE_FRACTION,
     val foreground: Int = BLACK,
     val background: Int = WHITE,
-    val degrade: (Frame) -> Frame = { it },
+    val degrade: Degradation = { frame, _ -> frame },
 ) {
     override fun toString(): String = name
 
@@ -21,35 +26,38 @@ class Condition(
     }
 }
 
-private fun rotated(degrees: Double): (Frame) -> Frame = { frame ->
+/** What a condition does to a frame, given how the camera was moving for it. */
+typealias Degradation = (Frame, Jitter) -> Frame
+
+private fun rotated(degrees: Double): Degradation = { frame, _ ->
     ImageOps.warp(frame, ImageOps.rotation(frame.width, frame.height, degrees), WHITE)
 }
 
 private fun tilted(
     yaw: Double,
     pitch: Double,
-): (Frame) -> Frame = { frame ->
+): Degradation = { frame, _ ->
     ImageOps.warp(frame, ImageOps.tilt(frame.width, frame.height, yaw, pitch), WHITE)
 }
 
-private fun lit(field: (Frame) -> ((Int, Int) -> Double)): (Frame) -> Frame = { frame ->
-    ImageOps.illuminate(frame, field(frame))
+private fun lit(field: (Frame, Jitter) -> ((Int, Int) -> Double)): Degradation = { frame, jitter ->
+    ImageOps.illuminate(frame, field(frame, jitter))
 }
 
-private fun gain(factor: Double): (Frame) -> Frame = lit { { _, _ -> factor } }
+private fun gain(factor: Double): Degradation = lit { _, _ -> { _, _ -> factor } }
 
-private fun added(field: (Frame) -> ((Int, Int) -> Double)): (Frame) -> Frame = { frame ->
-    ImageOps.addLight(frame, field(frame))
+private fun added(field: (Frame, Jitter) -> ((Int, Int) -> Double)): Degradation = { frame, jitter ->
+    ImageOps.addLight(frame, field(frame, jitter))
 }
 
-private fun blurred(radius: Int): (Frame) -> Frame = { frame -> ImageOps.blur(frame, radius) }
+private fun blurred(radius: Int): Degradation = { frame, _ -> ImageOps.blur(frame, radius) }
 
 private fun noisy(
     sigma: Double,
     seed: Long,
-): (Frame) -> Frame = { frame -> ImageOps.noise(frame, sigma, seed) }
+): Degradation = { frame, _ -> ImageOps.noise(frame, sigma, seed) }
 
-private infix fun ((Frame) -> Frame).then(next: (Frame) -> Frame): (Frame) -> Frame = { frame -> next(this(frame)) }
+private infix fun Degradation.then(next: Degradation): Degradation = { frame, jitter -> next(this(frame, jitter), jitter) }
 
 /**
  * The conditions every format is put through.
@@ -91,22 +99,30 @@ object Conditions {
             Condition(
                 name = "light-over-exposed",
                 group = "lighting",
-                degrade = added { { _, _ -> 110.0 } },
+                degrade = added { _, _ -> { _, _ -> 110.0 } },
             ),
             Condition(
                 name = "light-ramp",
                 group = "lighting",
-                degrade = lit { frame -> ramp(frame.width, 0.22, 1.35) },
+                degrade = lit { frame, jitter -> ramp(frame.width, 0.22, 1.35, shift = jitter.dx) },
             ),
             Condition(
                 name = "light-vignette",
                 group = "lighting",
-                degrade = lit { frame -> vignette(frame.width, frame.height, 0.25) },
+                // Vignetting belongs to the lens, so it alone stays put while the scene moves.
+                degrade = lit { frame, _ -> vignette(frame.width, frame.height, 0.25) },
             ),
             Condition(
                 name = "light-glare",
                 group = "lighting",
-                degrade = added { frame -> glare(frame.width / 2, frame.height / 2, frame.height * 0.30, 210.0) },
+                degrade = added { frame, jitter ->
+                    glare(
+                        centerX = (frame.width / 2 + jitter.lightShiftX).toInt(),
+                        centerY = (frame.height / 2 + jitter.lightShiftY).toInt(),
+                        radius = frame.height * 0.30,
+                        peak = 210.0,
+                    )
+                },
             ),
             // Ink and substrate.
             Condition(
@@ -163,7 +179,14 @@ object Conditions {
                 group = "combined",
                 degrade =
                 rotated(35.0) then
-                    added { frame -> glare(frame.width / 2, frame.height / 2, frame.height * 0.35, 170.0) } then
+                    added { frame, jitter ->
+                        glare(
+                            centerX = (frame.width / 2 + jitter.lightShiftX).toInt(),
+                            centerY = (frame.height / 2 + jitter.lightShiftY).toInt(),
+                            radius = frame.height * 0.35,
+                            peak = 170.0,
+                        )
+                    } then
                     blurred(2),
             ),
         )

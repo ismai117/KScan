@@ -42,12 +42,19 @@ class Sample(
     /** Whether [text] is the payload this sample was drawn from. */
     fun matches(text: String?): Boolean = text != null && specimen.accepts(text)
 
-    fun render(): Frame {
+    /**
+     * The frame as the camera would see it.
+     *
+     * [jitter] is the camera's own movement, so it aims before the scene's own
+     * degradations act and its sensor noise lands after them. The default renders
+     * the single canonical frame, unchanged.
+     */
+    fun render(jitter: Jitter = Jitter.NONE): Frame {
         val scale = pixelsPerModule
         val symbol = BarcodeCorpus.rasterise(matrix, scale, condition.foreground, condition.background)
         val placed = BarcodeCorpus.centre(symbol, condition.background)
 
-        return condition.degrade(placed)
+        return jitter.expose(condition.degrade(jitter.aim(placed), jitter))
     }
 }
 

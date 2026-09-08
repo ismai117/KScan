@@ -418,12 +418,21 @@ fun vignette(
     }
 }
 
-/** A linear ramp across the frame, from [start] on the left to [end] on the right. */
+/**
+ * A linear ramp across the frame, from [start] on the left to [end] on the right.
+ *
+ * [shift] moves it with the scene, since a shadow or a side light falls on the
+ * label rather than on the sensor and travels with it when the camera moves.
+ */
 fun ramp(
     width: Int,
     start: Double,
     end: Double,
-): (Int, Int) -> Double = { x, _ -> start + (end - start) * x / (width - 1).toDouble() }
+    shift: Double = 0.0,
+): (Int, Int) -> Double = { x, _ ->
+    val position = ((x - shift) / (width - 1)).coerceIn(0.0, 1.0)
+    start + (end - start) * position
+}
 
 /**
  * A blown-out highlight, as a reflection off a glossy label, peaking at [peak]
