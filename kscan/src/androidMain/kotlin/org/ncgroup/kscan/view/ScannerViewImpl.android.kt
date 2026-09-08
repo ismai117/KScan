@@ -38,7 +38,8 @@ import org.ncgroup.kscan.BarcodeResult
 import org.ncgroup.kscan.ScannerController
 import org.ncgroup.kscan.scanner.BarcodeAnalyzer
 import org.ncgroup.kscan.scanner.MAX_ZOOM_RATIO
-import org.ncgroup.kscan.scanner.barcodeScannerOptions
+import org.ncgroup.kscan.scanner.barcodeReaderOptions
+import java.util.concurrent.Executors
 
 @Composable
 internal actual fun ScannerViewImpl(
@@ -47,7 +48,6 @@ internal actual fun ScannerViewImpl(
     @Suppress("UNUSED_PARAMETER") cameraId: String?,
     scannerController: ScannerController?,
     filter: (Barcode) -> Boolean,
-    autoZoom: Boolean,
     result: (BarcodeResult) -> Unit,
 ) {
     val context = LocalContext.current
@@ -141,17 +141,23 @@ internal actual fun ScannerViewImpl(
             .build()
     }
 
-    // Both the decoder's formats and auto zoom are fixed when the analyzer is
-    // built, so a caller changing either gets a new one bound to the same preview.
-    DisposableEffect(provider, codeTypes, autoZoom) {
+    val callbackExecutor = remember(context) { ContextCompat.getMainExecutor(context) }
+
+    // The decoder's formats are fixed when the analyzer is built, so a caller
+    // changing them gets a new one bound to the same preview.
+    DisposableEffect(provider, codeTypes) {
+        // zxing-cpp decodes on the thread that calls it, so analysis gets one of
+        // its own and hands its results back to the main executor, which is where
+        // a caller's filter and result have always been called. It is owned by
+        // this effect so that it is only ever shut down after the analyzer that
+        // runs on it has been detached.
+        val analysisExecutor = Executors.newSingleThreadExecutor { Thread(it, "kscan-analysis") }
+
         val barcodeAnalyzer = provider?.let {
             BarcodeAnalyzer(
                 codeTypes = codeTypes,
-                scannerOptions = barcodeScannerOptions(
-                    codeTypes = codeTypes,
-                    autoZoom = autoZoom,
-                    getCamera = { camera },
-                ),
+                options = barcodeReaderOptions(codeTypes),
+                callbackExecutor = callbackExecutor,
                 onSuccess = { scannedBarcodes ->
                     frozenFrame = previewView.bitmap?.asImageBitmap()
                     provider.unbindAll()
@@ -164,10 +170,7 @@ internal actual fun ScannerViewImpl(
         }
 
         if (provider != null && barcodeAnalyzer != null) {
-            imageAnalysis.setAnalyzer(
-                ContextCompat.getMainExecutor(context),
-                barcodeAnalyzer,
-            )
+            imageAnalysis.setAnalyzer(analysisExecutor, barcodeAnalyzer)
 
             camera = bindCamera(
                 lifecycleOwner = lifecycleOwner,
@@ -186,6 +189,7 @@ internal actual fun ScannerViewImpl(
             imageAnalysis.clearAnalyzer()
             barcodeAnalyzer?.close()
             provider?.unbindAll()
+            analysisExecutor.shutdown()
 
             camera = null
             cameraControl = null

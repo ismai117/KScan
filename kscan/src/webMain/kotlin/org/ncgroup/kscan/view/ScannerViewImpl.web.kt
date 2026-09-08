@@ -46,7 +46,6 @@ internal actual fun ScannerViewImpl(
     cameraId: String?,
     scannerController: ScannerController?,
     filter: (Barcode) -> Boolean,
-    autoZoom: Boolean,
     result: (BarcodeResult) -> Unit,
 ) {
     val updatedResult by rememberUpdatedState(result)
