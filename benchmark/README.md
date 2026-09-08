@@ -37,6 +37,20 @@ The report lands in
 `build/outputs/connected_android_test_additional_output/`, as `decoders.md` and
 `decoders.csv`.
 
+## Looking at the frames
+
+The corpus is only worth what its frames are, so they can be written out and
+browsed:
+
+```
+./gradlew :benchmark:testDebugUnitTest -Dkscan.corpus.dump=true
+```
+
+That writes 468 PNGs to `build/reports/benchmark/corpus`, one directory per
+condition, with an `index.html` laying them out by condition and noting how many
+pixels per module each one came out at. It is off by default because it costs more
+than the rest of the suite put together.
+
 ## Reading the results
 
 A decode is scored as one of three outcomes. `HIT` is the expected payload,

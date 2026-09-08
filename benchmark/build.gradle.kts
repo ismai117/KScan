@@ -32,6 +32,12 @@ android {
     }
 }
 
+// Read through a provider so the configuration cache tracks it and a run with the
+// dump asked for is not served a cached one without it.
+tasks.withType<Test>().configureEach {
+    systemProperty("kscan.corpus.dump", providers.systemProperty("kscan.corpus.dump").getOrElse("false"))
+}
+
 dependencies {
     // The corpus is generated rather than checked in, so the writers are a main
     // dependency; the reader is only used by the host-side baseline.
