@@ -23,6 +23,15 @@ class Frame(
     }
 }
 
+/**
+ * What a warp should show where it has no scene to draw.
+ *
+ * The symbol is centred with a wide quiet zone, so the corner is the background
+ * it was rendered on. Taking it from the frame keeps an inverted or coloured
+ * scene from gaining a white wedge when the camera moves.
+ */
+fun Frame.backgroundColour(): Int = this[0, 0]
+
 const val BLACK: Int = 0xFF000000.toInt()
 const val WHITE: Int = 0xFFFFFFFF.toInt()
 

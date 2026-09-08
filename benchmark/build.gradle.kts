@@ -35,7 +35,9 @@ android {
 // Read through a provider so the configuration cache tracks it and a run with the
 // dump asked for is not served a cached one without it.
 tasks.withType<Test>().configureEach {
-    systemProperty("kscan.corpus.dump", providers.systemProperty("kscan.corpus.dump").getOrElse("false"))
+    listOf("kscan.corpus.dump", "kscan.corpus.dir").forEach { name ->
+        providers.systemProperty(name).orNull?.let { systemProperty(name, it) }
+    }
 }
 
 dependencies {

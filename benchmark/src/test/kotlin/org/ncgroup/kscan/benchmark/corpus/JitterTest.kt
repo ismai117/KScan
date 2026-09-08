@@ -64,6 +64,32 @@ class JitterTest {
     }
 
     @Test
+    fun `GIVEN one scene THEN its roll is tremor about zero rather than a fixed offset`() {
+        // java.util.Random only XORs its seed, so consecutive frame numbers used
+        // as seeds hand back nearly the same first value. Drawn that way a scene
+        // sat at a constant roll of about a degree, which is a staged angle and
+        // not the tremor this claims to model.
+        val scenes = BarcodeCorpus.SAMPLES.take(120).map { it.id.hashCode().toLong() }
+
+        val allOneSign = scenes.count { seed ->
+            val rolls = (0 until 30).map { Jitter.handHeld(seed, it).rotationDegrees }
+            rolls.all { it > 0.0 } || rolls.all { it < 0.0 }
+        }
+
+        assertEquals("Scenes whose every frame rolled the same way", 0, allOneSign)
+    }
+
+    @Test
+    fun `GIVEN many frames THEN the roll matches the sigma it documents`() {
+        val rolls = (0 until 4000).map { Jitter.handHeld(seed = 12, frame = it).rotationDegrees }
+        val mean = rolls.average()
+        val sigma = kotlin.math.sqrt(rolls.sumOf { (it - mean) * (it - mean) } / rolls.size)
+
+        assertEquals(0.0, mean, 0.12)
+        assertEquals(Jitter.ROTATION_SIGMA, sigma, 0.12)
+    }
+
+    @Test
     fun `GIVEN hand tremor THEN it stays small enough not to re-aim the camera`() {
         // The result would be the model's rather than the decoder's if a frame
         // could drift far enough to turn one rotation condition into another.

@@ -125,7 +125,7 @@ class MultiFrameTest(
             builder.appendLine("- **Device**: ${Build.MANUFACTURER} ${Build.MODEL}, API ${Build.VERSION.SDK_INT}")
             builder.appendLine("- **Scenes**: ${BarcodeCorpus.SAMPLES.size}, replayed as $FRAMES frames each")
             builder.appendLine(
-                "- **Jitter**: ${Jitter.ROTATION_SIGMA}' rotation, ${Jitter.TRANSLATION_SIGMA}px shift, " +
+                "- **Jitter**: ${Jitter.ROTATION_SIGMA} degrees of roll, ${Jitter.TRANSLATION_SIGMA}px shift, " +
                     "${(Jitter.EXPOSURE_SIGMA * 100).toInt()}% exposure, ${Jitter.READ_NOISE_SIGMA} read noise, all one sigma",
             )
             builder.appendLine("- A scene counts as read when a decoder returns the expected payload on any frame.").appendLine()

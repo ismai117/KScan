@@ -6,7 +6,10 @@ if [ -z "$CHANGED_FILES" ]; then
   exit 0
 fi
 
-echo "Running spotlessApply over these files:"
+# Spotless has no staged-files mode, so this formats the whole tree and then
+# re-stages only what was already staged. Unstaged files may be reformatted on
+# disk as a side effect, which is what running spotlessApply by hand would do.
+echo "Running spotlessApply. Staged Kotlin files to be restaged:"
 echo "$CHANGED_FILES"
 
 if ! ./gradlew --quiet spotlessApply; then

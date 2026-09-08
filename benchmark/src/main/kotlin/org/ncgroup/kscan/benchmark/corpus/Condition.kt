@@ -30,14 +30,14 @@ class Condition(
 typealias Degradation = (Frame, Jitter) -> Frame
 
 private fun rotated(degrees: Double): Degradation = { frame, _ ->
-    ImageOps.warp(frame, ImageOps.rotation(frame.width, frame.height, degrees), WHITE)
+    ImageOps.warp(frame, ImageOps.rotation(frame.width, frame.height, degrees), frame.backgroundColour())
 }
 
 private fun tilted(
     yaw: Double,
     pitch: Double,
 ): Degradation = { frame, _ ->
-    ImageOps.warp(frame, ImageOps.tilt(frame.width, frame.height, yaw, pitch), WHITE)
+    ImageOps.warp(frame, ImageOps.tilt(frame.width, frame.height, yaw, pitch), frame.backgroundColour())
 }
 
 private fun lit(field: (Frame, Jitter) -> ((Int, Int) -> Double)): Degradation = { frame, jitter ->

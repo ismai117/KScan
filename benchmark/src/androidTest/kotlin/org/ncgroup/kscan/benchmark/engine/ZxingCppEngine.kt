@@ -18,15 +18,21 @@ class ZxingCppEngine(
 
     companion object {
         /**
-         * What KScan will ship: every format, and the three retries that stand in
-         * for the frame inversion and rotation handling ML Kit does internally.
+         * What KScan ships, and it has to stay that way for the numbers to mean
+         * anything.
+         *
+         * The format set is the thirteen KScan exposes rather than an empty set:
+         * empty asks zxing-cpp for every symbology it knows, DataBar and MaxiCode
+         * and the rest, which costs time and offers misreads the library could
+         * never make.
          */
         fun kscanOptions(): BarcodeReader.Options = BarcodeReader.Options(
-            formats = emptySet(),
+            formats = FORMATS.keys,
             tryHarder = true,
             tryRotate = true,
             tryInvert = true,
             tryDownscale = true,
+            binarizer = BarcodeReader.Binarizer.LOCAL_AVERAGE,
             textMode = BarcodeReader.TextMode.PLAIN,
         )
 

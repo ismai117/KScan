@@ -106,6 +106,15 @@ class DecoderComparisonTest(
                     "zxing-cpp/1-line",
                     ZxingCppEngine.kscanOptions().copy(minLineCount = 1),
                 ),
+                ZxingCppEngine(
+                    "zxing-cpp/no-retries",
+                    ZxingCppEngine.kscanOptions().copy(
+                        tryHarder = false,
+                        tryRotate = false,
+                        tryInvert = false,
+                        tryDownscale = false,
+                    ),
+                ),
             )
         }
 

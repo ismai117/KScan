@@ -43,7 +43,7 @@ data class Jitter(
         val rotation = ImageOps.rotation(frame.width, frame.height, rotationDegrees)
         val translation = Matrix3.of(1.0, 0.0, dx, 0.0, 1.0, dy, 0.0, 0.0, 1.0)
 
-        return ImageOps.warp(frame, translation * rotation, WHITE)
+        return ImageOps.warp(frame, translation * rotation, frame.backgroundColour())
     }
 
     /** The sensor's own variation, which lands after whatever the scene did. */
@@ -65,7 +65,7 @@ data class Jitter(
             seed: Long,
             frame: Int,
         ): Jitter {
-            val random = Random(seed * 1_000L + frame)
+            val random = Random(mix(seed * 31L + frame))
 
             return Jitter(
                 rotationDegrees = random.nextGaussian() * ROTATION_SIGMA,
@@ -91,5 +91,21 @@ data class Jitter(
 
         /** A highlight moves at twice the rate of the surface it sits on. */
         const val SPECULAR_GAIN: Double = 2.0
+
+        /**
+         * Scrambles the seed before the generator sees it.
+         *
+         * `java.util.Random` only XORs its seed, so seeds one apart, which is what
+         * consecutive frames of one scene produce, hand back nearly the same first
+         * value. Drawn straight, a scene's roll would come out as a fixed offset
+         * of about a degree rather than as tremor about the angle it was staged
+         * at, and the replay would not be measuring what it says it measures.
+         */
+        private fun mix(value: Long): Long {
+            var z = value + -0x61c8864680b583ebL
+            z = (z xor (z ushr 30)) * -0x40a7b892e31b1a47L
+            z = (z xor (z ushr 27)) * -0x6b2fb644ecceee15L
+            return z xor (z ushr 31)
+        }
     }
 }

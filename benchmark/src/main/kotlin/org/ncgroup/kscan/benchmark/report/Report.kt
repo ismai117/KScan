@@ -160,7 +160,7 @@ object Report {
                     if (difference <= -REGRESSION_THRESHOLD) Triple(key, baselineRate, engineRate) else null
                 }.sortedBy { it.third - it.second }
 
-        builder.appendLine("## Where $engine reads a frame $baseline reads").appendLine()
+        builder.appendLine("## Where $engine does not read a frame $baseline reads").appendLine()
 
         if (rows.isEmpty()) {
             builder.appendLine("None.").appendLine()
