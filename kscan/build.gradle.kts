@@ -38,7 +38,7 @@ kotlin {
 
     sourceSets {
         androidMain.dependencies {
-            implementation(libs.android.mlkitBarcodeScanning)
+            implementation(libs.android.zxingcpp)
             implementation(libs.bundles.camera)
         }
         commonMain.dependencies {

@@ -17,7 +17,7 @@ spotless = "8.10.0"
 ktlint = "1.8.0"
 composeRules = "0.6.4"
 maven-publish = "0.37.0"
-mlkitBarcodeScanning-android = "17.3.0"
+zxingcpp = "3.1.1"
 moko = "0.20.1"
 zxing = "3.5.4"
 material3 = "1.10.0-alpha05"
@@ -32,7 +32,7 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 androidx-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 
-android-mlkitBarcodeScanning = { module = "com.google.mlkit:barcode-scanning", version.ref = "mlkitBarcodeScanning-android" }
+android-zxingcpp = { module = "io.github.zxing-cpp:android", version.ref = "zxingcpp" }
 
 androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "androidx-camera" }
 androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "androidx-camera" }

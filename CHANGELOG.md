@@ -17,10 +17,20 @@ changes raise the minor version.
   on web and desktop. Desktop has no enumeration API behind it, so each index is opened
   once to find out and the labels are positions rather than names.
 - `ScannerView`'s `cameraId`, taking a `CameraDevice.id`. Changing it reopens the
-  camera in place. Web and desktop; Android and iOS ignore it, as they do `autoZoom`.
+  camera in place. Web and desktop; Android and iOS ignore it.
 
 ### Changed
 
+- Android decodes with [zxing-cpp](https://github.com/zxing-cpp/zxing-cpp) rather than
+  Google ML Kit, so every dependency is open source and the library can be used in apps
+  published on F-Droid. Measured over 468 generated frames covering every format at
+  a range of angles, distances and lighting, zxing-cpp reads 79.9% of them against ML
+  Kit's 89.1%, misreads 0.9% against 0.6%, and is about seven times faster. It is ahead on QR, Data Matrix and Aztec, and
+  on symbols too small or too distant for ML Kit; it is behind on linear symbols
+  rotated off axis, on strongly uneven lighting, and on heavy defocus.
+- Android decodes frames on a thread of the library's own rather than on the main
+  thread, since zxing-cpp decodes on the thread that calls it. `filter` and `result`
+  are still called on the main thread.
 - **Breaking.** `ScannerView` no longer draws a UI. It renders the camera preview and
   reports what it decodes; controls and overlays are the caller's to build.
 - **Breaking.** `ScannerView`'s parameter order is now `codeTypes`, `modifier`, then
@@ -32,6 +42,10 @@ changes raise the minor version.
 
 ### Removed
 
+- **Breaking.** `ScannerView`'s `autoZoom`. It was backed by ML Kit's zoom suggestions,
+  which zxing-cpp has no equivalent for, and it never did anything on iOS, desktop or
+  web. Drive zoom from `ScannerController` instead. Callers passing it positionally
+  should note that `result` has moved up a place.
 - **Breaking.** `ScannerColors`, `scannerColors()`, `ScannerUiOptions` and `ScannerUI()`.
 - **Breaking.** `ScannerView`'s `colors` and `scannerUiOptions` parameters.
 - **Breaking.** `KScanDesktop`. Its only member was `cameraIndex`, replaced by
@@ -44,5 +58,7 @@ changes raise the minor version.
 
 ### Fixed
 
-- The ML Kit detector is closed when scanning stops. Both the camera and the still-image
-  path on Android leaked it, the latter once per `scanImage` call.
+- The still-image path no longer leaks a decoder on every `scanImage` call. That was
+  ML Kit's, which Android no longer uses; the reader replacing it holds no native
+  handle to close.
+

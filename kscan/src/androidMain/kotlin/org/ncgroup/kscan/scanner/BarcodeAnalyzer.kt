@@ -1,110 +1,91 @@
 package org.ncgroup.kscan.scanner
 
-import androidx.annotation.OptIn
-import androidx.camera.core.ExperimentalGetImage
+import android.graphics.Rect
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
-import com.google.mlkit.vision.barcode.BarcodeScannerOptions
-import com.google.mlkit.vision.barcode.BarcodeScanning
-import com.google.mlkit.vision.common.InputImage
 import org.ncgroup.kscan.Barcode
 import org.ncgroup.kscan.BarcodeFormat
 import org.ncgroup.kscan.format.isRequestedFormat
+import zxingcpp.BarcodeReader
+import java.util.concurrent.Executor
 
+/**
+ * Decodes camera frames.
+ *
+ * zxing-cpp decodes on the calling thread, so this is bound to a background
+ * executor and hands what it finds to [callbackExecutor]. Everything a caller
+ * supplied runs there, which keeps [filter] and [onSuccess] on the thread they
+ * have always been called on, and confines the decision state to it.
+ */
 internal class BarcodeAnalyzer(
     private val codeTypes: List<BarcodeFormat>,
-    scannerOptions: BarcodeScannerOptions,
+    options: BarcodeReader.Options,
+    private val callbackExecutor: Executor,
     private val onSuccess: (List<Barcode>) -> Unit,
     private val onFailed: (Exception) -> Unit,
     private val filter: (Barcode) -> Boolean,
 ) : ImageAnalysis.Analyzer {
-    private val scanner = BarcodeScanning.getClient(scannerOptions)
+    private val reader = BarcodeReader(options)
     private val repeated = RepeatedDetection()
     private val inverter = FrameInverter()
+
+    // Written on the callback thread, read on the analysis thread.
+    @Volatile
     private var hasSuccessfullyProcessedBarcode = false
+
+    @Volatile
+    private var closed = false
 
     private var emptyFrames = 0
 
-    // ML Kit finishes whatever it was already decoding, so without this a result
-    // or a "detector is closed" failure could reach a caller that has left.
-    private var closed = false
-
-    @OptIn(ExperimentalGetImage::class)
     override fun analyze(imageProxy: ImageProxy) {
         if (closed || hasSuccessfullyProcessedBarcode) {
             imageProxy.close()
             return
         }
 
-        val mediaImage =
-            imageProxy.image ?: run {
-                imageProxy.close()
+        val barcodes =
+            try {
+                imageProxy.use { decode(it) }
+            } catch (e: Exception) {
+                // Checked on the callback thread rather than here: this runnable
+                // is queued, and the caller can leave before it runs.
+                callbackExecutor.execute { if (!closed) onFailed(e) }
                 return
             }
 
-        val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
-
-        scanner.process(image)
-            .addOnSuccessListener { barcodes ->
-                if (closed) {
-                    imageProxy.close()
-                    return@addOnSuccessListener
-                }
-
-                val relevantBarcodes = requested(barcodes)
-                if (relevantBarcodes.isNotEmpty()) {
-                    report(relevantBarcodes)
-                    imageProxy.close()
-                } else if (emptyFrames++ % INVERTED_SCAN_INTERVAL == 0) {
-                    // Inverting costs a full-frame copy, so it is paced rather than
-                    // run on every frame.
-                    scanInverted(imageProxy)
-                } else {
-                    imageProxy.close()
-                }
-            }
-            .addOnFailureListener {
-                if (!closed) onFailed(it)
-                imageProxy.close()
-            }
-            .addOnCanceledListener {
-                imageProxy.close()
-            }
-    }
-
-    // A frame that cannot be inverted is dropped rather than reported: this runs
-    // per frame, and the caller cannot act on it.
-    private fun scanInverted(imageProxy: ImageProxy) {
-        val invertedImage = try {
-            inverter.invert(imageProxy)
-        } catch (e: Exception) {
-            imageProxy.close()
-            return
+        if (barcodes.isNotEmpty()) {
+            callbackExecutor.execute { report(barcodes) }
         }
-
-        scanner.process(invertedImage)
-            .addOnSuccessListener { barcodes ->
-                if (closed) {
-                    imageProxy.close()
-                    return@addOnSuccessListener
-                }
-
-                val relevantBarcodes = requested(barcodes)
-                if (relevantBarcodes.isNotEmpty()) {
-                    report(relevantBarcodes)
-                }
-            }
-            .addOnFailureListener {
-                if (!closed) onFailed(it)
-            }
-            .addOnCompleteListener {
-                imageProxy.close()
-            }
     }
 
-    private fun requested(
-        mlKitBarcodes: List<com.google.mlkit.vision.barcode.common.Barcode>,
-    ): List<Barcode> = mlKitBarcodes
+    private fun decode(imageProxy: ImageProxy): List<Barcode> {
+        val found = requested(reader.read(imageProxy))
+        if (found.isNotEmpty()) return found
+
+        // Inverting costs a full-frame copy, so it is paced rather than run on
+        // every frame that held no barcode.
+        if (emptyFrames++ % INVERTED_SCAN_INTERVAL != 0) return emptyList()
+
+        val negative =
+            try {
+                inverter.invert(imageProxy)
+            } catch (_: Exception) {
+                // A frame that cannot be inverted is dropped rather than reported:
+                // this runs per frame, and the caller cannot act on it.
+                return emptyList()
+            }
+
+        // A failure on the inverted pass is dropped for the same reason the
+        // inversion itself is: the frame already held no barcode either way.
+        return try {
+            requested(reader.read(negative, Rect(), imageProxy.imageInfo.rotationDegrees))
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
+
+    private fun requested(results: List<BarcodeReader.Result>): List<Barcode> = results
         .mapNotNull { it.toBarcode() }
         .filter { isRequestedFormat(it.format, codeTypes) }
 
@@ -126,7 +107,6 @@ internal class BarcodeAnalyzer(
 
     fun close() {
         closed = true
-        scanner.close()
     }
 
     private companion object {

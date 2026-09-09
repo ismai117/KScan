@@ -19,7 +19,8 @@ implementation("io.github.ismai117:KScan:$version")
 
 ## Platform Setup
 
-**Android** - Uses Google ML Kit for barcode scanning.
+**Android** - Uses [zxing-cpp](https://github.com/zxing-cpp/zxing-cpp) for barcode scanning, so every
+dependency is open source and the library can be used in apps published on F-Droid.
 
 **iOS** - Uses AVFoundation for camera and barcode scanning. 
 
