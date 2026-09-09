@@ -4,28 +4,28 @@
 
 - **Device**: Google sdk_gphone16k_x86_64, API 37
 - **Scenes**: 468, replayed as 30 frames each
-- **Jitter**: 1.5' rotation, 10.0px shift, 3% exposure, 3.0 read noise, all one sigma
+- **Jitter**: 1.5 degrees of roll, 10.0px shift, 3% exposure, 3.0 read noise, all one sigma
 - A scene counts as read when a decoder returns the expected payload on any frame.
 
 ## Every scene
 
 | | mlkit read | zxing-cpp read | mlkit p90 frame | zxing-cpp p90 frame |
 |---|---:|---:|---:|---:|
-| all | 94.2% | 82.5% | 1 | 1 |
+| all | 94.4% | 81.8% | 1 | 1 |
 
 ## By group
 
 | | mlkit read | zxing-cpp read | mlkit p90 frame | zxing-cpp p90 frame |
 |---|---:|---:|---:|---:|
 | baseline | 100.0% | 100.0% | 1 | 1 |
-| distance | 98.1% | 100.0% | 2 | 1 |
-| rotation | 100.0% | 70.5% | 1 | 1 |
+| distance | 96.2% | 100.0% | 2 | 1 |
+| rotation | 100.0% | 69.2% | 1 | 1 |
 | tilt | 98.5% | 87.7% | 1 | 1 |
-| lighting | 96.2% | 82.1% | 1 | 1 |
+| lighting | 97.4% | 80.8% | 1 | 1 |
 | contrast | 98.5% | 100.0% | 1 | 1 |
 | blur | 74.4% | 64.1% | 1 | 1 |
 | noise | 100.0% | 100.0% | 1 | 1 |
-| combined | 78.8% | 55.8% | 2 | 2 |
+| combined | 80.8% | 53.8% | 6 | 1 |
 
 ## By condition
 
@@ -35,8 +35,8 @@
 | distance-near | 100.0% | 100.0% | 1 | 1 |
 | distance-mid | 100.0% | 100.0% | 1 | 1 |
 | distance-far | 100.0% | 100.0% | 1 | 1 |
-| distance-very-far | 92.3% | 100.0% | 4 | 1 |
-| rotation-15 | 100.0% | 69.2% | 1 | 2 |
+| distance-very-far | 84.6% | 100.0% | 13 | 1 |
+| rotation-15 | 100.0% | 61.5% | 1 | 1 |
 | rotation-30 | 100.0% | 30.8% | 1 | 1 |
 | rotation-45 | 100.0% | 23.1% | 1 | 1 |
 | rotation-90 | 100.0% | 100.0% | 1 | 1 |
@@ -48,7 +48,7 @@
 | tilt-pitch-50 | 100.0% | 100.0% | 1 | 1 |
 | tilt-both-35 | 92.3% | 38.5% | 1 | 1 |
 | light-dim | 100.0% | 100.0% | 1 | 1 |
-| light-very-dim | 76.9% | 92.3% | 2 | 1 |
+| light-very-dim | 84.6% | 84.6% | 1 | 1 |
 | light-over-exposed | 100.0% | 100.0% | 1 | 1 |
 | light-ramp | 100.0% | 30.8% | 1 | 1 |
 | light-vignette | 100.0% | 100.0% | 1 | 1 |
@@ -59,12 +59,12 @@
 | colour-red-on-white | 100.0% | 100.0% | 1 | 1 |
 | colour-green-on-black | 100.0% | 100.0% | 1 | 1 |
 | blur-1 | 100.0% | 100.0% | 1 | 1 |
-| blur-3 | 61.5% | 61.5% | 1 | 1 |
+| blur-3 | 61.5% | 61.5% | 1 | 2 |
 | blur-6 | 61.5% | 30.8% | 1 | 1 |
 | noise-10 | 100.0% | 100.0% | 1 | 1 |
 | noise-25 | 100.0% | 100.0% | 1 | 1 |
-| dim-blurred-noisy | 38.5% | 69.2% | 1 | 1 |
-| rotated-dim | 100.0% | 53.8% | 1 | 6 |
-| tilted-far | 92.3% | 76.9% | 1 | 2 |
+| dim-blurred-noisy | 46.2% | 69.2% | 7 | 1 |
+| rotated-dim | 100.0% | 53.8% | 1 | 1 |
+| tilted-far | 92.3% | 69.2% | 1 | 1 |
 | glare-rotated-blurred | 84.6% | 23.1% | 1 | 1 |
 
