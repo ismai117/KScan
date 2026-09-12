@@ -5,14 +5,19 @@ import org.ncgroup.kscan.BarcodeFormat
 
 internal fun wantsEveryFormat(codeTypes: List<BarcodeFormat>): Boolean = codeTypes.isEmpty() || BarcodeFormat.FORMAT_ALL_FORMATS in codeTypes
 
+/**
+ * A symbology KScan has no name for is never reported, however it was asked for.
+ *
+ * A decoder's repertoire is wider than the thirteen formats the enum covers, and
+ * naming [BarcodeFormat.TYPE_UNKNOWN] in `codeTypes` used to let everything past
+ * that: it maps to no platform format, which the decoders read as no restriction
+ * at all, and whatever they then found came back matching the request. A barcode
+ * whose format is unknown tells a caller nothing it can act on either way.
+ */
 internal fun isRequestedFormat(
     format: BarcodeFormat,
     codeTypes: List<BarcodeFormat>,
-): Boolean = if (wantsEveryFormat(codeTypes)) {
-    format != BarcodeFormat.TYPE_UNKNOWN
-} else {
-    format in codeTypes
-}
+): Boolean = format != BarcodeFormat.TYPE_UNKNOWN && (wantsEveryFormat(codeTypes) || format in codeTypes)
 
 internal fun List<Barcode>.firstMatching(
     codeTypes: List<BarcodeFormat>,

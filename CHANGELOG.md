@@ -58,6 +58,10 @@ changes raise the minor version.
 
 ### Fixed
 
+- Naming `TYPE_UNKNOWN` in `codeTypes` no longer matches everything. It maps to no
+  platform format, which the decoders read as no restriction at all, so a symbology
+  none of the enum's other entries cover could be reported back under it. Nothing
+  unnamed is handed to a caller now, however it was asked for.
 - The still-image path no longer leaks a decoder on every `scanImage` call. That was
   ML Kit's, which Android no longer uses; the reader replacing it holds no native
   handle to close.

@@ -3,8 +3,9 @@ package org.ncgroup.kscan
 /**
  * The formats [ScannerView] and [scanImage] can be asked to scan for.
  *
- * [FORMAT_ALL_FORMATS] selects every format the platform supports.
- * [TYPE_UNKNOWN] is reported for a format the platform decoder does not map.
+ * [FORMAT_ALL_FORMATS] selects every format the platform supports. [TYPE_UNKNOWN]
+ * stands for a symbology none of the others name; a decoder that finds one is
+ * ignored, so it is never handed back and asking for it matches nothing.
  */
 public enum class BarcodeFormat {
     FORMAT_CODE_128,
