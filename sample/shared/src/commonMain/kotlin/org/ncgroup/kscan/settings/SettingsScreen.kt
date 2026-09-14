@@ -51,16 +51,6 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             SettingRow(
-                label = "Auto zoom",
-                description = "Let the decoder zoom in on a barcode too small to read",
-            ) {
-                Switch(
-                    checked = state.autoZoom,
-                    onCheckedChange = { state.autoZoom = it },
-                )
-            }
-
-            SettingRow(
                 label = "Filter",
                 description = "Report only barcodes starting with the text below",
             ) {

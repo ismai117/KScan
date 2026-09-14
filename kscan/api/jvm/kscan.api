@@ -96,6 +96,6 @@ public final class org/ncgroup/kscan/ScannerController {
 }
 
 public final class org/ncgroup/kscan/ScannerViewKt {
-	public static final fun ScannerView (Ljava/util/List;Landroidx/compose/ui/Modifier;Ljava/lang/String;Lorg/ncgroup/kscan/ScannerController;Lkotlin/jvm/functions/Function1;ZLkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final fun ScannerView (Ljava/util/List;Landroidx/compose/ui/Modifier;Ljava/lang/String;Lorg/ncgroup/kscan/ScannerController;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
 }
 

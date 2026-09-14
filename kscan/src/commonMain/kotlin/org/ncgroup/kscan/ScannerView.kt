@@ -18,7 +18,6 @@ import org.ncgroup.kscan.view.ScannerViewImpl
  *   platform choose, preferring a rear-facing camera. Web and desktop only.
  * @param scannerController Drives torch and zoom from your own controls.
  * @param filter Called with each decoded barcode; returning `false` keeps scanning.
- * @param autoZoom Lets the decoder zoom in on a barcode too small to read. Android only.
  * @param result Called with the outcome. Scanning stops at the first match.
  */
 @Composable
@@ -28,7 +27,6 @@ public fun ScannerView(
     cameraId: String? = null,
     scannerController: ScannerController? = null,
     filter: (Barcode) -> Boolean = { true },
-    autoZoom: Boolean = true,
     result: (BarcodeResult) -> Unit,
 ) {
     ScannerViewImpl(
@@ -37,7 +35,6 @@ public fun ScannerView(
         cameraId = cameraId,
         scannerController = scannerController,
         filter = filter,
-        autoZoom = autoZoom,
         result = result,
     )
 }

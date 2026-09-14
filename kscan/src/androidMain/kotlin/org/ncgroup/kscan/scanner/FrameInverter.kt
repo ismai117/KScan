@@ -1,46 +1,94 @@
 package org.ncgroup.kscan.scanner
 
+import android.graphics.Bitmap
 import androidx.annotation.OptIn
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
-import com.google.mlkit.vision.common.InputImage
 import java.nio.ByteBuffer
 
-// ML Kit will not try a light-on-dark barcode itself, so it is handed the negative.
+/**
+ * Hands the decoder the negative of a frame.
+ *
+ * zxing-cpp's own `tryInvert` is offered only to the readers that declare
+ * support for reversed reflectance, which is QR, Data Matrix and Aztec; a linear
+ * symbology printed light on dark is never tried. Inverting the luminance here
+ * is what keeps those readable.
+ *
+ * The result is an eight bit alpha bitmap, which zxing-cpp reads as a plain
+ * luminance plane, so this costs one byte per pixel rather than four.
+ */
 internal class FrameInverter {
     // Safe to reuse: ImageAnalysis withholds the next frame until the current
     // proxy is closed, which is after the inverted scan completes.
+    private var bitmap: Bitmap? = null
     private var buffer: ByteArray? = null
 
     @OptIn(ExperimentalGetImage::class)
-    fun invert(imageProxy: ImageProxy): InputImage {
+    fun invert(imageProxy: ImageProxy): Bitmap {
         val mediaImage = imageProxy.image ?: throw IllegalArgumentException("Image is null")
         require(mediaImage.planes.isNotEmpty()) { "Image has no planes" }
 
         val width = mediaImage.width
         val height = mediaImage.height
-        val nv21Size = width * height * 3 / 2
-        val nv21Bytes = buffer?.takeIf { it.size == nv21Size }
-            ?: ByteArray(nv21Size).also { buffer = it }
+
+        val target = bitmap?.takeIf { it.width == width && it.height == height }
+            ?: Bitmap.createBitmap(width, height, Bitmap.Config.ALPHA_8).also { bitmap = it }
+
+        val destinationStride = target.rowBytes
+        val bytes = buffer?.takeIf { it.size == destinationStride * height }
+            ?: ByteArray(destinationStride * height).also { buffer = it }
 
         val yPlane = mediaImage.planes[0]
 
         invertLuminance(
             source = yPlane.buffer.duplicate(),
-            destination = nv21Bytes,
+            destination = bytes,
             width = width,
             height = height,
-            rowStride = yPlane.rowStride,
+            sourceStride = yPlane.rowStride,
+            destinationStride = destinationStride,
         )
 
-        return InputImage.fromByteArray(
-            nv21Bytes,
-            width,
-            height,
-            imageProxy.imageInfo.rotationDegrees,
-            InputImage.IMAGE_FORMAT_NV21,
-        )
+        target.copyPixelsFromBuffer(ByteBuffer.wrap(bytes))
+
+        return target
     }
+}
+
+/**
+ * The negative of this bitmap, as an eight bit luminance one.
+ *
+ * Still images need the same pass the camera does, and for the same reason. The
+ * rows are read one at a time rather than the whole image at once: a photograph
+ * is large, and a full colour copy of one would cost four bytes a pixel where
+ * this costs one.
+ */
+internal fun Bitmap.invertedLuminance(): Bitmap {
+    val target = Bitmap.createBitmap(width, height, Bitmap.Config.ALPHA_8)
+    val stride = target.rowBytes
+    val bytes = ByteArray(stride * height)
+    val row = IntArray(width)
+
+    for (y in 0 until height) {
+        getPixels(row, 0, width, 0, y, width, 1)
+
+        val base = y * stride
+        for (x in 0 until width) {
+            val pixel = row[x]
+            val luminance =
+                (
+                    ((pixel shr 16) and 0xFF) * 299 +
+                        ((pixel shr 8) and 0xFF) * 587 +
+                        (pixel and 0xFF) * 114
+                    ) / 1000
+
+            bytes[base + x] = (luminance xor 0xFF).toByte()
+        }
+    }
+
+    target.copyPixelsFromBuffer(ByteBuffer.wrap(bytes))
+
+    return target
 }
 
 internal fun invertLuminance(
@@ -48,26 +96,26 @@ internal fun invertLuminance(
     destination: ByteArray,
     width: Int,
     height: Int,
-    rowStride: Int,
+    sourceStride: Int,
+    destinationStride: Int = width,
 ) {
-    require(rowStride >= width) { "Invalid Y rowStride: $rowStride, width: $width" }
+    require(sourceStride >= width) { "Invalid Y rowStride: $sourceStride, width: $width" }
+    require(destinationStride >= width) { "Invalid destination stride: $destinationStride, width: $width" }
+    require(destination.size >= destinationStride * height) {
+        "Destination holds ${destination.size} bytes, needs ${destinationStride * height}"
+    }
 
     val rowBytes = ByteArray(width)
 
-    // The camera pads each row out to rowStride, so rows are read one at a time
-    // from their own offset rather than the plane being read as a single run.
+    // Both sides pad their rows out to a stride of their own, so rows are copied
+    // one at a time from and to their own offsets rather than as a single run.
     for (row in 0 until height) {
-        source.position(row * rowStride)
+        source.position(row * sourceStride)
         source.get(rowBytes, 0, width)
 
-        val outBase = row * width
+        val outBase = row * destinationStride
         for (col in 0 until width) {
             destination[outBase + col] = (rowBytes[col].toInt() xor 0xFF).toByte()
         }
     }
-
-    // Neutral chroma for grayscale in NV21 (VU interleaved)
-    destination.fill(NEUTRAL_CHROMA, width * height, destination.size)
 }
-
-private const val NEUTRAL_CHROMA = 128.toByte()

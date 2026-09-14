@@ -122,7 +122,6 @@ fun ScannerScreen(
                         cameraId = state.cameraId,
                         scannerController = scannerController,
                         filter = { barcode -> state.accepts(barcode) },
-                        autoZoom = state.autoZoom,
                     ) { result ->
                         when (result) {
                             is BarcodeResult.OnSuccess -> {

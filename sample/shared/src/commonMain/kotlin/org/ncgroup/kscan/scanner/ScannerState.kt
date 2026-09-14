@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import org.ncgroup.kscan.Barcode
 
 class ScannerState {
-    var autoZoom by mutableStateOf(true)
     var filterEnabled by mutableStateOf(false)
     var filterPrefix by mutableStateOf("")
 
