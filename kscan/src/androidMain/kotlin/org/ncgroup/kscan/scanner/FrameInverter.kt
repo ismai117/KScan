@@ -55,6 +55,42 @@ internal class FrameInverter {
     }
 }
 
+/**
+ * The negative of this bitmap, as an eight bit luminance one.
+ *
+ * Still images need the same pass the camera does, and for the same reason. The
+ * rows are read one at a time rather than the whole image at once: a photograph
+ * is large, and a full colour copy of one would cost four bytes a pixel where
+ * this costs one.
+ */
+internal fun Bitmap.invertedLuminance(): Bitmap {
+    val target = Bitmap.createBitmap(width, height, Bitmap.Config.ALPHA_8)
+    val stride = target.rowBytes
+    val bytes = ByteArray(stride * height)
+    val row = IntArray(width)
+
+    for (y in 0 until height) {
+        getPixels(row, 0, width, 0, y, width, 1)
+
+        val base = y * stride
+        for (x in 0 until width) {
+            val pixel = row[x]
+            val luminance =
+                (
+                    ((pixel shr 16) and 0xFF) * 299 +
+                        ((pixel shr 8) and 0xFF) * 587 +
+                        (pixel and 0xFF) * 114
+                    ) / 1000
+
+            bytes[base + x] = (luminance xor 0xFF).toByte()
+        }
+    }
+
+    target.copyPixelsFromBuffer(ByteBuffer.wrap(bytes))
+
+    return target
+}
+
 internal fun invertLuminance(
     source: ByteBuffer,
     destination: ByteArray,

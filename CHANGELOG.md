@@ -30,7 +30,8 @@ changes raise the minor version.
   rotated off axis, on strongly uneven lighting, and on heavy defocus.
 - Android decodes frames on a thread of the library's own rather than on the main
   thread, since zxing-cpp decodes on the thread that calls it. `filter` and `result`
-  are still called on the main thread.
+  are still called on the main thread, and `scanImage` still returns before its
+  result arrives, as it did while ML Kit's task API carried it.
 - **Breaking.** `ScannerView` no longer draws a UI. It renders the camera preview and
   reports what it decodes; controls and overlays are the caller's to build.
 - **Breaking.** `ScannerView`'s parameter order is now `codeTypes`, `modifier`, then
@@ -58,6 +59,11 @@ changes raise the minor version.
 
 ### Fixed
 
+- Android's `scanImage` finds a light-on-dark linear barcode. The camera path hands
+  the decoder a negative when a frame gives nothing, because zxing-cpp offers its
+  own inversion only to the formats that allow reversed reflectance; the still-image
+  path now makes the same pass. ML Kit never inverted either, so this is new rather
+  than restored.
 - Naming `TYPE_UNKNOWN` in `codeTypes` no longer matches everything. It maps to no
   platform format, which the decoders read as no restriction at all, so a symbology
   none of the enum's other entries cover could be reported back under it. Nothing
