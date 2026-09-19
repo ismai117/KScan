@@ -34,6 +34,7 @@ import org.ncgroup.kscan.scanner.isVideoReady
 import org.ncgroup.kscan.scanner.startCamera
 import org.ncgroup.kscan.scanner.stopCamera
 import org.ncgroup.kscan.scanner.toBarcodes
+import kotlin.js.ExperimentalWasmJsInterop
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val SCAN_INTERVAL_MS = 33L
