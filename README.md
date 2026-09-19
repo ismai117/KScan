@@ -9,9 +9,13 @@ A Compose Multiplatform barcode scanning library for Android, iOS, Desktop and W
 |---------|-----|---------|
 | <img src="assets/android.gif" height="600" alt="Scanning a barcode on Android"/> | <img src="assets/ios.gif" height="600" alt="Scanning a barcode on iOS"/> | <img src="assets/desktop.gif" height="600" alt="Scanning a barcode on desktop"/> |
 
+<br>
+
 | Web (JS) | Web (Wasm) |
 |----------|------------|
 | <img src="assets/web-js.gif" height="600" alt="Scanning a barcode on the web, Kotlin/JS build"/> | <img src="assets/web-wasm.gif" height="600" alt="Scanning a barcode on the web, Kotlin/Wasm build"/> |
+
+<br>
 
 ## Installation
 
@@ -20,6 +24,8 @@ Add the dependency to your `commonMain` source set:
 ```kotlin
 implementation("io.github.ismai117:KScan:$version")
 ```
+
+<br>
 
 ## Platform Setup
 
@@ -35,7 +41,10 @@ dependency is open source and the library can be used in apps published on F-Dro
 MIT-licensed [barcode-detector](https://github.com/Sec-ant/barcode-detector) polyfill from a CDN
 where a browser has none. `KScanWeb` points it at your own copies instead.
 
+<br>
+
 ## Permissions
+
 **Android, iOS, macOS** - Before displaying the `ScannerView`, your application must request and be granted camera permissions by the operating system. On iOS & macOS, add this to your `Info.plist`:
 
 ```xml
@@ -45,6 +54,8 @@ where a browser has none. `KScanWeb` points it at your own copies instead.
 
 **Web** - The browser asks on the first scan, so there is nothing to declare, but the page has to be
 served over https. Without it the browser withholds `getUserMedia` and no camera opens.
+
+<br>
 
 ## Usage
 
@@ -120,6 +131,8 @@ scanImage(
 }
 ```
 
+<br>
+
 ## Supported Formats
 
 | Format | Android | iOS | Desktop | Web |
@@ -140,6 +153,8 @@ scanImage(
 
 Use `BarcodeFormat.FORMAT_ALL_FORMATS` to scan all supported types.
 
+<br>
+
 ## License
 
 ```
@@ -151,6 +166,8 @@ You may obtain a copy of the License at
 
 http://www.apache.org/licenses/LICENSE-2.0
 ```
+
+<br>
 
 ## Contributing
 
