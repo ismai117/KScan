@@ -122,17 +122,21 @@ scanImage(
 
 ## Supported Formats
 
-| 1D Barcodes | 2D Barcodes |
-|-------------|-------------|
-| CODE_128 | QR_CODE |
-| CODE_39 | AZTEC |
-| CODE_93 | DATA_MATRIX |
-| CODABAR | PDF417 |
-| EAN_13 | |
-| EAN_8 | |
-| ITF | |
-| UPC_A | |
-| UPC_E | |
+| Format | Android | iOS | Desktop | Web |
+|-------------|:-------:|:---:|:-------:|:---:|
+| CODE_128 | ✅ | ✅ | ✅ | ✅ |
+| CODE_39 | ✅ | ✅ | ✅ | ✅ |
+| CODE_93 | ✅ | ✅ | ✅ | ✅ |
+| CODABAR | ✅ | ✅ | ✅ | ✅ |
+| EAN_13 | ✅ | ✅ | ✅ | ✅ |
+| EAN_8 | ✅ | ✅ | ✅ | ✅ |
+| ITF | ✅ | ✅ | ✅ | ✅ |
+| UPC_A | ✅ | ❌ | ✅ | ✅ |
+| UPC_E | ✅ | ✅ | ✅ | ✅ |
+| QR_CODE | ✅ | ✅ | ✅ | ✅ |
+| PDF417 | ✅ | ✅ | ✅ | ✅ |
+| AZTEC | ✅ | ✅ | ✅ | ✅ |
+| DATA_MATRIX | ✅ | ✅ | ✅ | ✅ |
 
 Use `BarcodeFormat.FORMAT_ALL_FORMATS` to scan all supported types.
 
