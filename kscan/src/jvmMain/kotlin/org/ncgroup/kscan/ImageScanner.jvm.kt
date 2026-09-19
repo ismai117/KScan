@@ -1,10 +1,8 @@
 package org.ncgroup.kscan
 
-import com.google.zxing.NotFoundException
 import org.ncgroup.kscan.format.isRequestedFormat
-import org.ncgroup.kscan.scanner.GrayLuminanceSource
+import org.ncgroup.kscan.scanner.FrameDecoder
 import org.ncgroup.kscan.scanner.toBarcode
-import org.ncgroup.kscan.scanner.toBinaryBitmap
 import org.ncgroup.kscan.scanner.zxingReader
 import java.io.ByteArrayInputStream
 import javax.imageio.ImageIO
@@ -24,15 +22,9 @@ public actual fun scanImage(
             return
         }
 
-        val pixels = IntArray(bufferedImage.width * bufferedImage.height)
-        val source = GrayLuminanceSource(bufferedImage.width, bufferedImage.height)
+        val zxingResult = FrameDecoder(zxingReader(codeTypes)).decode(bufferedImage)
 
-        val binaryBitmap = bufferedImage.toBinaryBitmap(pixels, source)
-        val reader = zxingReader(codeTypes)
-
-        val zxingResult = try {
-            reader.decode(binaryBitmap)
-        } catch (e: NotFoundException) {
+        if (zxingResult == null) {
             result(BarcodeResult.OnFailed(Exception("No barcode found in image")))
             return
         }

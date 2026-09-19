@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import com.google.zxing.NotFoundException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
@@ -28,11 +27,10 @@ import org.ncgroup.kscan.BarcodeFormat
 import org.ncgroup.kscan.BarcodeResult
 import org.ncgroup.kscan.ScannerController
 import org.ncgroup.kscan.format.isRequestedFormat
-import org.ncgroup.kscan.scanner.GrayLuminanceSource
+import org.ncgroup.kscan.scanner.FrameDecoder
 import org.ncgroup.kscan.scanner.RepeatedDetection
 import org.ncgroup.kscan.scanner.openCamera
 import org.ncgroup.kscan.scanner.toBarcode
-import org.ncgroup.kscan.scanner.toBinaryBitmap
 import org.ncgroup.kscan.scanner.zxingReader
 import java.awt.image.BufferedImage
 
@@ -59,25 +57,21 @@ internal actual fun ScannerViewImpl(
         val previewChannel = Channel<BufferedImage>(Channel.CONFLATED)
 
         val scannerJob = coroutineScope.launch(Dispatchers.Default) {
-            val reader = zxingReader(codeTypes)
+            val decoder = FrameDecoder(zxingReader(codeTypes))
             val repeated = RepeatedDetection()
-
-            var rgbPixels: IntArray? = null
-            var source: GrayLuminanceSource? = null
 
             for (image in scanChannel) {
                 if (!isActive || !isScanning) break
 
                 try {
-                    val width = image.width
-                    val height = image.height
+                    val result = decoder.decode(image)
 
-                    if (rgbPixels == null || rgbPixels.size != width * height) {
-                        rgbPixels = IntArray(width * height)
-                        source = GrayLuminanceSource(width, height)
+                    if (result == null) {
+                        // A frame holding no barcode breaks the run of sightings, so a
+                        // stray misread cannot pair up with a later one and be reported.
+                        repeated.reset()
+                        continue
                     }
-
-                    val result = reader.decodeWithState(image.toBinaryBitmap(rgbPixels, source!!))
 
                     if (!repeated.accept(result.text)) continue
 
@@ -89,10 +83,6 @@ internal actual fun ScannerViewImpl(
                             updatedResult(BarcodeResult.OnSuccess(barcode))
                         }
                     }
-                } catch (_: NotFoundException) {
-                    // A frame holding no barcode breaks the run of sightings, so a
-                    // stray misread cannot pair up with a later one and be reported.
-                    repeated.reset()
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
                         updatedResult(BarcodeResult.OnFailed(e))
