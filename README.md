@@ -50,6 +50,9 @@ served over https. Without it the browser withholds `getUserMedia` and no camera
 
 ### Basic
 
+`ScannerView` draws the camera preview and nothing else, so the controls and overlays around it are
+yours to build:
+
 ```kotlin
 ScannerView(
     codeTypes = listOf(BarcodeFormat.FORMAT_QR_CODE, BarcodeFormat.FORMAT_EAN_13)
@@ -61,23 +64,12 @@ ScannerView(
         is BarcodeResult.OnFailed -> {
             println("Error: ${result.exception.message}")
         }
-        BarcodeResult.OnCanceled -> {
-            println("Canceled")
-        }
     }
 }
 ```
 
-### Without Default UI
-
-```kotlin
-ScannerView(
-    codeTypes = listOf(BarcodeFormat.FORMAT_QR_CODE),
-    scannerUiOptions = null
-) { result ->
-    // handle result
-}
-```
+On web the preview is an HTML element the browser stacks above the Compose canvas, so place your own
+UI beside it rather than over it.
 
 ### Custom Controls
 
@@ -88,7 +80,6 @@ val scannerController = remember { ScannerController() }
 
 ScannerView(
     codeTypes = listOf(BarcodeFormat.FORMAT_ALL_FORMATS),
-    scannerUiOptions = null,
     scannerController = scannerController
 ) { result ->
     // handle result
@@ -124,9 +115,6 @@ scanImage(
         }
         is BarcodeResult.OnFailed -> {
             println("Error: ${result.exception.message}")
-        }
-        BarcodeResult.OnCanceled -> {
-            // Not applicable for image scanning
         }
     }
 }
