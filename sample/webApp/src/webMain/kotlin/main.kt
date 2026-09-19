@@ -16,10 +16,12 @@ import org.ncgroup.kscan.KScanWeb
 
 private val APP_WIDTH = 1200.dp
 
+internal expect val WEB_TARGET: String
+
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
     KScanWeb.debugLogging = true
-
+    document.title = "KScan Web · $WEB_TARGET"
     ComposeViewport(document.getElementById("app")!!) {
         CenteredApp()
     }
