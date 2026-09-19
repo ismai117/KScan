@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Latest release](https://img.shields.io/github/v/release/ismai117/KScan?color=brightgreen&label=latest%20release)](https://github.com/ismai117/KScan/releases/latest)
 
-A Compose Multiplatform barcode scanning library for Android, iOS and Desktop.
+A Compose Multiplatform barcode scanning library for Android, iOS, Desktop and Web.
 
 | Android | iOS | Desktop |
 |---------|-----|---------|
@@ -30,6 +30,11 @@ dependency is open source and the library can be used in apps published on F-Dro
 
 **Windows / macOS / Linux** - Uses JavaCV for camera and ZXing for barcode scanning.
 
+**Web (JS / Wasm)** - Uses the browser's
+[BarcodeDetector](https://developer.mozilla.org/docs/Web/API/BarcodeDetector), falling back to the
+MIT-licensed [barcode-detector](https://github.com/Sec-ant/barcode-detector) polyfill from a CDN
+where a browser has none. `KScanWeb` points it at your own copies instead.
+
 ## Permissions
 **Android, iOS, macOS** - Before displaying the `ScannerView`, your application must request and be granted camera permissions by the operating system. On iOS & macOS, add this to your `Info.plist`:
 
@@ -37,6 +42,9 @@ dependency is open source and the library can be used in apps published on F-Dro
 <key>NSCameraUsageDescription</key>
 <string>Camera access is required for barcode scanning</string>
 ```
+
+**Web** - The browser asks on the first scan, so there is nothing to declare, but the page has to be
+served over https. Without it the browser withholds `getUserMedia` and no camera opens.
 
 ## Usage
 
