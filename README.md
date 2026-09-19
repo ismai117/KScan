@@ -3,11 +3,15 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Latest release](https://img.shields.io/github/v/release/ismai117/KScan?color=brightgreen&label=latest%20release)](https://github.com/ismai117/KScan/releases/latest)
 
-A Compose Multiplatform barcode scanning library for Android, iOS and Desktop.
+A Compose Multiplatform barcode scanning library for Android, iOS, Desktop and Web.
 
 | Android | iOS | Desktop |
 |---------|-----|---------|
-| <img src="https://github.com/user-attachments/assets/9bce6d77-4028-4a45-b4a2-ad78e79cc0cd" height="600"/> | <img src="https://github.com/user-attachments/assets/36900489-dea0-456b-bd17-00fcb49f9701" height="600"/> | <img src="https://github.com/user-attachments/assets/d812a038-2a67-416c-a7a4-f1fcd37bd1f5" height="600"/> |
+| <img src="assets/android.gif" height="600" alt="Scanning a barcode on Android"/> | <img src="assets/ios.gif" height="600" alt="Scanning a barcode on iOS"/> | <img src="assets/desktop.gif" height="600" alt="Scanning a barcode on desktop"/> |
+
+| Web (JS) | Web (Wasm) |
+|----------|------------|
+| <img src="assets/web-js.gif" height="600" alt="Scanning a barcode on the web, Kotlin/JS build"/> | <img src="assets/web-wasm.gif" height="600" alt="Scanning a barcode on the web, Kotlin/Wasm build"/> |
 
 ## Installation
 
@@ -26,6 +30,11 @@ dependency is open source and the library can be used in apps published on F-Dro
 
 **Windows / macOS / Linux** - Uses JavaCV for camera and ZXing for barcode scanning.
 
+**Web (JS / Wasm)** - Uses the browser's
+[BarcodeDetector](https://developer.mozilla.org/docs/Web/API/BarcodeDetector), falling back to the
+MIT-licensed [barcode-detector](https://github.com/Sec-ant/barcode-detector) polyfill from a CDN
+where a browser has none. `KScanWeb` points it at your own copies instead.
+
 ## Permissions
 **Android, iOS, macOS** - Before displaying the `ScannerView`, your application must request and be granted camera permissions by the operating system. On iOS & macOS, add this to your `Info.plist`:
 
@@ -34,9 +43,15 @@ dependency is open source and the library can be used in apps published on F-Dro
 <string>Camera access is required for barcode scanning</string>
 ```
 
+**Web** - The browser asks on the first scan, so there is nothing to declare, but the page has to be
+served over https. Without it the browser withholds `getUserMedia` and no camera opens.
+
 ## Usage
 
 ### Basic
+
+`ScannerView` draws the camera preview and nothing else, so the controls and overlays around it are
+yours to build:
 
 ```kotlin
 ScannerView(
@@ -49,23 +64,12 @@ ScannerView(
         is BarcodeResult.OnFailed -> {
             println("Error: ${result.exception.message}")
         }
-        BarcodeResult.OnCanceled -> {
-            println("Canceled")
-        }
     }
 }
 ```
 
-### Without Default UI
-
-```kotlin
-ScannerView(
-    codeTypes = listOf(BarcodeFormat.FORMAT_QR_CODE),
-    scannerUiOptions = null
-) { result ->
-    // handle result
-}
-```
+On web the preview is an HTML element the browser stacks above the Compose canvas, so place your own
+UI beside it rather than over it.
 
 ### Custom Controls
 
@@ -76,7 +80,6 @@ val scannerController = remember { ScannerController() }
 
 ScannerView(
     codeTypes = listOf(BarcodeFormat.FORMAT_ALL_FORMATS),
-    scannerUiOptions = null,
     scannerController = scannerController
 ) { result ->
     // handle result
@@ -113,26 +116,27 @@ scanImage(
         is BarcodeResult.OnFailed -> {
             println("Error: ${result.exception.message}")
         }
-        BarcodeResult.OnCanceled -> {
-            // Not applicable for image scanning
-        }
     }
 }
 ```
 
 ## Supported Formats
 
-| 1D Barcodes | 2D Barcodes |
-|-------------|-------------|
-| CODE_128 | QR_CODE |
-| CODE_39 | AZTEC |
-| CODE_93 | DATA_MATRIX |
-| CODABAR | PDF417 |
-| EAN_13 | |
-| EAN_8 | |
-| ITF | |
-| UPC_A | |
-| UPC_E | |
+| Format | Android | iOS | Desktop | Web |
+|-------------|:-------:|:---:|:-------:|:---:|
+| CODE_128 | ✅ | ✅ | ✅ | ✅ |
+| CODE_39 | ✅ | ✅ | ✅ | ✅ |
+| CODE_93 | ✅ | ✅ | ✅ | ✅ |
+| CODABAR | ✅ | ✅ | ✅ | ✅ |
+| EAN_13 | ✅ | ✅ | ✅ | ✅ |
+| EAN_8 | ✅ | ✅ | ✅ | ✅ |
+| ITF | ✅ | ✅ | ✅ | ✅ |
+| UPC_A | ✅ | ❌ | ✅ | ✅ |
+| UPC_E | ✅ | ✅ | ✅ | ✅ |
+| QR_CODE | ✅ | ✅ | ✅ | ✅ |
+| PDF417 | ✅ | ✅ | ✅ | ✅ |
+| AZTEC | ✅ | ✅ | ✅ | ✅ |
+| DATA_MATRIX | ✅ | ✅ | ✅ | ✅ |
 
 Use `BarcodeFormat.FORMAT_ALL_FORMATS` to scan all supported types.
 
