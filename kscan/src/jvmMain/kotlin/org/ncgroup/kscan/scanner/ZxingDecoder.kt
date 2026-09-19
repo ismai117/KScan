@@ -38,9 +38,8 @@ internal class GrayLuminanceSource private constructor(
         }
     }
 
-    // Three bytes per pixel, in the order the raster already holds them. Asking
-    // BufferedImage for packed pixels instead converts each one through its colour
-    // model, which costs more than everything else the frame is put through.
+    // Reads the image's bytes directly; getRGB would convert every pixel through
+    // the colour model first.
     fun writeLuminances(bgr: ByteArray) {
         for (i in luminances.indices) {
             val b = bgr[i * 3].toInt() and 0xff
@@ -51,22 +50,13 @@ internal class GrayLuminanceSource private constructor(
         }
     }
 
-    /**
-     * Writes the middle [fraction] of this frame into [target], enlarged to fill it.
-     *
-     * The enlargement works off the luminances this frame already holds, so the
-     * second pass costs neither a colour conversion nor an image. It interpolates
-     * cubically rather than linearly: a bar edge spread evenly over its neighbours
-     * is one a row scan can no longer place, which is the detail the pass is for.
-     */
+    /** Writes the middle [fraction] of this frame into [target], enlarged to fill it. */
     fun writeMagnifiedCentre(target: GrayLuminanceSource, fraction: Double) {
         val cropWidth = (width * fraction).toInt()
         val cropHeight = (height * fraction).toInt()
         val left = (width - cropWidth) / 2
         val top = (height - cropHeight) / 2
 
-        // Separable: every row of the crop is widened once, then those rows are
-        // heightened, rather than sampling sixteen neighbours per written pixel.
         val widened = widened(target.width * cropHeight)
         val scaleX = cropWidth.toDouble() / target.width
 
@@ -132,9 +122,8 @@ internal class GrayLuminanceSource private constructor(
 
     override fun getMatrix(): ByteArray = luminances
 
-    // A 1D reader only scans rows, so ZXing retries a frame turned on its side
-    // rather than miss a barcode held upright -- but only when the source it was
-    // handed can turn itself.
+    // Lets ZXing retry a frame on its side, which is how a row-scanning 1D reader
+    // finds an upright barcode.
     override fun isRotateSupported(): Boolean = true
 
     override fun rotateCounterClockwise(): LuminanceSource {
@@ -167,7 +156,6 @@ internal fun zxingReader(codeTypes: List<BarcodeFormat>): MultiFormatReader {
     return MultiFormatReader().apply { setHints(hints) }
 }
 
-/** The decoded [Result], or `null` when the frame holds nothing readable. */
 internal fun MultiFormatReader.decodeOrNull(bitmap: BinaryBitmap): Result? = try {
     decodeWithState(bitmap)
 } catch (_: NotFoundException) {
@@ -188,27 +176,19 @@ internal fun Result.toBarcode(): Barcode {
     )
 }
 
-// How much of the frame the second pass enlarges. Half of each side doubles under
-// an enlargement back to the frame's own size, so that pass costs no more to decode
-// than the first one.
+// Half of each side, enlarged back to the frame's own size, so the second pass
+// costs the same to decode as the first.
 private const val CENTRE_FRACTION = 0.5
 
-/** Reads barcodes off a series of images, whether frames or one still picture. */
 internal class FrameDecoder(private val reader: MultiFormatReader) {
     private var frame: GrayLuminanceSource? = null
     private var magnified: GrayLuminanceSource? = null
     private var packedPixels = IntArray(0)
 
     /**
-     * The first barcode in [image], or `null` when neither pass finds one.
-     *
-     * A 1D symbology needs about two pixels per narrow bar, and a label small enough
-     * to hold up to a camera does not cover enough of the frame to give them: its
-     * bars land on fewer pixels than the row scan can tell apart. So a frame that
-     * reads as empty at its own scale is read again from its enlarged middle.
-     *
-     * The buffers outlive the frame they were filled from, so a stream of frames of
-     * one size is decoded without allocating per frame.
+     * A 1D barcode needs about two pixels per narrow bar, which a small label held
+     * up to a webcam does not get, so a frame that reads as empty at its own scale
+     * is read again from its enlarged middle.
      */
     fun decode(image: BufferedImage): Result? {
         val frame = frameSource(image.width, image.height)
@@ -245,10 +225,6 @@ internal class FrameDecoder(private val reader: MultiFormatReader) {
         ?: GrayLuminanceSource(width, height).also { magnified = it }
 }
 
-/**
- * The raster behind [this] when it is three bytes a pixel in blue, green, red
- * order, laid out one row after another, or `null` when it is any other shape.
- */
 private fun BufferedImage.bgrBytes(): ByteArray? {
     if (type != BufferedImage.TYPE_3BYTE_BGR) return null
 
@@ -257,8 +233,7 @@ private fun BufferedImage.bgrBytes(): ByteArray? {
     return buffer.data.takeIf { buffer.numBanks == 1 && it.size == width * height * 3 }
 }
 
-// Catmull-Rom: it passes through the samples it is given and steepens what lies
-// between them, where a linear blend would flatten it.
+// Catmull-Rom interpolation.
 private fun cubic(
     before: Float,
     start: Float,
